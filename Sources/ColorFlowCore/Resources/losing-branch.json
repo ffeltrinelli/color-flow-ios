@@ -1,0 +1,24 @@
+[
+  {
+    "take": {
+      "queue": 1
+    }
+  },
+  {
+    "take": {
+      "queue": 1
+    }
+  },
+  {
+    "pour": {
+      "slot": 0,
+      "column": 3
+    }
+  },
+  {
+    "pour": {
+      "slot": 1,
+      "column": 2
+    }
+  }
+]
