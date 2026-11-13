@@ -1,0 +1,290 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Color Flow — Prototype v1.6</title><style>:root{font-family:system-ui,-apple-system,sans-serif;color:#eaf0ff;background:#111827}*{box-sizing:border-box}body{margin:0;padding:20px;max-width:780px;margin:auto}h1{margin-bottom:4px}.sub{color:#aab8d0;margin-top:0}.panel{background:#1e293b;border:1px solid #34435a;border-radius:16px;padding:16px;margin:16px 0}.grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;max-width:450px;margin:auto}.cell{aspect-ratio:1;border:2px solid #ffffff20;border-radius:8px;display:grid;place-items:center;font-weight:700;color:#101828;position:relative}.cell.empty{opacity:.43}.cell.ready{outline:3px solid white;outline-offset:-4px;cursor:pointer}.cell.done:after{content:none!important;display:none!important}.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.slot{min-height:85px;border:2px dashed #64748b;border-radius:12px;background:#111827;color:#fff;cursor:pointer;padding:8px}.slot.active{border-style:solid;border-color:white;box-shadow:0 0 0 2px #60a5fa}.slot:disabled{cursor:default}.queues{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.queue{display:flex;flex-direction:column;gap:5px}.bucket{border:0;border-radius:9px;min-height:55px;font-size:17px;font-weight:800;color:#142035;cursor:pointer}/* Reserve tins: metal lid, colored body, and centered quantity. */
+.bucket{position:relative;display:flex;align-items:center;justify-content:center;background:transparent!important;border:0;padding:5px 2px 1px;min-height:70px;overflow:visible}
+.bucket .tin{position:relative;display:flex;align-items:center;justify-content:center;width:100%;max-width:94px;height:54px;background:var(--paint);border-radius:5px 5px 11px 11px;border:2px solid #ffffff80;box-shadow:inset -9px 0 #00000016,0 5px 8px #0004}
+.bucket .tin::before{content:'';position:absolute;left:-4px;right:-4px;top:-9px;height:14px;border-radius:50%;background:linear-gradient(#e4eaf2,#8d9baa);border:2px solid #f3f6fa;box-shadow:0 2px 2px #0005}
+.bucket .tin::after{content:'';position:absolute;left:23%;right:23%;top:-15px;height:8px;border:3px solid #aab8c9;border-bottom:0;border-radius:12px 12px 0 0}
+.bucket .tin-number{position:relative;z-index:1;color:#142035;font-weight:900;font-size:23px;text-shadow:0 1px #ffffff55}
+.bucket.preview .tin{height:42px}.bucket.preview .tin-number{font-size:18px}
+.bucket.preview{opacity:.56;cursor:default;min-height:42px}.bucket:disabled{cursor:default}.caption{font-size:13px;color:#aab8d0}button.action{border:1px solid #6b87b1;background:#334155;color:#fff;border-radius:9px;padding:10px 14px;cursor:pointer}.status{font-weight:700;font-size:18px}.rules{line-height:1.55;color:#cad5e8}.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:#b6c5dc}.dot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px}.cell:focus-visible,.bucket:focus-visible,.slot:focus-visible{outline:3px solid white}.board{position:relative;max-width:450px;margin:auto}.arrows{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:0 auto 9px;min-height:52px}.arrow{border:0;border-radius:12px;background:#263b56;color:white;font-size:26px;font-weight:800;display:grid;place-items:center;cursor:pointer;min-height:52px;transition:transform .16s,background .16s,box-shadow .16s}.arrow.valid{background:var(--arrow-color);color:#162338;box-shadow:0 4px 16px #0005;animation:arrowPulse 1.2s ease-in-out infinite alternate}.arrow.valid:hover{transform:translateY(3px)}.arrow.blank{background:transparent;pointer-events:none}.arrow:disabled{cursor:default}.particles{position:absolute;inset:0;pointer-events:none;overflow:visible}.drop{position:absolute;z-index:5;border-radius:8px;border:2px solid #ffffff99;box-shadow:0 5px 16px #0008;display:grid;place-items:center;color:#162338;font-weight:900;will-change:transform,opacity;transition:transform .36s cubic-bezier(.25,.75,.32,1),opacity .12s}.cell.filling{animation:cellPop .25s ease-out}.cell.ready{outline:0;cursor:default}.board.busy .arrow{animation:none;opacity:.4}.slot.active{box-shadow:0 0 0 2px #60a5fa}.hint{color:#b9d8ff}@keyframes arrowPulse{from{filter:brightness(.88)}to{filter:brightness(1.2)}}@keyframes cellPop{0%{transform:scale(.88)}65%{transform:scale(1.07)}100%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.arrow.valid,.cell.filling{animation:none}.drop{transition-duration:.01s}}.slot{min-height:112px;border:0;background:transparent;padding:5px;display:flex;align-items:center;justify-content:center;position:relative}.slot.active{box-shadow:none}.slot .paint-can{position:relative;width:min(100%,112px);height:92px;display:flex;align-items:center;justify-content:center;clip-path:polygon(7% 13%,93% 13%,85% 100%,15% 100%);background:var(--paint);filter:drop-shadow(0 4px 2px #0003);border-radius:8px}.slot .paint-can::before{content:'';position:absolute;left:0;right:0;top:0;height:17px;background:#ffffff55;border-radius:50%;border:3px solid #ffffff75}.slot .paint-number{position:relative;z-index:1;font-size:36px;font-weight:900;color:#142035;text-shadow:0 1px 0 #ffffff44}.slot .paint-can.empty{background:#26354a;outline:2px dashed #94a3b8;opacity:.6}.slot .paint-can.empty .paint-number{color:#d6e1f0;font-size:27px}.slot.active .paint-can{filter:brightness(1.13) drop-shadow(0 0 8px #ffffff99)}.slot.active:after{content:'';position:absolute;inset:2px;border:3px solid #fff;border-radius:14px;pointer-events:none}.slot:focus-visible{outline:3px solid white}@media(max-width:400px){.slot .paint-can{height:75px}.slot{min-height:90px}.slot .paint-number{font-size:30px}} .slot .bucket-svg{width:100%;max-width:125px;height:105px;overflow:visible;filter:drop-shadow(0 4px 3px #0004)}.slot.active .bucket-svg{filter:drop-shadow(0 0 8px #ffffffbb)}.bucket .tin-svg{width:100%;max-width:100px;height:78px;overflow:visible;filter:drop-shadow(0 3px 3px #0004)}.bucket.preview .tin-svg{height:60px}.bucket{min-height:82px}.bucket.preview{min-height:62px}@media(max-width:400px){.slot .bucket-svg{height:83px}.bucket .tin-svg{height:66px}.bucket.preview .tin-svg{height:52px}}
+/* Cell states: thick target-color outline and neutral center until painted. */
+.cell{border-radius:8px;transition:background .18s,border-color .18s,box-shadow .18s;}
+.cell.empty{opacity:1;background:#172338!important;border:4px solid var(--target-color);}
+.cell.done{opacity:1;border:3px solid #ffffff44;}
+.cell.empty.preview{cursor:pointer;background:color-mix(in srgb,var(--target-color) 38%,#172338)!important;border-color:#fff;box-shadow:0 0 0 2px var(--target-color),inset 0 0 14px var(--target-color),0 0 14px var(--target-color);animation:targetGlow 1.05s ease-in-out infinite alternate;}
+@keyframes targetGlow{from{filter:brightness(.9);box-shadow:0 0 0 1px var(--target-color),inset 0 0 6px var(--target-color),0 0 6px var(--target-color)}to{filter:brightness(1.22);box-shadow:0 0 0 2px #fff,inset 0 0 19px var(--target-color),0 0 18px var(--target-color)}}
+@media(prefers-reduced-motion:reduce){.cell.empty.preview{animation:none}}
+
+/* Pour animation: tilted bucket and column-centered stream, without round droplets. */
+.board{padding-top:25px;margin-top:65px}
+.cell{width:100%;font:inherit;padding:0;appearance:none}
+.cell:disabled{cursor:default}
+.cell.empty.preview:disabled{cursor:default}
+.particles{z-index:10;overflow:visible}
+.pour-bucket{position:absolute;width:110px;height:110px;z-index:12;transform-origin:72% 65%;transition:transform .25s ease,opacity .3s ease;pointer-events:none}
+.pour-bucket .bucket-svg{width:110px;height:110px;filter:drop-shadow(0 5px 5px #0008)}
+.pour-bucket.tilted{transform:rotate(-48deg) translate(-12px,-5px)}
+.pour-bucket.leaving{opacity:0;transform:rotate(0deg) translateY(-30px)}
+.paint-stream{position:absolute;z-index:11;width:8px;height:0;border-radius:7px 7px 5px 5px;box-shadow:0 0 9px #ffffff55,inset 2px 0 #ffffff66;transition:height .28s linear,opacity .24s ease;pointer-events:none;transform-origin:top center}.paint-stream::after{content:none!important;display:none!important}@keyframes drip{from{transform:scale(.65)}to{transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.pour-bucket,.paint-stream{transition:none}}
+
+/* Gameplay screen: only grid, active buckets, and reserve tins; no explanatory labels. */
+body{max-width:780px;padding:0 12px 50px;background:#111827}
+.phone-screen{max-width:430px;margin:0 auto;background:#111827;min-height:780px;padding:44px 10px 22px;display:flex;flex-direction:column;justify-content:center;gap:0}
+.phone-screen .board{width:100%;margin:65px auto 0;padding-top:25px}
+.phone-screen .slots,.phone-screen .queues{width:100%}
+.phone-screen .slots{margin-top:36px}
+.phone-screen .queues{margin-top:5px;column-gap:4px}
+.phone-screen .slot{min-height:105px}
+.phone-screen .queue{gap:3px}
+.phone-screen .bucket{min-height:75px}
+.phone-screen .bucket.preview{min-height:56px}
+.phone-screen .queue-empty{min-height:70px}
+.design-notes{max-width:700px;margin:28px auto 0;border-top:1px solid #42516a;padding:24px 8px 40px;color:#cbd5e1;line-height:1.65}
+.design-notes h1{font-size:22px;color:#fff}.design-notes h2{font-size:17px;color:#fff;margin-top:24px}
+.design-notes p{margin:9px 0}.design-notes code{color:#c9ddff}
+.design-notes button{margin-top:12px}
+.game-result{font-size:19px;font-weight:800;text-align:center;margin-top:12px}
+@media(max-width:400px){.phone-screen{padding:20px 3px;min-height:700px}.phone-screen .board{margin-top:65px}.phone-screen .slots{margin-top:30px}.phone-screen .queues{margin-top:3px;column-gap:3px}.phone-screen .slot{min-height:90px}}
+
+.design-notes h3{font-size:15px;color:#eaf0ff;margin:20px 0 8px}
+.design-notes .level-json{max-height:580px;overflow:auto;background:#0b1525;border:1px solid #34435a;border-radius:12px;padding:16px;font-size:12px;line-height:1.5;white-space:pre}
+.design-table-wrap{overflow-x:auto}
+.design-table{width:100%;border-collapse:collapse;font-size:14px;margin:12px 0}
+.design-table th,.design-table td{padding:9px 12px;text-align:left;border-bottom:1px solid #34435a}
+.design-table th{color:#fff;background:#26374f}
+</style></head><body>
+<main class="phone-screen" aria-label="Color Flow gameplay screen">
+ <div class="board" id="board"><div id="grid" class="grid" aria-label="Target-color grid"></div><div id="particles" class="particles" aria-hidden="true"></div></div>
+ <div id="slots" class="slots" aria-label="Active paint buckets"></div>
+ <div id="queues" class="queues" aria-label="Four columns of reserve paint tins"></div>
+ <div id="game-result" class="game-result" aria-live="polite" hidden></div>
+</main>
+<section class="design-notes" aria-label="Color Flow design reference">
+ <h1>Color Flow — Design reference v1.5</h1>
+ <p><strong>Reference, not gameplay UI.</strong> The section above is the simulated iPhone gameplay screen. This complete specification is deliberately placed below the screen so a future design or development session can recover the intended behavior. The HTML works offline.</p>
+ <h2>Language and status</h2>
+ <p><strong>English only</strong> in all game UI, accessibility labels, JSON, level data, source code, names, and technical documentation. Current HTML is a <strong>single-level interactive visual demo</strong>, not a deployed level progression system. The numbered level catalog is a confirmed future feature, not yet wired to the demo.</p>
+ <h2>Visible gameplay layout</h2>
+ <p>Vertical order without explanatory labels in the gameplay screen: <strong>target grid</strong>, <strong>active bucket slots</strong>, and <strong>four independent columns of reserve paint tins</strong>. The current demo uses a 6×6 grid, three active slots, and blue, yellow, green, and purple paint. Reserve columns display the available front tin and up to two smaller, dimmer upcoming tins. Bucket/tin quantities are displayed as numbers; no color letters appear on the grid or containers.</p>
+ <h2>Cell appearance and target previews</h2>
+ <p>All target colors are defined from the start, but all cells begin unpainted. An <strong>unpainted cell</strong> has a dark neutral center and a <strong>thick colored border</strong> for its target color, with <strong>no colored center dot</strong>. A <strong>painted cell</strong> is filled with saturated target color and displays <strong>no check mark</strong>. Selecting an active bucket animates a bright, pulsing highlight on exactly the cells that bucket can paint in each eligible column. Tapping <strong>any highlighted cell</strong> starts a pour into its column. There are <strong>no arrows</strong> above the grid.</p>
+ <h2>Deterministic bottom-to-top painting</h2>
+ <p>Each column advances from its <strong>lowest unpainted cell</strong> toward the top. A bucket can pour into a column only when its color matches that next cell. One pour paints the maximum <strong>consecutive vertical run of the same color</strong> beginning at that cell, limited by the bucket's available units. One cell consumes one unit. No skipping, diagonal paths, obstacles, sources, flood filling, or randomness. After a partial pour, remaining paint stays in the active bucket; an exhausted bucket releases its slot. A target color can occur in disconnected positions.</p>
+ <h2>Bucket slots and four paint queues</h2>
+ <p>The current demo has <strong>three</strong> interchangeable active slots; future predefined levels specify their own <code>bucketSlots</code>. Exactly <strong>four</strong> independent paint queues are ordered left to right. Each queue is ordered front/top first: only its first remaining tin can be taken. Taking a tin advances <em>that queue only</em>. If an active bucket of the same color already exists, the tin's paint units are <strong>added to that bucket</strong>, even when all slots are full. Otherwise the tin occupies the first free slot. Multiple active buckets of the same color are prohibited. A tin cannot be taken when all slots are full and there is no same-color bucket. Tins can contain different positive quantities; the demo includes quantities of 1, 2, and 3.</p>
+ <h2>Pour animation and interaction</h2>
+ <p>On tapping a highlighted cell, the bucket appears <strong>immediately at the correctly aligned position</strong> above the selected column, without a visible sideways correction. It tilts and pours a <strong>single continuous stream</strong> from the actual rim/corner of the tilted bucket, <strong>centered horizontally over that column</strong>. Cells visibly fill one by one <strong>bottom to top</strong>. Do not display a floating dot, round droplet, or stray particle. All controls are disabled while the animation runs, and reduced-motion preferences are respected.</p>
+ <h2>Win, loss, and demo status</h2>
+ <p><strong>Win:</strong> all target cells painted, all active buckets exhausted, and all four reserve queues empty. <strong>Immediate loss:</strong> all active bucket slots are full and no bucket can paint in any column. The native engine should also reject any other non-winning no-legal-move state so play cannot become stuck without feedback. The current demo constructs a solvable queue sequence programmatically; the confirmed future level system must instead use authored <strong>fixed JSON definitions</strong>.</p>
+ <h2>Predefined numbered levels</h2>
+ <p>Levels are permanently numbered <strong>1, 2, 3, ...</strong> and labeled <code>easy</code>, <code>medium</code>, or <code>hard</code>. Each level defines exactly: <code>grid</code>, <code>bucketSlots</code>, and the contents and exact order of the <strong>four</strong> <code>paintQueues</code>; the ID and difficulty are metadata. Levels are fixed at runtime, not randomized. Queue order and tin quantities must be stored exactly as authored.</p>
+ <p><strong>JSON structure:</strong> <code>grid</code> is an array of equal-length row strings, listed <strong>top to bottom</strong>; one uppercase color token is one cell, from left to right. <code>paintQueues</code> is an array containing <strong>four arrays of objects</strong>, ordered left to right. Each inner array lists tins in retrieval order (first item available first). Each tin object has <code>color</code> and positive integer <code>paintUnits</code>.</p>
+ <h3>Complete canonical JSON example — Level 1</h3>
+ <pre class="level-json"><code>{
+  &quot;id&quot;: 1,
+  &quot;difficulty&quot;: &quot;easy&quot;,
+  &quot;bucketSlots&quot;: 3,
+  &quot;grid&quot;: [
+    &quot;RRGGBB&quot;,
+    &quot;RRGGBB&quot;,
+    &quot;RRGGBB&quot;,
+    &quot;YYGGBB&quot;,
+    &quot;YYGGBB&quot;,
+    &quot;YYGGBB&quot;
+  ],
+  &quot;paintQueues&quot;: [
+    [
+      {
+        &quot;color&quot;: &quot;Y&quot;,
+        &quot;paintUnits&quot;: 3
+      },
+      {
+        &quot;color&quot;: &quot;R&quot;,
+        &quot;paintUnits&quot;: 3
+      }
+    ],
+    [
+      {
+        &quot;color&quot;: &quot;Y&quot;,
+        &quot;paintUnits&quot;: 3
+      },
+      {
+        &quot;color&quot;: &quot;R&quot;,
+        &quot;paintUnits&quot;: 3
+      }
+    ],
+    [
+      {
+        &quot;color&quot;: &quot;G&quot;,
+        &quot;paintUnits&quot;: 6
+      },
+      {
+        &quot;color&quot;: &quot;G&quot;,
+        &quot;paintUnits&quot;: 6
+      }
+    ],
+    [
+      {
+        &quot;color&quot;: &quot;B&quot;,
+        &quot;paintUnits&quot;: 6
+      },
+      {
+        &quot;color&quot;: &quot;B&quot;,
+        &quot;paintUnits&quot;: 6
+      }
+    ]
+  ]
+}</code></pre>
+ <p>For this example, <code>R</code> = red, <code>G</code> = green, <code>B</code> = blue, <code>Y</code> = yellow. The current demo uses purple (<code>P</code>) instead of red; this is a palette/content difference, not a schema difference. The JSON example has 36 cells and exactly 36 matching paint units: R = 6, G = 12, B = 12, Y = 6. It is solvable. The first element of each queue is the first accessible tin; e.g. the first queue exposes <code>Y3</code>, then <code>R3</code>.</p>
+ <h2>How level difficulty is determined</h2>
+ <p><strong>Three interacting factors</strong> matter: (1) how target colors are grouped vertically and distributed across columns; (2) the number of active bucket slots (fewer generally means harder); (3) whether the exact queue order conveniently exposes the next needed colors or forces careful retrieval, recharge, and slot-management decisions. A fragmented grid is not automatically hard if the queues are friendly, and a simple grid can be difficult with tight slots and adverse queue ordering. Judge choices, dependencies, plausible mistakes, and deadlock risk, not only pour count.</p>
+ <p><strong>Easy:</strong> obvious, forgiving paths, mostly grouped colors, typically three slots. <strong>Medium:</strong> plan several moves ahead, some queue/slot dependencies, usually two or three slots. <strong>Hard:</strong> consequential retrieval order, convincing losing alternatives, often two slots and occasionally one only if carefully validated. Hard levels should be reasoned puzzles, not arbitrary traps.</p>
+ <h2>Confirmed progression targets</h2>
+ <p>All initial levels are easy. Medium levels become gradually more frequent; later, hard levels become increasingly common. Consecutive levels need not increase monotonically in difficulty: retain occasional relief levels. The following counts are target compositions for each <em>predefined</em> ten-level block, not probabilities used during play.</p>
+ <div class="design-table-wrap"><table class="design-table"><thead><tr><th>Levels</th><th>Easy</th><th>Medium</th><th>Hard</th></tr></thead><tbody>
+ <tr><td>1–10</td><td>10</td><td>0</td><td>0</td></tr>
+ <tr><td>11–20</td><td>8</td><td>2</td><td>0</td></tr>
+ <tr><td>21–30</td><td>6</td><td>4</td><td>0</td></tr>
+ <tr><td>31–40</td><td>4</td><td>5</td><td>1</td></tr>
+ <tr><td>41–50</td><td>2</td><td>6</td><td>2</td></tr>
+ <tr><td>51–60</td><td>1</td><td>5</td><td>4</td></tr>
+ <tr><td>61–70</td><td>1</td><td>3</td><td>6</td></tr>
+ <tr><td>71+ (per ten)</td><td>1</td><td>2</td><td>7</td></tr>
+ </tbody></table></div>
+ <p><strong>Early teaching plan:</strong> Levels 1–10 teach the actions and deterministic filling; 11–20 introduce first queue choices and same-color recharges; 21–30 develop medium-level planning and slot-management pressure. Then progressively increase the occurrence of complex hard layouts without eliminating periodic easy levels.</p>
+ <h2>Level validation and iOS implementation</h2>
+ <p>Before publication, every candidate level must pass: valid rectangular grid and color tokens; exactly four queues; positive tin units; supported slot count; <strong>exact equality between cell count and supplied paint units for each individual color</strong>; and an automated search proving at least one complete legal solution under the precise queue and slot rules. Paint totals alone do <strong>not</strong> prove solvability. Assess difficulty through solver statistics and human playtesting, then assign a permanent number and store the configuration. Preserve at least one winning move sequence as a regression test.</p>
+ <p>Suggested architecture: immutable <code>LevelDefinition</code> and <code>PaintTin</code> decoded with Swift <code>Codable</code>; mutable <code>GameState</code>; deterministic <code>PuzzleEngine</code>; <code>LevelCatalog</code> of authored files; <code>LevelValidator</code> and solver; SwiftUI <code>GameView</code>; and separate presentation-only <code>PourAnimation</code>. Use no backend for the MVP. The current prototype does not yet implement numbered-level navigation, variable slot counts, difficulty displays, or this complete catalog.</p>
+ <h2>Resume and change control</h2>
+ <p>This document and <code>Color_Flow_GDD_v1.0.md</code> supersede the original early <code>GDD_v0.1.md</code>, which used abandoned source-cell/obstacle mechanics. In future sessions, preserve the current bottom-to-top rules, four independent queues, same-color recharge, tap-to-pour preview, pour animation, English-only conventions, and canonical JSON schema. Do not treat documentation below the gameplay screen as player-facing UI. The next proposed milestone is to author, solve, and balance the first <strong>30 fixed levels</strong>.</p>
+ <button class="action" onclick="reset()">↻ Restart level</button>
+</section>
+<script>
+const COLORS={B:'#65c5ed',Y:'#f2c65d',G:'#90d48a',P:'#bb9df3'};
+// Rows top to bottom; bottom row begins with B,Y,G,P,B,Y.
+const ROWS=['PGBYPB','YPGBYP','BYPGBY','GBYPGB','PGBYPG','BYGPBY'];
+const N=6;
+// Solvable demo sequence: always choose a color currently reachable from below,
+// grouping up to three reachable cells into a single tin. The sequence
+// yields a legal solution; four queues distribute tins in round-robin order.
+const pending=Array(N).fill(N-1),ordered=[];
+while(pending.some(r=>r>=0)){
+ const available={};
+ for(let c=0;c<N;c++)if(pending[c]>=0){const v=ROWS[pending[c]][c];(available[v]??=[]).push(c);}
+ const color=Object.keys(available).sort((a,b)=>available[b].length-available[a].length||a.localeCompare(b))[0];
+ let count=0;
+ while(count<3){
+  const col=Array.from({length:N},(_,c)=>c).find(c=>pending[c]>=0&&ROWS[pending[c]][c]===color);
+  if(col===undefined)break;
+  pending[col]--;count++;
+ }
+ ordered.push({c:color,n:count});
+}
+const levelQueues=[[],[],[],[]];ordered.forEach((b,i)=>levelQueues[i%4].push(b));
+let painted,queues,slots,selected,ended,busy=false;
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function bucketIcon(color,number,empty=false){return `<svg class="bucket-svg" viewBox="0 0 160 160" role="img" aria-label="${empty?'Empty slot':'Bucket with '+number+' paint units'}"><path d="M27 62 C27 12 133 12 133 62" fill="none" stroke="#718392" stroke-width="9" stroke-linecap="round"/><path d="M27 62 L133 62 L119 139 Q80 151 41 139 Z" fill="${empty?'#34465b':color}" stroke="${empty?'#718392':'#247fac'}" stroke-width="4" stroke-linejoin="round"/><ellipse cx="80" cy="62" rx="53" ry="11" fill="${empty?'#53677c':'#ffffff55'}" stroke="${empty?'#718392':'#247fac'}" stroke-width="3"/><circle class="spout-anchor" cx="27" cy="63" r="6" fill="#9aa8b2" stroke="#536d80" stroke-width="2"/><circle cx="133" cy="63" r="6" fill="#9aa8b2" stroke="#536d80" stroke-width="2"/><text x="80" y="119" text-anchor="middle" font-size="48" font-weight="800" fill="${empty?'#d6e1f0':'#153d54'}">${number}</text></svg>`;}
+function tinIcon(color,number){return `<svg class="tin-svg" viewBox="0 0 160 160" role="img" aria-label="Tin with ${number} paint units"><path d="M33 49 L127 49 L124 136 Q80 147 36 136 Z" fill="${color}" stroke="#9babb6" stroke-width="4"/><path d="M37 54 L42 132" stroke="#ffffff88" stroke-width="8" opacity=".7" stroke-linecap="round"/><path d="M33 131 Q80 146 127 131" fill="none" stroke="#85949f" stroke-width="7"/><rect x="29" y="39" width="102" height="18" rx="5" fill="#aebdc8" stroke="#6f8493" stroke-width="3"/><ellipse cx="80" cy="39" rx="50" ry="10" fill="#dbe3e9" stroke="#788b99" stroke-width="3"/><ellipse cx="80" cy="38" rx="38" ry="6" fill="#aebdc8"/><rect x="46" y="73" width="68" height="48" rx="6" fill="#ffffff" opacity=".25"/><text x="80" y="110" text-anchor="middle" font-size="46" font-weight="800" fill="#47361f">${number}</text></svg>`;}
+function reset(){busy=false;painted=Array.from({length:6},()=>Array(6).fill(false));queues=levelQueues.map(q=>q.map(b=>({...b})));slots=[null,null,null];selected=null;ended=false;document.getElementById('particles').innerHTML='';render();}
+function lowest(c){for(let r=5;r>=0;r--)if(!painted[r][c])return r;return -1;}
+function canUse(b,c){let r=lowest(c);return !!b&&r>=0&&ROWS[r][c]===b.c;}
+function anyMove(){return slots.some(b=>b&&Array.from({length:6},(_,c)=>canUse(b,c)).some(Boolean));}
+function completed(){return painted.every(row=>row.every(Boolean));}
+function evaluate(){if(completed()&&slots.every(x=>!x)&&queues.every(q=>!q.length)){ended='win';return;}if(slots.every(Boolean)&&!anyMove()){ended='lose';}}
+function canTake(q){
+ if(!queues[q]||!queues[q].length)return false;
+ const color=queues[q][0].c;
+ return slots.some(b=>b&&b.c===color)||slots.some(b=>!b);
+}
+function take(q){
+ if(busy||ended||!canTake(q))return;
+ const next=queues[q].shift();
+ let idx=slots.findIndex(b=>b&&b.c===next.c);
+ if(idx>=0){slots[idx].n+=next.n;}
+ else {idx=slots.findIndex(b=>!b);slots[idx]={...next};}
+ selected=idx;
+ evaluate();render();
+}
+function choose(i){if(busy||ended||!slots[i])return;selected=i;render();}
+async function pour(c){
+ if(busy||ended||selected===null||!canUse(slots[selected],c))return;
+ busy=true;
+ const slotIndex=selected,b=slots[slotIndex],r0=lowest(c),color=b.c;
+ const targets=[];
+ for(let r=r0;r>=0&&ROWS[r][c]===color&&targets.length<b.n;r--)targets.push(r);
+ render();
+ const board=document.getElementById('board'),layer=document.getElementById('particles');
+ const boardRect=board.getBoundingClientRect();
+ const first=document.querySelector(`.cell[data-row="${targets[targets.length-1]}"][data-col="${c}"]`);
+ const firstRect=first.getBoundingClientRect();
+ const centerX=firstRect.left+firstRect.width/2-boardRect.left;
+ const bucket=document.createElement('div');bucket.className='pour-bucket';
+ bucket.style.left=`${centerX-55}px`;bucket.style.top='-110px';
+ bucket.style.visibility='hidden';bucket.style.transition='none';
+ bucket.innerHTML=bucketIcon(COLORS[color],b.n);
+ layer.appendChild(bucket);
+ // Compute the final position before revealing the bucket.
+ // The tilted bucket spout must align with the column center.
+ bucket.classList.add('tilted');
+ const spout=bucket.querySelector('.spout-anchor');
+ const preSpoutRect=spout.getBoundingClientRect();
+ const preOriginX=preSpoutRect.left+preSpoutRect.width/2-boardRect.left;
+ const offset=centerX-preOriginX;
+ bucket.style.left=`${centerX-55+offset}px`;
+ bucket.classList.remove('tilted');
+ void bucket.offsetWidth;
+ bucket.style.transition='';bucket.style.visibility='visible';
+ const stream=document.createElement('div');stream.className='paint-stream';
+ stream.style.background=COLORS[color];
+ layer.appendChild(stream);
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ await wait(reduced?20:220);
+ bucket.classList.add('tilted');
+ await wait(reduced?20:280);
+ // The stream starts at the actual left rim of the tilted bucket.
+ const spoutRect=spout.getBoundingClientRect();
+ const originY=spoutRect.top+spoutRect.height/2-boardRect.top;
+ // The bucket is already in its final position: no visible lateral shift.
+ stream.style.left=`${centerX-4}px`;stream.style.top=`${originY}px`;
+ stream.style.transform='none';
+ for(const r of targets){
+   const cell=document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+   const cellRect=cell.getBoundingClientRect();
+   const endY=cellRect.top+cellRect.height/2-boardRect.top;
+   stream.style.height=`${Math.max(0,endY-originY)}px`;
+   await wait(reduced?20:260);
+   painted[r][c]=true;b.n--;
+   cell.style.background=COLORS[color];
+   cell.classList.remove('empty','preview');cell.classList.add('done','filling');
+   cell.style.borderColor='#ffffff55';
+   await wait(reduced?20:210);
+ }
+ stream.style.opacity='0';bucket.classList.add('leaving');
+ await wait(reduced?20:320);
+ stream.remove();bucket.remove();
+ if(b.n===0){slots[slotIndex]=null;selected=null;}
+ busy=false;evaluate();render();
+}
+function render(){
+ const filled=painted.flat().filter(Boolean).length;
+ document.getElementById('board').classList.toggle('busy',busy);
+ 
+ const result=document.getElementById('game-result');
+ result.hidden=!(ended==='win'||ended==='lose');
+ result.textContent=ended==='win'?'Level Complete!':ended==='lose'?'No Moves Left':'';
+ const active=selected!==null?slots[selected]:null;
+ const previews=new Set();
+ if(active&&!ended&&!busy)for(let c=0;c<N;c++)if(canUse(active,c)){
+   let left=active.n;
+   for(let r=lowest(c);r>=0&&left>0&&ROWS[r][c]===active.c;r--,left--)previews.add(`${r}-${c}`);
+ }
+ document.getElementById('grid').innerHTML=ROWS.map((row,r)=>[...row].map((v,c)=>{
+   const ready=previews.has(`${r}-${c}`);
+   return `<button type="button" data-row="${r}" data-col="${c}" class="cell ${painted[r][c]?'done':'empty'} ${ready?'preview':''}" style="--target-color:${COLORS[v]};background:${COLORS[v]}" aria-label="Row ${r+1}, column ${c+1}, ${painted[r][c]?'dipinta':ready?'dipingi questa colonna':'non disponibile'}" onclick="pour(${c})" ${!ready||busy||ended?'disabled':''}></button>`;
+ }).join('')).join('');
+ document.getElementById('slots').innerHTML=slots.map((b,i)=>`<button class="slot ${selected===i?'active':''}" onclick="choose(${i})" ${!b||ended||busy?'disabled':''}>${b?bucketIcon(COLORS[b.c],b.n):bucketIcon(null,"+",true)}</button>`).join('');
+ document.getElementById('queues').innerHTML=queues.map((q,i)=>`<div class="queue">${q.slice(0,3).map((b,j)=>`<button class="bucket ${j?'preview':''}" onclick="take(${i})" ${j||!canTake(i)||ended||busy?'disabled':''}>${tinIcon(COLORS[b.c],b.n)}</button>`).join('')||'<div class="queue-empty"></div>'}</div>`).join('');
+ document.querySelector('button.action').disabled=busy;
+}
+reset();
+</script></body></html>
