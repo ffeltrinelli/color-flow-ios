@@ -1,0 +1,353 @@
+[
+  {
+    "id": 1,
+    "difficulty": "easy",
+    "bucketSlots": 3,
+    "grid": [
+      "RRGGBB",
+      "RRGGBB",
+      "RRGGBB",
+      "YYGGBB",
+      "YYGGBB",
+      "YYGGBB"
+    ],
+    "paintQueues": [
+      [
+        {
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "R",
+          "paintUnits": 3
+        }
+      ],
+      [
+        {
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "R",
+          "paintUnits": 3
+        }
+      ],
+      [
+        {
+          "color": "G",
+          "paintUnits": 6
+        },
+        {
+          "color": "G",
+          "paintUnits": 6
+        }
+      ],
+      [
+        {
+          "color": "B",
+          "paintUnits": 6
+        },
+        {
+          "color": "B",
+          "paintUnits": 6
+        }
+      ]
+    ]
+  },
+  {
+    "id": 2,
+    "difficulty": "easy",
+    "bucketSlots": 3,
+    "grid": [
+      "PPGGYY",
+      "PPGGYY",
+      "BBYYGG",
+      "BBYYGG",
+      "YYGGBB",
+      "YYGGBB"
+    ],
+    "paintQueues": [
+      [
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "P",
+          "paintUnits": 4
+        }
+      ],
+      [
+        {
+          "color": "Y",
+          "paintUnits": 4
+        },
+        {
+          "color": "Y",
+          "paintUnits": 4
+        }
+      ],
+      [
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        }
+      ],
+      [
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "Y",
+          "paintUnits": 4
+        }
+      ]
+    ]
+  },
+  {
+    "id": 3,
+    "difficulty": "easy",
+    "bucketSlots": 3,
+    "grid": [
+      "BGPYBG",
+      "BGPYBG",
+      "YPGBYP",
+      "YPGBYP",
+      "GBYPGB",
+      "GBYPGB"
+    ],
+    "paintQueues": [
+      [
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "Y",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "Y",
+          "paintUnits": 4
+        }
+      ],
+      [
+        {
+          "color": "P",
+          "paintUnits": 4
+        },
+        {
+          "color": "P",
+          "paintUnits": 4
+        }
+      ]
+    ]
+  },
+  {
+    "id": 4,
+    "difficulty": "medium",
+    "bucketSlots": 2,
+    "grid": [
+      "RBGYRB",
+      "RBGYRB",
+      "GYRBGY",
+      "GYRBGY",
+      "BRGYBR",
+      "BRGYBR"
+    ],
+    "paintQueues": [
+      [
+        {
+          "color": "R",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "Y",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        }
+      ],
+      [
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "Y",
+          "paintUnits": 4
+        }
+      ]
+    ]
+  },
+  {
+    "id": 5,
+    "difficulty": "hard",
+    "bucketSlots": 2,
+    "grid": [
+      "PGYBPG",
+      "YBPGYB",
+      "BPGYBP",
+      "GYBPGY",
+      "PGYBPG",
+      "BYGPBY"
+    ],
+    "paintQueues": [
+      [
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "P",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 1
+        }
+      ],
+      [
+        {
+          "color": "P",
+          "paintUnits": 2
+        },
+        {
+          "color": "G",
+          "paintUnits": 2
+        },
+        {
+          "color": "P",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 1
+        },
+        {
+          "color": "G",
+          "paintUnits": 1
+        },
+        {
+          "color": "P",
+          "paintUnits": 1
+        }
+      ],
+      [
+        {
+          "color": "G",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 2
+        },
+        {
+          "color": "G",
+          "paintUnits": 1
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "Y",
+          "paintUnits": 2
+        },
+        {
+          "color": "P",
+          "paintUnits": 2
+        },
+        {
+          "color": "G",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 1
+        },
+        {
+          "color": "G",
+          "paintUnits": 1
+        }
+      ]
+    ]
+  }
+]
