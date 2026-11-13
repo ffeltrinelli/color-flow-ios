@@ -79,9 +79,9 @@ public enum LevelCatalog {
         return levels
     }
 
-    public static func hardLosingBranch() throws -> [Move] {
+    public static func losingBranches() throws -> [Int: [Move]] {
         let url = Bundle.module.url(forResource: "losing-branch", withExtension: "json")!
-        return try JSONDecoder().decode([Move].self, from: Data(contentsOf: url))
+        return try JSONDecoder().decode([Int: [Move]].self, from: Data(contentsOf: url))
     }
 
     public static func solutions() throws -> [[Move]] {

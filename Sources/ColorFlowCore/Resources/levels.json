@@ -4,281 +4,341 @@
     "difficulty": "easy",
     "bucketSlots": 3,
     "grid": [
-      "RRGGBB",
-      "RRGGBB",
-      "RRGGBB",
-      "YYGGBB",
-      "YYGGBB",
-      "YYGGBB"
+      "RRBBRBBRBB",
+      "RBRBRRBYRB",
+      "BBRYGYGYRY",
+      "BGGYGYGBGY",
+      "YGGRBGRBGG",
+      "YYYRBGRGYG",
+      "GYYGYRYGYR",
+      "GRBGYRYRBR",
+      "RBBBGBGRRG",
+      "BGRYRGBYGB"
     ],
     "paintQueues": [
       [
         {
-          "color": "Y",
-          "paintUnits": 3
-        },
-        {
           "color": "R",
-          "paintUnits": 3
-        }
-      ],
-      [
-        {
-          "color": "Y",
-          "paintUnits": 3
+          "paintUnits": 4
         },
-        {
-          "color": "R",
-          "paintUnits": 3
-        }
-      ],
-      [
         {
           "color": "G",
           "paintUnits": 6
         },
         {
-          "color": "G",
+          "color": "Y",
           "paintUnits": 6
+        },
+        {
+          "color": "R",
+          "paintUnits": 2
+        },
+        {
+          "color": "G",
+          "paintUnits": 3
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "R",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "Y",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 3
+        },
+        {
+          "color": "B",
+          "paintUnits": 7
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "G",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "R",
+          "paintUnits": 1
         }
       ],
       [
         {
           "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 7
+        },
+        {
+          "color": "Y",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 3
+        },
+        {
+          "color": "Y",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 1
+        },
+        {
+          "color": "G",
+          "paintUnits": 1
+        }
+      ],
+      [
+        {
+          "color": "B",
+          "paintUnits": 5
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
           "paintUnits": 6
         },
         {
           "color": "B",
-          "paintUnits": 6
+          "paintUnits": 1
+        },
+        {
+          "color": "G",
+          "paintUnits": 7
+        },
+        {
+          "color": "R",
+          "paintUnits": 4
+        },
+        {
+          "color": "Y",
+          "paintUnits": 2
         }
       ]
     ]
   },
   {
     "id": 2,
-    "difficulty": "easy",
-    "bucketSlots": 3,
+    "difficulty": "medium",
+    "bucketSlots": 2,
     "grid": [
-      "PPGGYY",
-      "PPGGYY",
-      "BBYYGG",
-      "BBYYGG",
-      "YYGGBB",
-      "YYGGBB"
+      "RGBYRBGYBG",
+      "BYBRRRGBRB",
+      "GRRGGGYGYG",
+      "YBGBYYBRGR",
+      "RGYYBRRYRY",
+      "GYBGGYYGYR",
+      "BRGRRBGBBG",
+      "YBRBYGBRGB",
+      "GGYGBRRGRY",
+      "RRBYGYYYYR"
     ],
     "paintQueues": [
       [
         {
-          "color": "G",
-          "paintUnits": 4
+          "color": "Y",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "R",
+          "paintUnits": 3
         },
         {
           "color": "G",
-          "paintUnits": 4
+          "paintUnits": 1
         },
         {
-          "color": "P",
-          "paintUnits": 4
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "R",
+          "paintUnits": 1
+        },
+        {
+          "color": "G",
+          "paintUnits": 3
         }
       ],
       [
         {
           "color": "Y",
+          "paintUnits": 2
+        },
+        {
+          "color": "R",
+          "paintUnits": 5
+        },
+        {
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "Y",
           "paintUnits": 4
         },
         {
           "color": "Y",
           "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "R",
+          "paintUnits": 2
+        }
+      ],
+      [
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 4
+        },
+        {
+          "color": "G",
+          "paintUnits": 2
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 6
+        },
+        {
+          "color": "G",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 2
         }
       ],
       [
         {
           "color": "B",
-          "paintUnits": 4
+          "paintUnits": 6
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
         },
         {
           "color": "G",
-          "paintUnits": 4
-        }
-      ],
-      [
+          "paintUnits": 6
+        },
+        {
+          "color": "R",
+          "paintUnits": 5
+        },
         {
           "color": "B",
-          "paintUnits": 4
+          "paintUnits": 3
+        },
+        {
+          "color": "G",
+          "paintUnits": 5
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
         },
         {
           "color": "Y",
           "paintUnits": 4
+        },
+        {
+          "color": "Y",
+          "paintUnits": 1
         }
       ]
     ]
   },
   {
     "id": 3,
-    "difficulty": "easy",
-    "bucketSlots": 3,
-    "grid": [
-      "BGPYBG",
-      "BGPYBG",
-      "YPGBYP",
-      "YPGBYP",
-      "GBYPGB",
-      "GBYPGB"
-    ],
-    "paintQueues": [
-      [
-        {
-          "color": "G",
-          "paintUnits": 4
-        },
-        {
-          "color": "G",
-          "paintUnits": 4
-        },
-        {
-          "color": "G",
-          "paintUnits": 2
-        }
-      ],
-      [
-        {
-          "color": "Y",
-          "paintUnits": 4
-        },
-        {
-          "color": "B",
-          "paintUnits": 4
-        },
-        {
-          "color": "B",
-          "paintUnits": 2
-        }
-      ],
-      [
-        {
-          "color": "B",
-          "paintUnits": 4
-        },
-        {
-          "color": "Y",
-          "paintUnits": 4
-        }
-      ],
-      [
-        {
-          "color": "P",
-          "paintUnits": 4
-        },
-        {
-          "color": "P",
-          "paintUnits": 4
-        }
-      ]
-    ]
-  },
-  {
-    "id": 4,
-    "difficulty": "medium",
-    "bucketSlots": 2,
-    "grid": [
-      "RBGYRB",
-      "RBGYRB",
-      "GYRBGY",
-      "GYRBGY",
-      "BRGYBR",
-      "BRGYBR"
-    ],
-    "paintQueues": [
-      [
-        {
-          "color": "R",
-          "paintUnits": 4
-        },
-        {
-          "color": "R",
-          "paintUnits": 4
-        },
-        {
-          "color": "R",
-          "paintUnits": 2
-        }
-      ],
-      [
-        {
-          "color": "Y",
-          "paintUnits": 4
-        },
-        {
-          "color": "B",
-          "paintUnits": 4
-        },
-        {
-          "color": "B",
-          "paintUnits": 2
-        }
-      ],
-      [
-        {
-          "color": "B",
-          "paintUnits": 4
-        },
-        {
-          "color": "G",
-          "paintUnits": 4
-        }
-      ],
-      [
-        {
-          "color": "G",
-          "paintUnits": 4
-        },
-        {
-          "color": "Y",
-          "paintUnits": 4
-        }
-      ]
-    ]
-  },
-  {
-    "id": 5,
     "difficulty": "hard",
     "bucketSlots": 2,
     "grid": [
-      "PGYBPG",
-      "YBPGYB",
-      "BPGYBP",
-      "GYBPGY",
-      "PGYBPG",
-      "BYGPBY"
+      "RBRBRBRBRB",
+      "BRRBBRBBRR",
+      "PPGPGYPRGP",
+      "YGBYPGGYYY",
+      "GYPRRPRPPG",
+      "RBYGYBYGBB",
+      "PPGPBRPBRR",
+      "BYPYPPBYPY",
+      "GGRGYGGRGP",
+      "YRBBGYRPYG"
     ],
     "paintQueues": [
       [
         {
           "color": "B",
-          "paintUnits": 2
+          "paintUnits": 5
         },
         {
-          "color": "B",
-          "paintUnits": 2
-        },
-        {
-          "color": "B",
-          "paintUnits": 2
-        },
-        {
-          "color": "B",
+          "color": "G",
           "paintUnits": 1
         },
-        {
-          "color": "P",
-          "paintUnits": 2
-        },
-        {
-          "color": "Y",
-          "paintUnits": 1
-        }
-      ],
-      [
         {
           "color": "P",
           "paintUnits": 2
@@ -288,47 +348,29 @@
           "paintUnits": 2
         },
         {
-          "color": "P",
-          "paintUnits": 2
-        },
-        {
-          "color": "Y",
-          "paintUnits": 1
+          "color": "R",
+          "paintUnits": 4
         },
         {
           "color": "G",
-          "paintUnits": 1
+          "paintUnits": 3
         },
         {
-          "color": "P",
-          "paintUnits": 1
-        }
-      ],
-      [
-        {
-          "color": "G",
-          "paintUnits": 2
-        },
-        {
-          "color": "Y",
-          "paintUnits": 2
-        },
-        {
-          "color": "Y",
-          "paintUnits": 2
-        },
-        {
-          "color": "G",
+          "color": "B",
           "paintUnits": 1
         },
         {
           "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "P",
           "paintUnits": 2
         }
       ],
       [
         {
-          "color": "Y",
+          "color": "B",
           "paintUnits": 2
         },
         {
@@ -336,7 +378,7 @@
           "paintUnits": 2
         },
         {
-          "color": "G",
+          "color": "P",
           "paintUnits": 2
         },
         {
@@ -344,8 +386,112 @@
           "paintUnits": 1
         },
         {
+          "color": "R",
+          "paintUnits": 2
+        },
+        {
+          "color": "R",
+          "paintUnits": 1
+        },
+        {
+          "color": "P",
+          "paintUnits": 1
+        },
+        {
+          "color": "Y",
+          "paintUnits": 5
+        },
+        {
+          "color": "G",
+          "paintUnits": 3
+        },
+        {
+          "color": "R",
+          "paintUnits": 1
+        }
+      ],
+      [
+        {
+          "color": "R",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 2
+        },
+        {
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "P",
+          "paintUnits": 4
+        },
+        {
           "color": "G",
           "paintUnits": 1
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "R",
+          "paintUnits": 3
+        },
+        {
+          "color": "B",
+          "paintUnits": 2
+        },
+        {
+          "color": "G",
+          "paintUnits": 1
+        }
+      ],
+      [
+        {
+          "color": "R",
+          "paintUnits": 5
+        },
+        {
+          "color": "Y",
+          "paintUnits": 3
+        },
+        {
+          "color": "G",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 4
+        },
+        {
+          "color": "B",
+          "paintUnits": 1
+        },
+        {
+          "color": "P",
+          "paintUnits": 5
+        },
+        {
+          "color": "Y",
+          "paintUnits": 4
+        },
+        {
+          "color": "P",
+          "paintUnits": 1
+        },
+        {
+          "color": "P",
+          "paintUnits": 1
+        },
+        {
+          "color": "Y",
+          "paintUnits": 2
         }
       ]
     ]

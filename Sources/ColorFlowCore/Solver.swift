@@ -11,11 +11,9 @@ public enum LevelSolver {
         var exhausted = false
         func search(_ state: GameState) -> Bool {
             if engine.outcome(state: state) == .won { return true }
-            var key = state
-            key.selectedSlot = nil
-            guard !visited.contains(key) else { return false }
+            guard !visited.contains(state) else { return false }
             guard visited.count < limit else { exhausted = true; return false }
-            visited.insert(key)
+            visited.insert(state)
             guard engine.outcome(state: state) == .playing else { return false }
             // Pour before retrieving more paint to find compact, readable solutions.
             let moves = engine.legalMoves(state: state).sorted { lhs, rhs in
