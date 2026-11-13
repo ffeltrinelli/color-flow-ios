@@ -47,6 +47,5 @@ struct PaintArtwork: View {
                 .foregroundStyle(color == nil ? .white : Color(red: 0.08, green: 0.16, blue: 0.24))
             context.draw(text, at: CGPoint(x: 80, y: 108))
         }
-        .accessibilityHidden(true)
     }
 }

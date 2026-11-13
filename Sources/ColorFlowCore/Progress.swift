@@ -1,7 +1,7 @@
 import Foundation
 
 public struct GameProgress: Codable, Equatable, Sendable {
-    public var version = 1
+    public var version = 2
     public var levelID: Int
     public var state: GameState
 
@@ -18,9 +18,10 @@ public struct ProgressStore: Sendable {
     public func load(levels: [LevelDefinition]) -> GameProgress {
         guard let data = try? Data(contentsOf: url),
               let progress = try? JSONDecoder().decode(GameProgress.self, from: data),
+              progress.version == 2,
               let level = levels.first(where: { $0.id == progress.levelID })
         else { return GameProgress(level: levels[0]) }
-        guard progress.version == 1, let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state)
+        guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state)
         else { return GameProgress(level: level) }
         return progress
     }

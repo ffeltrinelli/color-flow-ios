@@ -1,24 +1,531 @@
-[
-  {
-    "take": {
-      "queue": 1
+{
+  "2": [
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
     }
-  },
-  {
-    "take": {
-      "queue": 1
+  ],
+  "3": [
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 2
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "pour": {
+        "slot": 0
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 0
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
+    },
+    {
+      "take": {
+        "queue": 3
+      }
+    },
+    {
+      "pour": {
+        "slot": 1
+      }
     }
-  },
-  {
-    "pour": {
-      "slot": 0,
-      "column": 3
-    }
-  },
-  {
-    "pour": {
-      "slot": 1,
-      "column": 2
-    }
-  }
-]
+  ]
+}

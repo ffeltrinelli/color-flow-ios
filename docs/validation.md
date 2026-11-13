@@ -1,38 +1,26 @@
 # Validation status
 
-Verified on November 13, 2026, on Apple silicon / macOS 26.6.2:
+Validated on November 13, 2026, using Xcode 27.2 and an iOS 17 deployment target.
 
-- Xcode 27.2 (27B52), iOS SDK 27.2, deployment target iOS 17.0.
-- Native app builds and launches in Simulator and on the physical iPhone SE second generation running iOS 17.1.1. Pairing, Developer Mode, signing, and UI Automation are configured.
-- Unit and UI test runners compiled successfully for Simulator.
-- `swift test`: 15 Swift Testing cases passed, including all stored winning solutions, the hard-level losing alternative, conservation after moves, snapshot recovery, and exact persistence.
-- `python3 scripts/test_device_selection.py`: eight tests passed for device absence, selection, ambiguity, and blocked-device reporting.
-- Offline solver found winning sequences for every bundled level:
+- `swift test`: 18 passing core tests cover automatic top-down targeting, paint conservation, blocked leftovers and manual resumption, recharge, outcomes, authored solutions and losing paths, version-1 reset, and exact version-2 restoration, including wins and losses.
+- `swift run LevelCheck`: all three fixed 10 × 10 levels have verified winning paths. Medium and hard also have replayed losing alternatives.
 
-| Level | Provisional difficulty | Moves | Visited states |
-| --- | --- | ---: | ---: |
-| 1 | Easy | 16 | 16 |
-| 2 | Easy | 27 | 27 |
-| 3 | Easy | 28 | 34 |
-| 4 | Medium | 28 | 32 |
-| 5 | Hard | 58 | 67 |
+| Level | Provisional difficulty | Slots | Winning-path moves | Solver states visited |
+| --- | --- | ---: | ---: | ---: |
+| 1 | Easy | 3 | 74 | 504 |
+| 2 | Medium | 2 | 79 | 335 |
+| 3 | Hard | 2 | 89 | 5,719 |
 
-These counts describe one search strategy, not a calibrated difficulty score. Human playtesting remains required, particularly for medium/hard labels.
-
-Final test results:
+Search counts describe one solver strategy, not human difficulty. Human playtesting is still needed to calibrate the labels.
 
 | Destination | Result |
 | --- | --- |
-| iPhone SE third-generation simulator, iOS 27.2 | 22 passed: 15 unit tests and seven end-to-end tests; zero failed or skipped |
-| Physical iPhone SE second generation, iOS 17.1.1 (21B91) | All seven end-to-end tests passed; zero failed or skipped |
-| Larger iPhone 17 simulator, iOS 27.2 | Restart, reduced-motion pouring, and rightmost-column pouring passed |
+| iPhone SE third-generation simulator, iOS 27.2 | Complete suite passed: 18 core tests and nine UI tests |
+| iPhone 17 simulator, iOS 27.2 | Updated normal-pour timing test passed; recording inspected |
+| Physical iPhone SE second generation, iOS 17.1.1 | All nine UI tests passed with the faster timing |
 
-The seven end-to-end scenarios cover the complete five-level journey and Start Again, the hard losing branch/retry, termination during a normal pour, exact board restoration/recharge, reduced motion, restart confirmation, and right-edge pouring.
+The UI suite covers the complete three-level journey and Start Again, medium/hard defeat and retry, recharge, blocked buckets, read-only board layout, exact restoration, restart confirmation, interruption during a normal pour, and reduced motion. A normal nine-block pour must remain visible for at least four seconds.
 
-Local result bundles are `TestResults/final-compact.xcresult` and `TestResults/final-iphone.xcresult`. Selected physical-device screenshots and a separately captured simulator video were inspected for layout, clipping, stream alignment, and sequential filling; see [visual evidence](evidence/README.md). Raw result bundles and their device identifiers are ignored by Git.
+`python3 scripts/run-tests.py` passed both simulator and device stages. Results are in `TestResults/20261113-232908/simulator.xcresult` and `device.xcresult`. The larger-phone timing check is in `TestResults/top-down-faster-pour.xcresult`. Raw bundles remain ignored because they contain device identifiers.
 
-The shared scheme must prefer screenshots. Automatic screen recording from Xcode 27.2 crashes the iOS 17.1.1 automation service (`testmanagerd`) before test setup. Screenshot mode is verified by the passing physical-device suite; capture animation recordings separately.
-
-The interactive installation/pairing/signing walkthrough is complete. The app was relaunched on the phone outside the isolated UI-test session, preserving normal game progress.
-
-Human difficulty calibration remains future playtesting work. The catalog has the requested easy/medium/hard labels, proven winning paths, and a preserved losing alternative for the hard level.
+Inspected before/after screenshots and the final pour recording are linked in [visual evidence](evidence/README.md). The shared test scheme still uses screenshots; animation evidence was recorded separately. Test sessions use isolated saves, preserving normal play progress. No test-runner logic changed.

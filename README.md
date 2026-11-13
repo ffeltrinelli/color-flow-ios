@@ -1,6 +1,6 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. Paint each column from bottom to top while managing active buckets and four reserve queues. The five fixed levels progress through three easy puzzles, one medium, and one hard. Your exact board is saved after every move.
+An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 grid from the top while managing active buckets and four reserve queues. Tap a bucket to clear matching exposed blocks automatically from left to right. Three fixed levels progress through easy, medium, and hard. Your exact board is saved after every move. The new gameplay resets saves from the previous five-level game to level one.
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
 
@@ -48,13 +48,13 @@ python3 scripts/run-tests.py --simulator SIMULATOR_UDID --device DEVICE_UDID
 
 The shared scheme uses automatic screenshots: Xcode 27.2 automatic video recording crashes the automation service on iOS 17.1.1. Preserve this setting when changing schemes; capture animation recordings separately.
 
-Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The suite covers the complete five-level journey, recharge, selection/previews, persistence, restart, losing/retrying, animation interaction locking, and reduced motion. The full UI journey takes several minutes.
+Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The suite covers the complete three-level journey, automatic multi-column clearing, recharge and blocked buckets, read-only board layout, persistence, restart, losing/retrying, animation interaction locking, and reduced motion. The full UI journey takes several minutes.
 
 After intentionally editing authored levels, run `swift run LevelCheck --write-solutions`, review the new winning paths, and rerun tests. Runtime level generation and runtime solving are not used. `python3 scripts/create-project.py` reproducibly updates Xcode target membership if app/test Swift files are added or removed.
 
 ## Visual review and pull requests
 
-For visible changes, capture and inspect relevant screenshots on the compact layout and a larger phone. Embed accessible images in the pull request (PR) description; include before/after images when changing existing UI. State device and OS. For pouring changes, include a short recording to show alignment, continuous flow, sequential filling, and responsiveness. Keep images limited to game content.
+For visible changes, capture and inspect relevant screenshots on the compact layout and a larger phone. Embed accessible images in the pull request (PR) description; include before/after images when changing existing UI. State device and OS. For pouring changes, include a short recording to show alignment, continuous flow, sequential filling/removal, column switching, and responsiveness. Keep images limited to game content.
 
 Simulator capture examples (replace `booted` with an explicit simulator UDID when multiple simulators are running):
 

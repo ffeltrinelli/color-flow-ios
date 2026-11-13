@@ -3,7 +3,7 @@ import Foundation
 import Observation
 
 struct PourPresentation {
-    let column: Int
+    let slot: Int
     let color: PaintColor
     let initialUnits: Int
     let cells: [Cell]
@@ -16,14 +16,15 @@ final class GameModel {
     let store: ProgressStore
     var progress: GameProgress
     var pour: PourPresentation?
-    var filledDuringPour = Set<Cell>()
-    var tilted = false
-    var streamEndRow: Int?
+    var clearedDuringPour = 0
+    var pourDestination: Cell?
+    var fillingCell: Cell?
     var saveError: String?
+    private let engines: [PuzzleEngine]
     private var animation: Task<Void, Never>?
 
     var level: LevelDefinition { levels[progress.levelID - 1] }
-    var engine: PuzzleEngine { try! PuzzleEngine(level: level) }
+    var engine: PuzzleEngine { engines[progress.levelID - 1] }
     var outcome: GameOutcome { engine.outcome(state: progress.state) }
     var busy: Bool { pour != nil }
     var finalLevel: Bool { level.id == levels.count }
@@ -31,6 +32,7 @@ final class GameModel {
 
     init() throws {
         levels = try LevelCatalog.load()
+        engines = try levels.map { try PuzzleEngine(level: $0) }
         let environment = ProcessInfo.processInfo.environment
         let testing = environment["COLOR_FLOW_UI_TEST"] == "1"
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -40,12 +42,11 @@ final class GameModel {
             try? FileManager.default.removeItem(at: store.url)
         }
         progress = store.load(levels: levels)
-    }
-
-    func select(slot: Int) {
-        guard !busy, outcome == .playing, progress.state.buckets[slot] != nil else { return }
-        progress.state.selectedSlot = slot
-        save()
+        if testing, environment["COLOR_FLOW_RESET"] == "1",
+           let levelID = environment["COLOR_FLOW_TEST_LEVEL"].flatMap(Int.init),
+           let level = levels.first(where: { $0.id == levelID }) {
+            progress = GameProgress(level: level)
+        }
     }
 
     func take(queue: Int) {
@@ -54,42 +55,60 @@ final class GameModel {
         save()
     }
 
-    func preview(column: Int) -> [Cell] {
-        guard !busy, outcome == .playing, let slot = progress.state.selectedSlot else { return [] }
-        return engine.pourTargets(slot: slot, column: column, state: progress.state)
+    func isCleared(_ cell: Cell) -> Bool {
+        engine.isCleared(cell, state: presentationState) ||
+            pour?.cells.prefix(clearedDuringPour).contains(cell) == true
     }
 
-    func isPainted(_ cell: Cell) -> Bool {
-        engine.isPainted(cell, state: presentationState) || filledDuringPour.contains(cell)
+    func displayedBucket(slot: Int) -> PaintTin? {
+        guard var bucket = presentationState.buckets[slot] else { return nil }
+        if pour?.slot == slot { bucket.paintUnits -= clearedDuringPour }
+        return bucket.paintUnits > 0 ? bucket : nil
     }
 
-    func pour(column: Int, reducedMotion: Bool) {
-        guard !busy, let slot = progress.state.selectedSlot,
+    func pour(slot: Int, reducedMotion: Bool) {
+        guard !busy, let result = try? engine.pourResult(slot: slot, state: progress.state),
               let bucket = progress.state.buckets[slot] else { return }
-        let cells = preview(column: column)
-        guard !cells.isEmpty,
-              let next = try? engine.applying(.pour(slot: slot, column: column), to: progress.state) else { return }
-        let presentation = PourPresentation(column: column, color: bucket.color, initialUnits: bucket.paintUnits,
-                                            cells: cells, before: progress.state)
-        progress.state = next
+        let presentation = PourPresentation(slot: slot, color: bucket.color, initialUnits: bucket.paintUnits,
+                                            cells: result.cells, before: progress.state)
+        progress.state = result.state
         save()
         pour = presentation
-        let fastTests = ProcessInfo.processInfo.environment["COLOR_FLOW_FAST_ANIMATION"] == "1"
         animation = Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await Task.sleep(for: .milliseconds(reducedMotion || fastTests ? 15 : 220))
-                tilted = true
-                try await Task.sleep(for: .milliseconds(reducedMotion || fastTests ? 15 : 280))
-                for cell in cells {
-                    streamEndRow = cell.row
-                    try await Task.sleep(for: .milliseconds(reducedMotion || fastTests ? 15 : 260))
-                    filledDuringPour.insert(cell)
-                    try await Task.sleep(for: .milliseconds(reducedMotion || fastTests ? 15 : 210))
+            await self?.animate(presentation, reducedMotion: reducedMotion)
+        }
+    }
+
+    private func animate(_ presentation: PourPresentation, reducedMotion: Bool) async {
+        let fastTests = ProcessInfo.processInfo.environment["COLOR_FLOW_FAST_ANIMATION"] == "1"
+        let brief = reducedMotion || fastTests
+        let fillDuration = brief ? 0.008 : 0.25
+        let removalPause = brief ? 0.008 : 0.1
+        let columnTravel = brief ? 0.008 : 0.25
+        var previousColumn = presentation.cells[0].column
+        do {
+            try await Task.sleep(for: .seconds(brief ? 0.008 : 0.2))
+            for (index, cell) in presentation.cells.enumerated() {
+                pourDestination = cell
+                if cell.column != previousColumn {
+                    fillingCell = nil
+                    try await Task.sleep(for: .seconds(columnTravel))
                 }
-                try await Task.sleep(for: .milliseconds(reducedMotion || fastTests ? 15 : 320))
-                finishAnimation()
-            } catch { /* Backgrounding commits the saved move without replaying its animation. */ }
+                fillingCell = cell
+                try await Task.sleep(for: .seconds(fillDuration))
+                clearedDuringPour += 1
+                let nextIndex = index + 1
+                if nextIndex == presentation.cells.count || presentation.cells[nextIndex].column != cell.column {
+                    fillingCell = nil
+                }
+                try await Task.sleep(for: .seconds(removalPause))
+                previousColumn = cell.column
+            }
+            fillingCell = nil
+            try await Task.sleep(for: .seconds(brief ? 0.008 : 0.15))
+            finishAnimation()
+        } catch {
+            // The complete move is already saved; backgrounding ends presentation.
         }
     }
 
@@ -97,9 +116,9 @@ final class GameModel {
         animation?.cancel()
         animation = nil
         pour = nil
-        filledDuringPour = []
-        streamEndRow = nil
-        tilted = false
+        clearedDuringPour = 0
+        pourDestination = nil
+        fillingCell = nil
     }
 
     func restart() {
