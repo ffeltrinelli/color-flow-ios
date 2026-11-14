@@ -28,45 +28,82 @@ public struct PaintTin: Codable, Equatable, Hashable, Sendable {
     }
 }
 
+public struct BoxDefinition: Codable, Equatable, Hashable, Identifiable, Sendable {
+    public let id: Int
+    public let row: Int
+    public let column: Int
+    public let width: Int
+    public let height: Int
+    public let color: PaintColor
+
+    public init(id: Int, row: Int, column: Int, width: Int = 1, height: Int = 1, color: PaintColor) {
+        self.id = id
+        self.row = row
+        self.column = column
+        self.width = width
+        self.height = height
+        self.color = color
+    }
+
+    public var capacity: Int { width * height }
+}
+
 public struct LevelDefinition: Codable, Equatable, Sendable {
     public let id: Int
     public let difficulty: Difficulty
     public let bucketSlots: Int
-    public let grid: [String]
+    public let width: Int
+    public let height: Int
+    public let boxes: [BoxDefinition]
     public let paintQueues: [[PaintTin]]
 
-    public init(id: Int, difficulty: Difficulty, bucketSlots: Int, grid: [String], paintQueues: [[PaintTin]]) {
+    public init(id: Int, difficulty: Difficulty, bucketSlots: Int, width: Int, height: Int,
+                boxes: [BoxDefinition], paintQueues: [[PaintTin]]) {
         self.id = id
         self.difficulty = difficulty
         self.bucketSlots = bucketSlots
-        self.grid = grid
+        self.width = width
+        self.height = height
+        self.boxes = boxes
         self.paintQueues = paintQueues
     }
-
-    public var width: Int { grid.first?.count ?? 0 }
-    public var height: Int { grid.count }
-    public var colors: [[PaintColor]] { grid.map { $0.compactMap { PaintColor(rawValue: String($0)) } } }
 }
 
 public enum LevelError: Error, Equatable {
-    case invalidGrid, invalidSlots, invalidQueues, invalidQuantity, paintMismatch, invalidIDs
+    case invalidGrid, invalidBoxes, invalidSlots, invalidQueues, invalidQuantity, paintMismatch, invalidIDs
 }
 
 public enum LevelValidator {
     public static func validate(_ level: LevelDefinition) throws {
         guard level.id > 0, level.width > 0, level.height > 0,
-              level.grid.allSatisfy({ row in
-                  row.count == level.width && row.allSatisfy { PaintColor(rawValue: String($0)) != nil }
-              }) else { throw LevelError.invalidGrid }
+              level.width <= Int.max / level.height else { throw LevelError.invalidGrid }
+        try validateBoxes(level)
         guard (1...3).contains(level.bucketSlots) else { throw LevelError.invalidSlots }
         guard level.paintQueues.count == 4 else { throw LevelError.invalidQueues }
         guard level.paintQueues.joined().allSatisfy({ $0.paintUnits > 0 && $0.paintUnits <= level.width * level.height })
         else { throw LevelError.invalidQuantity }
         for color in PaintColor.allCases {
-            let required = level.colors.joined().filter { $0 == color }.count
+            let required = level.boxes.filter { $0.color == color }.reduce(0) { $0 + $1.capacity }
             let supplied = level.paintQueues.joined().filter { $0.color == color }.reduce(0) { $0 + $1.paintUnits }
             guard required == supplied else { throw LevelError.paintMismatch }
         }
+    }
+
+    private static func validateBoxes(_ level: LevelDefinition) throws {
+        guard Set(level.boxes.map(\.id)).count == level.boxes.count else { throw LevelError.invalidIDs }
+        var occupied = Set<Cell>()
+        for box in level.boxes {
+            guard box.id > 0, (1...3).contains(box.width), (1...3).contains(box.height),
+                  box.row >= 0, box.column >= 0,
+                  box.row <= level.height - box.height, box.column <= level.width - box.width
+            else { throw LevelError.invalidBoxes }
+            for row in box.row..<(box.row + box.height) {
+                for column in box.column..<(box.column + box.width) {
+                    guard occupied.insert(Cell(row: row, column: column)).inserted else { throw LevelError.invalidBoxes }
+                }
+            }
+        }
+        guard occupied.count == level.width * level.height else { throw LevelError.invalidGrid }
     }
 }
 

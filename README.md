@@ -1,6 +1,6 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 grid from the top while managing active buckets and four reserve queues. Tap a bucket to clear matching exposed blocks automatically from left to right. Three fixed levels progress through easy, medium, and hard. Your exact board is saved after every move. The new gameplay resets saves from the previous five-level game to level one.
+An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 board of mixed-size boxes while managing active buckets and four reserve queues. Paint spreads across each box and remains until it fills; full boxes disappear and unsupported boxes fall. Tap a bucket to pour automatically into exposed matching boxes from left to right. Three fixed levels progress through easy, medium, and hard. Your exact board is saved after every move. Save version 3 resets earlier games to level one.
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
 
@@ -48,7 +48,7 @@ python3 scripts/run-tests.py --simulator SIMULATOR_UDID --device DEVICE_UDID
 
 The shared scheme uses automatic screenshots: Xcode 27.2 automatic video recording crashes the automation service on iOS 17.1.1. Preserve this setting when changing schemes; capture animation recordings separately.
 
-Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The suite covers the complete three-level journey, automatic multi-column clearing, recharge and blocked buckets, read-only board layout, persistence, restart, losing/retrying, animation interaction locking, and reduced motion. The full UI journey takes several minutes.
+Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The suite covers the three-level journey, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. The full UI journey takes several minutes.
 
 After intentionally editing authored levels, run `swift run LevelCheck --write-solutions`, review the new winning paths, and rerun tests. Runtime level generation and runtime solving are not used. `python3 scripts/create-project.py` reproducibly updates Xcode target membership if app/test Swift files are added or removed.
 

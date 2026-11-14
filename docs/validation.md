@@ -1,26 +1,29 @@
 # Validation status
 
-Validated on November 13, 2026, using Xcode 27.2 and an iOS 17 deployment target.
+Mixed-size boxes and splash update, November 14, 2026, using Xcode 27.2 with an iOS 17 deployment target.
 
-- `swift test`: 18 passing core tests cover automatic top-down targeting, paint conservation, blocked leftovers and manual resumption, recharge, outcomes, authored solutions and losing paths, version-1 reset, and exact version-2 restoration, including wins and losses.
-- `swift run LevelCheck`: all three fixed 10 × 10 levels have verified winning paths. Medium and hard also have replayed losing alternatives.
+- `swift test`: 26 core tests pass, including all nine rectangle sizes, partial fills, top-edge access, simultaneous gravity, bridging support, event replay, paint conservation, old-save resets, and exact version-3 restoration.
+- `swift run LevelCheck`: all three authored 10 × 10 levels have winning paths. Every stored path conserves paint; medium and hard also have replayed losing alternatives.
+- The app builds for Simulator with the selected launcher icon and revised splash assets.
 
-| Level | Provisional difficulty | Slots | Winning-path moves | Solver states visited |
-| --- | --- | ---: | ---: | ---: |
-| 1 | Easy | 3 | 74 | 504 |
-| 2 | Medium | 2 | 79 | 335 |
-| 3 | Hard | 2 | 89 | 5,719 |
+| Level | Provisional difficulty | Slots | Boxes | Larger-box area | Winning moves | Solver states |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | Easy | 3 | 90 | 20% | 74 | 74 |
+| 2 | Medium | 2 | 73 | 40% | 70 | 1,887 |
+| 3 | Hard | 2 | 54 | 60% | 67 | 1,106 |
 
 Search counts describe one solver strategy, not human difficulty. Human playtesting is still needed to calibrate the labels.
 
+`python3 scripts/run-tests.py` passed both simulator and device stages. The physical-device report confirms 12 passed, zero failed, zero skipped, and no runtime warnings.
+
 | Destination | Result |
 | --- | --- |
-| iPhone SE third-generation simulator, iOS 27.2 | Complete suite passed: 18 core tests and nine UI tests |
-| iPhone 17 simulator, iOS 27.2 | Updated normal-pour timing test passed; recording inspected |
-| Physical iPhone SE second generation, iOS 17.1.1 | All nine UI tests passed with the faster timing |
+| iPhone SE third-generation simulator, iOS 27.2 | All 12 UI tests passed |
+| Physical iPhone SE second generation, iOS 17.1.1 | All 12 UI tests passed |
+| iPhone 18 Pro simulator, iOS 27.2 | Final normal-speed gravity check passed |
 
-The UI suite covers the complete three-level journey and Start Again, medium/hard defeat and retry, recharge, blocked buckets, read-only board layout, exact restoration, restart confirmation, interruption during a normal pour, and reduced motion. A normal nine-block pour must remain visible for at least four seconds.
+The suite covers all three levels and Start Again, gravity, defeat/retry, partial-fill persistence, recharge, restoration after interrupted pouring, input locking, Reduce Motion, restart confirmation, and splash return without lost progress. Compact and larger-phone screenshots and the normal-speed gravity recording were inspected; physical-device captures confirm the iOS 17 layout. See [visual evidence](evidence/README.md).
 
-`python3 scripts/run-tests.py` passed both simulator and device stages. Results are in `TestResults/20261113-232908/simulator.xcresult` and `device.xcresult`. The larger-phone timing check is in `TestResults/top-down-faster-pour.xcresult`. Raw bundles remain ignored because they contain device identifiers.
+Results are in `TestResults/20261114-095710/simulator.xcresult`, `device.xcresult`, and `TestResults/mixed-boxes-large-final.xcresult`. Project regeneration was verified reproducible, including the asset catalog and screenshot capture setting.
 
-Inspected before/after screenshots and the final pour recording are linked in [visual evidence](evidence/README.md). The shared test scheme still uses screenshots; animation evidence was recorded separately. Test sessions use isolated saves, preserving normal play progress. No test-runner logic changed.
+Tests use isolated saves. Raw result bundles remain ignored because they contain device identifiers. The shared scheme retains automatic screenshots; animation evidence is recorded separately.
