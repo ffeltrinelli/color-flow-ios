@@ -67,24 +67,15 @@ struct GameView: View {
 
     private func board(size: CGFloat) -> some View {
         let cellSize = (size - CGFloat(model.level.width - 1) * blockGap) / CGFloat(model.level.width)
-        let colors = model.level.colors
         return ZStack(alignment: .topLeading) {
-            HStack(alignment: .top, spacing: blockGap) {
-                ForEach(0..<model.level.width, id: \.self) { column in
-                    VStack(spacing: blockGap) {
-                        ForEach(0..<model.level.height, id: \.self) { row in
-                            block(Cell(row: row, column: column), color: colors[row][column].displayColor, size: cellSize)
-                        }
-                    }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("Column \(column + 1)")
-                    .accessibilityValue(columnSummary(column))
-                    .accessibilityIdentifier("column-\(column)")
-                }
+            ForEach(model.engine.remainingBoxes(state: model.presentationState)) { box in
+                let row = model.engine.boxState(id: box.id, state: model.presentationState).row
+                block(box, cellSize: cellSize)
+                    .offset(x: CGFloat(box.column) * (cellSize + blockGap),
+                            y: boardHeadroom + CGFloat(row) * (cellSize + blockGap))
             }
-            .offset(y: boardHeadroom)
-            if let pour = model.pour, !reduceMotionEnabled {
-                pourOverlay(pour, cellSize: cellSize)
+            if let pour = model.pour, let entry = model.pourDestination, !reduceMotionEnabled {
+                pourOverlay(pour, entry: entry, cellSize: cellSize)
             }
         }
         .frame(width: size, height: size + boardHeadroom, alignment: .topLeading)
@@ -94,28 +85,32 @@ struct GameView: View {
         .accessibilityValue(model.busy ? "Pouring" : "Ready")
     }
 
-    private func columnSummary(_ column: Int) -> String {
-        guard !model.busy else { return "Pouring" }
-        let colors = model.engine.remainingColors(column: column, state: model.progress.state)
-        return colors.isEmpty ? "Empty" : "Top to bottom: " + colors.map(\.name).joined(separator: ", ")
-    }
-
-    private func block(_ cell: Cell, color: Color, size: CGFloat) -> some View {
-        let filling = model.fillingCell == cell
+    private func block(_ box: BoxDefinition, cellSize: CGFloat) -> some View {
+        let width = CGFloat(box.width) * cellSize + CGFloat(box.width - 1) * blockGap
+        let height = CGFloat(box.height) * cellSize + CGFloat(box.height - 1) * blockGap
+        let color = box.color.displayColor
+        let fraction = model.fillUnits(for: box) / Double(box.capacity)
         return RoundedRectangle(cornerRadius: 4)
-            .fill(filling ? color : color.opacity(0.16))
+            .fill(color.opacity(0.16))
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .fill(color)
+                    .frame(height: max(0, height - 4) * fraction)
+                    .padding(2)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 4))
             .overlay {
                 RoundedRectangle(cornerRadius: 4).strokeBorder(color, lineWidth: 2)
             }
-            .frame(width: size, height: size)
-            .opacity(model.isCleared(cell) ? 0 : 1)
-            .accessibilityHidden(true)
+            .frame(width: width, height: height)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(model.busy ? "Pouring" : model.boxSummary(box))
+            .accessibilityIdentifier("box-\(box.id)")
     }
 
-    private func pourOverlay(_ pour: PourPresentation, cellSize: CGFloat) -> some View {
-        let cell = model.pourDestination ?? pour.cells[0]
-        let centerX = CGFloat(cell.column) * (cellSize + blockGap) + cellSize / 2
-        let poursFromRightRim = cell.column >= model.level.width / 2
+    private func pourOverlay(_ pour: PourPresentation, entry: Cell, cellSize: CGFloat) -> some View {
+        let centerX = CGFloat(entry.column) * (cellSize + blockGap) + cellSize / 2
+        let poursFromRightRim = entry.column >= model.level.width / 2
         let tilt = poursFromRightRim ? 48.0 : -48.0
         let angle = tilt * Double.pi / 180
         let rimOffsetX = poursFromRightRim ? 53.0 : -53.0
@@ -124,20 +119,22 @@ struct GameView: View {
         let rimY = CGFloat(rimOffsetX * sin(angle) - 18 * cos(angle)) * scale
         let bucketCenter = CGPoint(x: centerX - rimX, y: 18)
         let originY = bucketCenter.y + rimY
-        let endY = boardHeadroom + CGFloat(cell.row) * (cellSize + blockGap) + cellSize / 2
         return ZStack(alignment: .topLeading) {
-            if model.fillingCell != nil {
+            if let box = model.level.boxes.first(where: { $0.id == model.fillingBoxID }) {
+                let row = model.engine.boxState(id: box.id, state: model.presentationState).row
+                let boxHeight = CGFloat(box.height) * cellSize + CGFloat(box.height - 1) * blockGap
+                let fraction = model.fillUnits(for: box) / Double(box.capacity)
+                let endY = boardHeadroom + CGFloat(row) * (cellSize + blockGap) + boxHeight * (1 - fraction)
                 RoundedRectangle(cornerRadius: 2)
                     .fill(pour.color.displayColor)
                     .frame(width: 4, height: max(0, endY - originY))
                     .position(x: centerX, y: (endY + originY) / 2)
-                    .transition(.identity)
             }
-            PaintArtwork(color: pour.color, quantity: pour.initialUnits - model.clearedDuringPour)
+            PaintArtwork(color: pour.color, quantity: pour.initialUnits - model.consumedDuringPour)
                 .frame(width: 56, height: 56)
                 .rotationEffect(.degrees(tilt))
                 .position(bucketCenter)
-                .animation(.easeInOut(duration: 0.25), value: cell.column)
+                .animation(.easeInOut(duration: 0.25), value: entry.column)
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
@@ -165,7 +162,7 @@ struct GameView: View {
                 .accessibilityValue(bucket.map {
                     "\($0.paintUnits) paint units, " + (model.busy ? "Pouring" : canPour ? "Ready to pour" : "Blocked")
                 } ?? "Empty")
-                .accessibilityHint("Pours automatically into the leftmost matching columns")
+                .accessibilityHint("Pours automatically into the leftmost exposed matching boxes")
                 .accessibilityIdentifier("slot-\(slot)")
             }
         }

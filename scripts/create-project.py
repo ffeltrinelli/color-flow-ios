@@ -32,6 +32,11 @@ for name, files, producttype, extension in [
         fileid=ref(str(file),'sourcecode.swift'); fileids.append(fileid)
         sourcebuilds.append(build(name+str(file),fileid))
     sources=add(name+'sources', '{isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = '+array(sourcebuilds)+'; runOnlyForDeploymentPostprocessing = 0;}')
+    resourcebuilds=[]
+    if name=='ColorFlow':
+        assets=ref('App/Assets.xcassets','folder.assetcatalog'); fileids.append(assets)
+        resourcebuilds.append(build(name+'assets',assets))
+    resources=add(name+'resources', '{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = '+array(resourcebuilds)+'; runOnlyForDeploymentPostprocessing = 0;}')
     product=add(name+'product',f'{{isa = PBXFileReference; explicitFileType = {"wrapper.application" if extension=="app" else "wrapper.cfbundle"}; path = {name}.{extension}; sourceTree = BUILT_PRODUCTS_DIR;}}')
     products.append(product)
     linked=[]; deps=[]
@@ -57,12 +62,13 @@ for name, files, producttype, extension in [
         if name=='ColorFlow':
             settings.update({'INFOPLIST_KEY_UISupportedInterfaceOrientations':'UIInterfaceOrientationPortrait',
               'INFOPLIST_KEY_UIApplicationSceneManifest_Generation':'YES','INFOPLIST_KEY_UILaunchScreen_Generation':'YES',
-              'INFOPLIST_KEY_CFBundleDisplayName':'"Color Flow"','ENABLE_TESTABILITY':'YES'})
+              'INFOPLIST_KEY_CFBundleDisplayName':'"Color Flow"','ENABLE_TESTABILITY':'YES',
+              'ASSETCATALOG_COMPILER_APPICON_NAME':'AppIcon'})
         elif name=='ColorFlowUITests': settings['TEST_TARGET_NAME']='ColorFlow'
         settings_text=' '.join(f'{k} = {v};' for k,v in settings.items())
         configs.append(add(name+mode,f'{{isa = XCBuildConfiguration; baseConfigurationReference = {config}; buildSettings = {{{settings_text}}}; name = {mode};}}'))
     configlist=add(name+'configs','{isa = XCConfigurationList; buildConfigurations = '+array(configs)+'; defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;}')
-    targets.append(add(name+'target',f'{{isa = PBXNativeTarget; buildConfigurationList = {configlist}; buildPhases = {array([sources,frameworks])}; buildRules = (); dependencies = {array(targetdeps)}; name = {name}; packageProductDependencies = {array(deps)}; productName = {name}; productReference = {product}; productType = "com.apple.product-type.{producttype}";}}'))
+    targets.append(add(name+'target',f'{{isa = PBXNativeTarget; buildConfigurationList = {configlist}; buildPhases = {array([sources,frameworks,resources])}; buildRules = (); dependencies = {array(targetdeps)}; name = {name}; packageProductDependencies = {array(deps)}; productName = {name}; productReference = {product}; productType = "com.apple.product-type.{producttype}";}}'))
 productgroup=add('products','{isa = PBXGroup; children = '+array(products)+'; name = Products; sourceTree = "<group>";}')
 group=add('main','{isa = PBXGroup; children = '+array(fileids+[config,productgroup])+'; sourceTree = "<group>";}')
 configs=[]

@@ -1,12 +1,13 @@
 import ColorFlowCore
 import Foundation
 import Observation
+import SwiftUI
 
 struct PourPresentation {
     let slot: Int
     let color: PaintColor
     let initialUnits: Int
-    let cells: [Cell]
+    let events: [PourEvent]
     let before: GameState
 }
 
@@ -16,9 +17,11 @@ final class GameModel {
     let store: ProgressStore
     var progress: GameProgress
     var pour: PourPresentation?
-    var clearedDuringPour = 0
+    var consumedDuringPour = 0
     var pourDestination: Cell?
-    var fillingCell: Cell?
+    var fillingBoxID: Int?
+    var animatedFillUnits: Double = 0
+    private var displayedState: GameState?
     var saveError: String?
     private let engines: [PuzzleEngine]
     private var animation: Task<Void, Never>?
@@ -28,7 +31,7 @@ final class GameModel {
     var outcome: GameOutcome { engine.outcome(state: progress.state) }
     var busy: Bool { pour != nil }
     var finalLevel: Bool { level.id == levels.count }
-    var presentationState: GameState { pour?.before ?? progress.state }
+    var presentationState: GameState { displayedState ?? progress.state }
 
     init() throws {
         levels = try LevelCatalog.load()
@@ -55,14 +58,18 @@ final class GameModel {
         save()
     }
 
-    func isCleared(_ cell: Cell) -> Bool {
-        engine.isCleared(cell, state: presentationState) ||
-            pour?.cells.prefix(clearedDuringPour).contains(cell) == true
+    func fillUnits(for box: BoxDefinition) -> Double {
+        fillingBoxID == box.id ? animatedFillUnits : Double(engine.boxState(id: box.id, state: presentationState).filledUnits)
+    }
+
+    func boxSummary(_ box: BoxDefinition) -> String {
+        let current = engine.boxState(id: box.id, state: presentationState)
+        return "\(box.color.name), row \(current.row + 1), column \(box.column + 1), \(box.width) by \(box.height), \(current.filledUnits) of \(box.capacity) paint units"
     }
 
     func displayedBucket(slot: Int) -> PaintTin? {
-        guard var bucket = presentationState.buckets[slot] else { return nil }
-        if pour?.slot == slot { bucket.paintUnits -= clearedDuringPour }
+        guard var bucket = (pour?.before ?? progress.state).buckets[slot] else { return nil }
+        if pour?.slot == slot { bucket.paintUnits -= consumedDuringPour }
         return bucket.paintUnits > 0 ? bucket : nil
     }
 
@@ -70,7 +77,8 @@ final class GameModel {
         guard !busy, let result = try? engine.pourResult(slot: slot, state: progress.state),
               let bucket = progress.state.buckets[slot] else { return }
         let presentation = PourPresentation(slot: slot, color: bucket.color, initialUnits: bucket.paintUnits,
-                                            cells: result.cells, before: progress.state)
+                                            events: result.events, before: progress.state)
+        displayedState = progress.state
         progress.state = result.state
         save()
         pour = presentation
@@ -80,35 +88,46 @@ final class GameModel {
     }
 
     private func animate(_ presentation: PourPresentation, reducedMotion: Bool) async {
-        let fastTests = ProcessInfo.processInfo.environment["COLOR_FLOW_FAST_ANIMATION"] == "1"
-        let brief = reducedMotion || fastTests
-        let fillDuration = brief ? 0.008 : 0.25
-        let removalPause = brief ? 0.008 : 0.1
-        let columnTravel = brief ? 0.008 : 0.25
-        var previousColumn = presentation.cells[0].column
+        let brief = reducedMotion || ProcessInfo.processInfo.environment["COLOR_FLOW_FAST_ANIMATION"] == "1"
         do {
             try await Task.sleep(for: .seconds(brief ? 0.008 : 0.2))
-            for (index, cell) in presentation.cells.enumerated() {
-                pourDestination = cell
-                if cell.column != previousColumn {
-                    fillingCell = nil
-                    try await Task.sleep(for: .seconds(columnTravel))
+            for event in presentation.events {
+                try Task.checkCancellation()
+                switch event {
+                case .fill(let step):
+                    try await animateFill(step, brief: brief)
+                    displayedState = engine.presenting(event, in: presentationState)
+                    fillingBoxID = nil
+                case .remove:
+                    try await Task.sleep(for: .seconds(brief ? 0.008 : 0.1))
+                case .fall:
+                    fillingBoxID = nil
+                    withAnimation(.linear(duration: brief ? 0 : 0.1)) {
+                        displayedState = engine.presenting(event, in: presentationState)
+                    }
+                    try await Task.sleep(for: .seconds(brief ? 0.008 : 0.1))
                 }
-                fillingCell = cell
-                try await Task.sleep(for: .seconds(fillDuration))
-                clearedDuringPour += 1
-                let nextIndex = index + 1
-                if nextIndex == presentation.cells.count || presentation.cells[nextIndex].column != cell.column {
-                    fillingCell = nil
-                }
-                try await Task.sleep(for: .seconds(removalPause))
-                previousColumn = cell.column
             }
-            fillingCell = nil
-            try await Task.sleep(for: .seconds(brief ? 0.008 : 0.15))
             finishAnimation()
         } catch {
             // The complete move is already saved; backgrounding ends presentation.
+        }
+    }
+
+    private func animateFill(_ step: FillStep, brief: Bool) async throws {
+        let previousColumn = pourDestination?.column
+        pourDestination = step.entry
+        if previousColumn != nil, previousColumn != step.entry.column {
+            try await Task.sleep(for: .seconds(brief ? 0.008 : 0.25))
+        }
+        animatedFillUnits = Double(step.fromUnits)
+        fillingBoxID = step.boxID
+        for units in (step.fromUnits + 1)...step.toUnits {
+            withAnimation(.linear(duration: brief ? 0 : 0.25)) {
+                animatedFillUnits = Double(units)
+            }
+            try await Task.sleep(for: .seconds(brief ? 0.008 : 0.25))
+            consumedDuringPour += 1
         }
     }
 
@@ -116,9 +135,11 @@ final class GameModel {
         animation?.cancel()
         animation = nil
         pour = nil
-        clearedDuringPour = 0
+        displayedState = nil
+        consumedDuringPour = 0
         pourDestination = nil
-        fillingCell = nil
+        fillingBoxID = nil
+        animatedFillUnits = 0
     }
 
     func restart() {

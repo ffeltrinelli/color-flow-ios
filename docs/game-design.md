@@ -1,29 +1,41 @@
 # Native gameplay
 
-Color Flow is an offline queue-management puzzle. The catalog contains three fixed 10 × 10 levels: easy with three active bucket slots, then medium and hard with two. Difficulty comes from paint ordering and limited storage; labels remain provisional until human playtesting confirms them.
+Color Flow is an offline queue-management puzzle. Three authored 10 × 10 levels progress through easy, medium, and hard. Easy has three active bucket slots; medium and hard have two. Difficulty labels remain provisional until human playtesting confirms them.
 
-## Clearing the board
+## Boxes and liquid
 
-Only the topmost remaining block in a column is accessible. Tap an active bucket to pour into the leftmost column topped by its color. One paint unit fills and removes one block. After each removal, the engine checks the columns again from left to right, continuing until the bucket is empty or no exposed block matches. Colors below a different-colored block are inaccessible. Removed blocks leave gaps; remaining blocks never shift.
+Every box has one color and a rectangular size between 1 × 1 and 3 × 3. Capacity equals width times height. Paint fills from the bottom across the whole interior width: one unit fills a 2 × 2 box to one quarter of its height and a 3 × 3 box to one ninth. Partial fills persist between buckets and game sessions. Full boxes disappear as a whole; boxes never merge or mix colors.
 
-For example, a red bucket clears consecutive exposed red blocks in the first eligible column. If blue is revealed, it moves to the next column topped by red. Unused red paint stays in its slot. Clearing blue later may make red usable again, but another red-bucket tap is required.
+Larger boxes occupy 20%, 40%, and 60% of easy, medium, and hard board area. Easy introduces 1 × 2 and 2 × 1. Medium adds 1 × 3, 3 × 1, and 2 × 2. Hard also includes 2 × 3, 3 × 2, and 3 × 3. All boards initially cover 100 cells and require exactly 100 paint units; larger boxes reduce the number of containers rather than increasing total paint.
 
-The grid has no tap actions. Queue fronts load paint into the first empty slot or recharge an existing same-color bucket, including when all slots are occupied. Loading never starts a pour. Only the front tin of each of the four queues is retrievable; the next two tins remain visible for planning. Empty and blocked buckets cannot be activated.
+## Pouring and gravity
 
-An empty grid wins immediately. Full slots with no available pour lose, even if a blocked color could be recharged. Other non-winning states with no legal retrieval or pour also lose. Authored levels supply exactly the paint required for every color, so a valid cleared board also exhausts all paint.
+A box is accessible through any part of its top edge with a clear vertical path from above the board. One exposed column is sufficient even when another part of a wide box is covered. Tap an active bucket to fill the leftmost exposed matching box. The engine scans columns from left to right and uses the first remaining box in each column. A box spanning several columns remains one shared container.
 
-## Levels and progression
+Pour until that box is full or the bucket empties. After a removal, gravity settles the entire board before targeting resumes with the same bucket. Boxes fall straight down without rotating, sliding, splitting, or spilling paint. Any support under the base stops a fall, allowing wide boxes to bridge gaps. Each gravity step simultaneously moves every box with clear space under its entire footprint down one row, repeating until stable. No paint or extra player action is needed for falling.
 
-Easy introduces automatic targeting with red and blue exposed first, then requires managing green and yellow dependencies. Medium mixes four colors throughout the grid with only two slots. Hard adds purple, layered dependencies, and longer sequences of constrained retrievals. All three contain 100 blocks; additional difficulty does not come from increasing board length between levels.
+Paint without an exposed matching target stays in its slot. Clearing another color may make it usable, but that bucket requires another tap. The grid has no tap actions.
 
-Levels are fixed JSON, never generated or solved at runtime. The offline solver uses the same engine transitions as the app. Stored winning paths cover all levels, and stored losing alternatives cover medium and hard. Neither a solution length nor a solver's visited-state count establishes human difficulty.
+## Queues and outcomes
 
-Progression is linear. Victory offers Next Level; defeat offers Retry. Completing level three offers Start Again. Restarting an unfinished level requires confirmation. There is no level picker or completed-level replay.
+Only the front tin of each of four queues is retrievable; two further tins remain visible for planning. Retrieval loads the first empty slot or recharges an existing same-color bucket, even with all slots occupied. Loading never starts a pour. Empty and blocked buckets cannot be activated.
 
-## State and presentation
+An empty board wins immediately. Full slots with no available pour lose, even if a blocked color could be recharged. Other non-winning states with no legal retrieval or pour also lose. Paint supply exactly matches each color's total box capacity, so a valid cleared board exhausts all paint.
 
-The engine owns automatic targeting, paint accounting, and outcomes. A pour result contains the ordered removed cells and complete resulting state. The app saves that state atomically before presenting the sequence, then animates filling, disappearance, and movement between columns with input locked. Each block visibly fills for 0.25 seconds, followed by a 0.1-second removal pause; moving to another column takes 0.25 seconds. The stream disappears immediately when a column run finishes and stays hidden during travel; only the bucket animates between columns. A nine-block pour spanning six columns takes about 4.8 seconds. Readability takes priority over a fixed total-duration cap. Reduce Motion skips bucket travel and tilting and uses brief steps. Backgrounding cancels presentation, and relaunch restores the complete move without replaying it.
+Progression is linear: victory offers Next Level, defeat offers Retry, and completing level three offers Start Again. Restarting an unfinished level requires confirmation. There is no level picker.
 
-Save version 2 intentionally resets every old-game save to new level one. Current-version invalid board data restarts its recorded level; unreadable, unknown-version, or unknown-level data starts level one. Save failures remain visible and offer retry. Completed and lost states survive relaunch.
+## Authored data and saved state
 
-The board uses four-point side margins on the iPhone SE's 375 × 667-point screen. Controls and three visible queue entries fit without scrolling. Blocks retain colored borders until removed and briefly fill during pouring. Bucket quantities remain numeric. Read-only column accessibility summaries list remaining colors from top to bottom; bucket labels communicate readiness or blockage in English.
+`levels.json` defines board dimensions and boxes with stable IDs, zero-based top-left row/column, width, height, and color, plus slot counts and paint queues. Validation rejects missing coverage, overlaps, out-of-bounds boxes, duplicate IDs, invalid sizes, and unequal paint supply. Level JSON describes initial geometry; runtime rows and fill amounts belong in saved state.
+
+Levels are never generated or solved at runtime. The offline solver uses the app's engine transitions. Stored winning paths cover all levels; stored losing alternatives cover medium and hard. Search size and solution length do not establish human difficulty, and inconclusive searches prove neither solvability nor impossibility.
+
+Save version 3 resets all earlier saves to level one. Invalid current-version state restarts its recorded level; unreadable, unknown-version, or unknown-level saves start level one. Saved states validate geometry, support, integer fill bounds, queue positions, bucket uniqueness, and paint conservation. Save failures remain visible and offer retry. Completed and lost states survive relaunch.
+
+## Animation and splash
+
+The engine owns targeting and gravity and returns ordered fill, removal, and simultaneous-fall events. The app commits and saves the complete resulting move before animating it, with input locked. Each added paint unit fills over 0.25 seconds; removal pauses for 0.1 seconds; each falling row takes 0.1 seconds. Bucket travel between entry columns takes 0.25 seconds. The stream stays hidden during removal, falling, and travel. Reduce Motion uses brief steps without bucket travel or tilting. Backgrounding cancels presentation; restoration shows the completed move without replaying it.
+
+Every launch and return from the background shows a three-second splash with the selected Cozy Pour icon, wider peach breathing room, a playful golden Color Flow logo with blue outline and turquoise shadow, and the subtitle “for Luisa”. Game controls are absent from touch and accessibility during the splash; progress is preserved. A temporary system interruption does not retrigger a completed splash. See [icon proposals](icon-proposals/README.md) for artwork and prompts.
+
+The board uses four-point side margins on the iPhone SE's 375 × 667-point screen. Controls and three visible queue entries fit without scrolling. Read-only box descriptions report color, current position, dimensions, and filled/total paint units. Bucket labels communicate readiness or blockage in English.
