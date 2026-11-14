@@ -6,8 +6,12 @@ struct GameView: View {
     @Environment(\.accessibilityReduceMotion) private var reducedMotion
     @Environment(\.scenePhase) private var scenePhase
     @State private var confirmRestart = false
+    @State private var confirmClearStats = false
     @State private var panel: GamePanel?
     private var hasOverlay: Bool { panel != nil || (!model.busy && model.outcome != .playing) }
+    private var gameplayActive: Bool {
+        scenePhase == .active && !hasOverlay && !confirmRestart && model.saveError == nil
+    }
     private var reduceMotionEnabled: Bool {
         reducedMotion || (ProcessInfo.processInfo.environment["COLOR_FLOW_UI_TEST"] == "1" &&
                           ProcessInfo.processInfo.environment["COLOR_FLOW_REDUCE_MOTION"] == "1")
@@ -42,9 +46,18 @@ struct GameView: View {
             Button("Restart Level", role: .destructive) { model.restart() }
             Button("Cancel", role: .cancel) {}
         }
+        .alert("Clear all stats?", isPresented: $confirmClearStats) {
+            Button("Clear stats", role: .destructive) { model.clearStatistics() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Your recorded statistics will be permanently deleted.")
+        }
         .alert("Progress Not Saved", isPresented: Binding(get: { model.saveError != nil }, set: { if !$0 { model.saveError = nil } })) {
             Button("Try Again") { model.save() }
         } message: { Text(model.saveError ?? "") }
+        .onAppear { model.setGameplayActive(gameplayActive) }
+        .onDisappear { model.setGameplayActive(false) }
+        .onChange(of: gameplayActive) { _, active in model.setGameplayActive(active) }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active {
                 model.finishAnimation()
@@ -56,21 +69,43 @@ struct GameView: View {
 
     private var header: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Level \(model.level.id)").font(.headline)
+            HStack(spacing: 10) {
+                Text("\(model.level.id)")
+                    .font(.system(size: 27, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.10, green: 0.19, blue: 0.30))
+                    .frame(minWidth: 49, minHeight: 49)
+                    .background(Color(red: 1, green: 0.79, blue: 0.31), in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(red: 1, green: 0.89, blue: 0.60), lineWidth: 2))
+                    .shadow(color: Color.orange.opacity(0.5), radius: 0, y: 3)
+                    .rotationEffect(.degrees(-4))
+                    .accessibilityLabel("Level \(model.level.id) of \(model.levels.count)")
                     .accessibilityIdentifier("level-number")
-                Text(model.level.difficulty.rawValue.capitalized).font(.caption).foregroundStyle(.secondary)
-                    .accessibilityIdentifier("level-difficulty")
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline, spacing: 7) {
+                        Text("Level").font(.system(size: 17, weight: .bold, design: .rounded))
+                        Text("of \(model.levels.count)").font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityHidden(true)
+                    HStack(spacing: 6) {
+                        Circle().fill(.cyan).frame(width: 6, height: 6).accessibilityHidden(true)
+                        Text(model.level.difficulty.rawValue.capitalized)
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.cyan)
+                            .accessibilityIdentifier("level-difficulty")
+                    }
+                }
             }
+            .padding(.leading, 5)
             Spacer()
             Button { panel = .settings } label: {
                 Image(systemName: "gearshape.fill")
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(.cyan)
-                    .frame(width: 56, height: 56)
-                    .background(Color.cyan.opacity(0.14), in: RoundedRectangle(cornerRadius: 16))
-                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.cyan.opacity(0.65), lineWidth: 2))
-                    .contentShape(RoundedRectangle(cornerRadius: 16))
+                    .frame(width: 44, height: 44)
+                    .background(Color.cyan.opacity(0.14), in: RoundedRectangle(cornerRadius: 13))
+                    .overlay(RoundedRectangle(cornerRadius: 13).strokeBorder(.cyan.opacity(0.65), lineWidth: 2))
+                    .contentShape(RoundedRectangle(cornerRadius: 13))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Game settings")
@@ -231,14 +266,30 @@ struct GameView: View {
                     }
                     .buttonStyle(CartoonButtonStyle())
                     .accessibilityIdentifier("hint")
+                    Button { panel = .stats } label: {
+                        SettingsEntryLabel(title: "Stats", icon: "chart.bar.fill")
+                    }
+                    .buttonStyle(CartoonButtonStyle())
+                    .accessibilityIdentifier("stats")
                     Button {
-                        closePanel()
                         confirmRestart = true
+                        closePanel()
                     } label: {
                         SettingsEntryLabel(title: "Retry level", icon: "arrow.counterclockwise")
                     }
                     .buttonStyle(CartoonButtonStyle())
                     .accessibilityIdentifier("restart")
+                }
+            }
+        } else if panel == .stats {
+            CartoonPanel(title: "Stats", icon: "chart.bar.fill", close: closePanel) {
+                VStack(spacing: 18) {
+                    StatsTable(statistics: model.progress.statistics)
+                    Button { confirmClearStats = true } label: {
+                        SettingsEntryLabel(title: "Clear stats", icon: "eraser.fill")
+                    }
+                    .buttonStyle(CartoonButtonStyle())
+                    .accessibilityIdentifier("clear-stats")
                 }
             }
         } else if panel == .hints {
@@ -274,4 +325,4 @@ struct GameView: View {
     }
 }
 
-enum GamePanel { case settings, hints }
+enum GamePanel { case settings, hints, stats }

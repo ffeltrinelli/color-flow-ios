@@ -14,7 +14,7 @@ public enum PaintColor: String, Codable, CaseIterable, Sendable {
     }
 }
 
-public enum Difficulty: String, Codable, Sendable {
+public enum Difficulty: String, Codable, CaseIterable, Sendable {
     case easy, medium, hard
 }
 
@@ -116,12 +116,15 @@ public enum LevelCatalog {
         return levels
     }
 
-    public static func generationMetrics() throws -> [GenerationMetrics] {
-        struct Report: Decodable { let metrics: [GenerationMetrics] }
+    public static func generationReport() throws -> GenerationReport {
         guard let url = Bundle.module.url(forResource: "generation", withExtension: "json") else {
             throw CocoaError(.fileReadNoSuchFile)
         }
-        return try JSONDecoder().decode(Report.self, from: Data(contentsOf: url)).metrics
+        return try JSONDecoder().decode(GenerationReport.self, from: Data(contentsOf: url))
+    }
+
+    public static func generationMetrics() throws -> [GenerationMetrics] {
+        try generationReport().metrics
     }
 
     public static func losingBranches() throws -> [Int: [Move]] {

@@ -1,5 +1,22 @@
 # Visual evidence
 
+## Stats and 50-level campaign
+
+Inspected on iPhone SE third-generation simulator, iOS 27.2, and physical iPhone SE second generation, iOS 17.1.1 (both 375 × 667 points):
+
+| View | Before | After |
+| --- | --- | --- |
+| Simulator header | [Before](stats-header-before-se.png) | [Paint badge and smaller settings button](stats-header-after-se.png) |
+| Simulator settings | [Before](stats-settings-before-se.png) | [Stats entry](stats-settings-after-se.png) |
+| Physical SE header | [Before](larger-settings-button-device.png) | [After](stats-header-after-device.png) |
+| Physical SE settings | [Before](cartoon-settings-device.png) | [After](stats-settings-after-device.png) |
+
+The physical SE captures show [empty statistics and Clear stats](stats-empty-device.png), a [recorded victory](stats-victory-device.png), and the [destructive confirmation](stats-clear-confirmation-device.png). Simulator counterparts show the [empty table](stats-empty-se.png), [victory](stats-victory-se.png), and [confirmation](stats-clear-confirmation-se.png). Histogram, gear, eraser, and close icons are visible; the table, button, and confirmation fit the compact layout.
+
+Validation: 51 release core tests and 10 device-selection tests passed. `LevelCheck` verified all 50 winning paths and 33 losing alternatives. The original nine definitions, paths, and metrics were preserved; 27 original version-4 save checkpoints restored exactly. Both generation modes reproduced their recorded data, including a byte-for-byte match of all four expanded resources.
+
+The final routine suite passed 17 UI tests on each SE, covering clear confirmation/cancellation, persistent statistics, unchanged boards, restoration, and animation behavior. A separate full journey passed all 50 levels and Start Again on iPhone 18 Pro simulator, iOS 27.2; its [level 50 capture](stats-level-50-large.png) was inspected. Clear stats was subsequently verified in the updated routine suites. Raw result bundles remain ignored; use hosted repository URLs for these selected images when preparing a PR.
+
 ## Paint river hints and cartoon controls
 
 Inspected on the physical iPhone SE second generation, iOS 17.1.1 (375 × 667 points):

@@ -6,11 +6,18 @@ struct Options {
     var difficulty: Difficulty?
     var count: Int?
     var output = "GeneratedLevels"
+    var appendFrom: String?
+    var order: GenerationOrder = .progressive
 
     init(arguments: [String]) throws {
         var index = 0
         while index < arguments.count {
             let flag = arguments[index]
+            if flag == "--shuffle" {
+                order = .shuffled
+                index += 1
+                continue
+            }
             guard index + 1 < arguments.count else { throw GenerationError.invalidConfiguration }
             let value = arguments[index + 1]
             switch flag {
@@ -24,29 +31,66 @@ struct Options {
                 guard let parsed = Int(value), (1...99).contains(parsed) else { throw GenerationError.invalidConfiguration }
                 count = parsed
             case "--output": output = value
+            case "--append-from": appendFrom = value
             default: throw GenerationError.invalidConfiguration
             }
             index += 2
         }
-        guard difficulty != nil || count == nil else { throw GenerationError.invalidConfiguration }
+        guard difficulty != nil || count == nil || appendFrom != nil,
+              appendFrom == nil || (count != nil && difficulty == nil && order == .shuffled) else { throw GenerationError.invalidConfiguration }
     }
 
-    var profiles: [GenerationProfile] {
+    func generationProfiles() throws -> [GenerationProfile] {
+        if appendFrom != nil, let count { return try GenerationProfile.balanced(count: count) }
         guard let difficulty else { return GenerationProfile.campaign }
         let group = GenerationProfile.campaign.filter { $0.difficulty == difficulty }
         return (0..<(count ?? 3)).map { group[min($0, group.count - 1)] }
     }
 }
 
-struct Metadata: Encodable {
-    let formatVersion = 1
-    let seed: UInt64
-    let metrics: [GenerationMetrics]
+struct ExistingCampaign {
+    var levels: [LevelDefinition] = []
+    var solutions: [[Move]] = []
+    var losingBranches: [Int: [Move]] = [:]
+    var report = GenerationReport(batches: [], metrics: [])
+
+    init(directory: String?) throws {
+        guard let directory else { return }
+        let root = URL(fileURLWithPath: directory)
+        func read<T: Decodable>(_ name: String, as type: T.Type) throws -> T {
+            try JSONDecoder().decode(type, from: Data(contentsOf: root.appendingPathComponent(name)))
+        }
+        levels = try read("levels.json", as: [LevelDefinition].self)
+        solutions = try read("solutions.json", as: [[Move]].self)
+        losingBranches = try read("losing-branch.json", as: [Int: [Move]].self)
+        report = try read("generation.json", as: GenerationReport.self)
+        try report.validate(levels: levels)
+        guard solutions.count == levels.count,
+              Set(losingBranches.keys) == Set(levels.filter { $0.difficulty != .easy }.map(\.id)) else {
+            throw GenerationError.invalidConfiguration
+        }
+        for (level, moves) in zip(levels, solutions) {
+            let engine = try PuzzleEngine(level: level)
+            func verify(_ moves: [Move], outcome: GameOutcome) throws {
+                var state = GameState(level: level)
+                for move in moves {
+                    state = try engine.applying(move, to: state)
+                    guard engine.validate(state: state) else { throw GenerationError.invalidConfiguration }
+                }
+                guard engine.outcome(state: state) == outcome else { throw GenerationError.invalidConfiguration }
+            }
+            try verify(moves, outcome: .won)
+            guard report.metrics[level.id - 1].solutionMoves == moves.count else {
+                throw GenerationError.invalidConfiguration
+            }
+            if let losing = losingBranches[level.id] { try verify(losing, outcome: .lost) }
+        }
+    }
 }
 
 func run() throws {
     if CommandLine.arguments.contains("--help") {
-        print("Usage: swift run LevelGenerate [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--output DIRECTORY]")
+        print("Usage: swift run LevelGenerate [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
         print("Default: a nine-level campaign. Output must be a new directory; copy verified files into Resources explicitly.")
         return
     }
@@ -56,14 +100,24 @@ func run() throws {
         throw CocoaError(.fileWriteFileExists)
     }
     print("Generating with seed \(options.seed)")
-    let campaign = try LevelGenerator.generate(seed: options.seed, profiles: options.profiles)
+    var existing = try ExistingCampaign(directory: options.appendFrom)
+    let profiles = try options.generationProfiles()
+    let campaign = try LevelGenerator.generate(seed: options.seed, profiles: profiles,
+                                               order: options.order, existingLevels: existing.levels)
+    existing.report.batches.append(GenerationBatch(seed: options.seed, firstLevelID: existing.levels.count + 1,
+                                                    levelCount: campaign.levels.count, order: options.order))
+    existing.levels += campaign.levels
+    existing.solutions += campaign.solutions
+    existing.losingBranches.merge(campaign.losingBranches) { _, new in new }
+    existing.report.metrics += campaign.metrics
+    try existing.report.validate(levels: existing.levels)
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     let files = [
-        "levels.json": try encoder.encode(campaign.levels),
-        "solutions.json": try encoder.encode(campaign.solutions),
-        "losing-branch.json": try encoder.encode(campaign.losingBranches),
-        "generation.json": try encoder.encode(Metadata(seed: campaign.seed, metrics: campaign.metrics))
+        "levels.json": try encoder.encode(existing.levels),
+        "solutions.json": try encoder.encode(existing.solutions),
+        "losing-branch.json": try encoder.encode(existing.losingBranches),
+        "generation.json": try encoder.encode(existing.report)
     ]
     let parent = destination.deletingLastPathComponent()
     try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)

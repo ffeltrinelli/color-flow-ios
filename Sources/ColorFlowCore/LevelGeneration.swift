@@ -46,6 +46,15 @@ public struct GenerationProfile: Codable, Equatable, Sendable {
         .init(difficulty: .hard, largeBoxArea: 60)
     ]
 
+    public static func balanced(count: Int) throws -> [GenerationProfile] {
+        guard count > 0 else { throw GenerationError.invalidConfiguration }
+        return (0..<count).map { index in
+            let difficulty = Difficulty.allCases[index % Difficulty.allCases.count]
+            let group = campaign.filter { $0.difficulty == difficulty }
+            return group[(index / Difficulty.allCases.count) % group.count]
+        }
+    }
+
     public var sampledWinRange: ClosedRange<Int> {
         switch difficulty {
         case .easy:
@@ -90,8 +99,11 @@ public enum GenerationError: Error, Equatable {
 
 public enum LevelGenerator {
     public static func generate(seed: UInt64, profiles: [GenerationProfile] = GenerationProfile.campaign,
-                                attemptLimit: Int = 200, searchLimit: Int = 25_000) throws -> GeneratedCampaign {
+                                attemptLimit: Int = 200, searchLimit: Int = 25_000,
+                                order: GenerationOrder = .progressive,
+                                existingLevels: [LevelDefinition] = []) throws -> GeneratedCampaign {
         guard !profiles.isEmpty, attemptLimit > 0, searchLimit > 0,
+              existingLevels.enumerated().allSatisfy({ $0.element.id == $0.offset + 1 }),
               profiles.allSatisfy({ profile in
                   let minimum = profile.shapes.reduce(0) { $0 + $1.0 * $1.1 }
                   return (minimum...80).contains(profile.largeBoxArea) &&
@@ -102,25 +114,23 @@ public enum LevelGenerator {
         var solutions: [[Move]] = []
         var losingBranches: [Int: [Move]] = [:]
         var metrics: [GenerationMetrics] = []
-        var fingerprints = Set<Data>()
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        for profile in profiles {
-            let id = levels.count + 1
+        try validateUnique(existingLevels)
+        var fingerprints = try Set(existingLevels.map(fingerprint))
+        let orderedProfiles = order == .shuffled ? random.shuffle(profiles) : profiles
+        for profile in orderedProfiles {
+            let id = existingLevels.count + levels.count + 1
             var accepted = false
             for attempt in 1...attemptLimit {
                 guard let boxes = makeBoxes(profile: profile, random: &random) else { continue }
                 let level = try makeLevel(id: id, profile: profile, boxes: boxes, random: &random)
-                // Exclude the campaign ID from duplicate detection.
-                let fingerprint = try encoder.encode(LevelDefinition(id: 1, difficulty: level.difficulty,
-                    bucketSlots: level.bucketSlots, width: 10, height: 10, boxes: boxes, paintQueues: level.paintQueues))
+                let fingerprint = try fingerprint(level)
                 guard !fingerprints.contains(fingerprint) else { continue }
                 let engine = try PuzzleEngine(level: level)
                 guard case .solved(let moves, let visited) = LevelSolver.solve(engine: engine, limit: searchLimit),
                       try replay(moves, engine: engine) == .won else { continue }
                 let samples = try samplePlay(engine: engine, random: &random)
                 guard profile.sampledWinRange.contains(samples.wins),
-                      samples.wins <= (metrics.last?.sampledWins ?? 32),
+                      (order == .shuffled || samples.wins <= (metrics.last?.sampledWins ?? 32)),
                       profile.difficulty == .easy || samples.loss != nil else { continue }
                 fingerprints.insert(fingerprint)
                 levels.append(level)
@@ -135,6 +145,19 @@ public enum LevelGenerator {
         }
         return GeneratedCampaign(seed: seed, levels: levels, solutions: solutions,
                                  losingBranches: losingBranches, metrics: metrics)
+    }
+
+    public static func validateUnique(_ levels: [LevelDefinition]) throws {
+        let fingerprints = try levels.map(fingerprint)
+        guard Set(fingerprints).count == levels.count else { throw GenerationError.invalidConfiguration }
+    }
+
+    private static func fingerprint(_ level: LevelDefinition) throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return try encoder.encode(LevelDefinition(id: 1, difficulty: level.difficulty,
+            bucketSlots: level.bucketSlots, width: level.width, height: level.height,
+            boxes: level.boxes, paintQueues: level.paintQueues))
     }
 
     private static func makeBoxes(profile: GenerationProfile, random: inout LevelRandom) -> [BoxDefinition]? {

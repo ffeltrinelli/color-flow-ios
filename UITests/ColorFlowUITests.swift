@@ -101,14 +101,28 @@ final class ColorFlowUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Level Complete!"].exists)
         attachScreenshot("Centered level completion")
         app.buttons["advance"].tap()
-        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 2")
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 2 of \(levels.count)")
+        openStats()
+        let easy = statsRow("easy")
+        XCTAssertTrue(easy.label.contains("100%"), easy.label)
+        XCTAssertFalse(easy.label.contains("—"), easy.label)
+        attachScreenshot("Stats — recorded victory")
+        app.buttons["close-overlay"].tap()
+        app.terminate()
+        app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
+        app.launch()
+        XCTAssertTrue(app.buttons["settings"].waitForExistence(timeout: 10))
+        openStats()
+        XCTAssertTrue(statsRow("easy").label.contains("100%"))
+        app.buttons["close-overlay"].tap()
+        app.launchEnvironment["COLOR_FLOW_RESET"] = "1"
         app.terminate()
         launch(level: levels.count)
         try play(solutions[levels.count - 1], level: levels[levels.count - 1])
         XCTAssertTrue(app.staticTexts["Game Complete!"].exists)
         attachScreenshot("Centered game completion")
         app.buttons["advance"].tap()
-        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1")
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1 of \(levels.count)")
     }
 
     func testFullCampaignJourneyAndStartAgain() throws {
@@ -116,7 +130,7 @@ final class ColorFlowUITests: XCTestCase {
         let levels = try LevelCatalog.load()
         let solutions = try LevelCatalog.solutions()
         for (level, moves) in zip(levels, solutions) {
-            XCTAssertEqual(app.staticTexts["level-number"].label, "Level \(level.id)")
+            XCTAssertEqual(app.staticTexts["level-number"].label, "Level \(level.id) of \(levels.count)")
             XCTAssertEqual(app.staticTexts["level-difficulty"].label, level.difficulty.rawValue.capitalized)
             attachScreenshot("Level \(level.id) — initial")
             try play(moves, level: level)
@@ -124,7 +138,7 @@ final class ColorFlowUITests: XCTestCase {
             attachScreenshot("Level \(level.id) — empty grid")
             app.buttons["advance"].tap()
         }
-        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1")
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1 of \(levels.count)")
         XCTAssertEqual(app.buttons["slot-0"].value as? String, "Empty")
     }
 
@@ -229,11 +243,90 @@ final class ColorFlowUITests: XCTestCase {
                            levels[levelID - 1].bucketSlots)
             XCTAssertTrue(app.buttons["queue-0"].isHittable, app.debugDescription)
             XCTAssertTrue(app.buttons["settings"].isHittable)
-            XCTAssertGreaterThanOrEqual(app.buttons["settings"].frame.width, 56)
-            XCTAssertGreaterThanOrEqual(app.buttons["settings"].frame.height, 56)
+            XCTAssertGreaterThanOrEqual(app.buttons["settings"].frame.width, 44)
+            XCTAssertGreaterThanOrEqual(app.buttons["settings"].frame.height, 44)
             attachScreenshot("Level \(levelID) — compact layout")
             app.terminate()
         }
+    }
+
+    private func openStats() {
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.buttons["stats"].isHittable)
+        app.buttons["stats"].tap()
+    }
+
+    private func statsRow(_ difficulty: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: "stats-\(difficulty)").firstMatch
+    }
+
+    func testStatsOverlayPreservesBoardAndRestartStatistics() {
+        launch()
+        let before = snapshot()
+        attachScreenshot("Paint badge header — compact")
+        app.buttons["settings"].tap()
+        attachScreenshot("Settings — Stats histogram entry")
+        app.buttons["stats"].tap()
+        for difficulty in ["easy", "medium", "hard"] {
+            XCTAssertTrue(statsRow(difficulty).label.contains("Win percentage: —"))
+        }
+        XCTAssertFalse(app.buttons["queue-0"].isHittable)
+        let close = app.buttons["close-overlay"]
+        XCTAssertTrue(close.isHittable)
+        XCTAssertGreaterThanOrEqual(close.frame.width, 48)
+        XCTAssertGreaterThanOrEqual(close.frame.height, 48)
+        attachScreenshot("Stats — empty cartoon table")
+        close.tap()
+        XCTAssertEqual(snapshot(), before)
+
+        app.buttons["settings"].tap()
+        app.buttons["restart"].tap()
+        app.buttons["Cancel"].tap()
+        openStats()
+        XCTAssertTrue(statsRow("easy").label.contains("Win percentage: —"))
+        app.buttons["close-overlay"].tap()
+        app.buttons["settings"].tap()
+        app.buttons["restart"].tap()
+        app.buttons["Restart Level"].tap()
+        openStats()
+        XCTAssertTrue(statsRow("easy").label.contains("Win percentage: 0%"))
+        XCTAssertTrue(statsRow("easy").label.contains("Average win time: —"))
+        attachScreenshot("Stats — recorded restart")
+        app.buttons["close-overlay"].tap()
+    }
+
+    func testClearStatsRequiresConfirmationAndPreservesProgress() {
+        launch()
+        app.buttons["settings"].tap()
+        app.buttons["restart"].tap()
+        app.buttons["Restart Level"].tap()
+        app.buttons["queue-0"].tap()
+        let before = snapshot()
+        openStats()
+        XCTAssertTrue(statsRow("easy").label.contains("Win percentage: 0%"))
+        app.buttons["clear-stats"].tap()
+        let confirmation = app.alerts["Clear all stats?"]
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 3))
+        attachScreenshot("Clear stats — confirmation")
+        confirmation.buttons["Cancel"].tap()
+        XCTAssertTrue(statsRow("easy").label.contains("Win percentage: 0%"))
+        app.buttons["clear-stats"].tap()
+        confirmation.buttons["Clear stats"].tap()
+        for difficulty in ["easy", "medium", "hard"] {
+            XCTAssertTrue(statsRow(difficulty).label.contains("Win percentage: —"))
+            XCTAssertTrue(statsRow(difficulty).label.contains("Average win time: —"))
+        }
+        attachScreenshot("Stats — cleared totals")
+        app.buttons["close-overlay"].tap()
+        XCTAssertEqual(snapshot(), before)
+        app.terminate()
+        app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
+        app.launch()
+        XCTAssertTrue(app.buttons["settings"].waitForExistence(timeout: 10))
+        XCTAssertEqual(snapshot(), before)
+        openStats()
+        XCTAssertTrue(statsRow("easy").label.contains("Win percentage: —"))
+        app.buttons["close-overlay"].tap()
     }
 
     func testRestartRequiresConfirmation() {
@@ -401,7 +494,7 @@ final class ColorFlowUITests: XCTestCase {
         launch(level: levelID)
         XCTAssertTrue(app.buttons["retry"].exists)
         app.buttons["retry"].tap()
-        XCTAssertEqual(app.staticTexts["level-number"].label, "Level \(levelID)")
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level \(levelID) of \(try LevelCatalog.load().count)")
         XCTAssertEqual(app.buttons["slot-0"].value as? String, "Empty")
     }
 }

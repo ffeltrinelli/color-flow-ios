@@ -34,6 +34,25 @@ final class GameModel {
     private var animation: Task<Void, Never>?
     private var hintTask: Task<Void, Never>?
     var hintPresentation: HintPresentation = .idle
+    private var playTimer = ActivePlayTimer()
+
+    func setGameplayActive(_ active: Bool) {
+        let seconds = playTimer.setRunning(active && (outcome == .playing || busy), at: ProcessInfo.processInfo.systemUptime)
+        progress.addPlayTime(seconds)
+        if !active { save() }
+    }
+
+    private func checkpointPlayTime() {
+        progress.addPlayTime(playTimer.checkpoint(at: ProcessInfo.processInfo.systemUptime))
+    }
+
+    private func recordOutcome() {
+        switch outcome {
+        case .playing: break
+        case .won: progress.resolveAttempt(.victory, difficulty: level.difficulty)
+        case .lost: progress.resolveAttempt(.failure, difficulty: level.difficulty)
+        }
+    }
 
     func requestHint() {
         cancelHint()
@@ -105,7 +124,10 @@ final class GameModel {
     func take(queue: Int) {
         guard !busy, let next = try? engine.applying(.take(queue: queue), to: progress.state) else { return }
         cancelHint()
+        checkpointPlayTime()
         progress.state = next
+        recordOutcome()
+        if outcome != .playing { setGameplayActive(false) }
         save()
     }
 
@@ -130,8 +152,10 @@ final class GameModel {
         let presentation = PourPresentation(slot: slot, color: bucket.color, initialUnits: bucket.paintUnits,
                                             events: result.events, before: progress.state)
         cancelHint()
+        checkpointPlayTime()
         displayedState = progress.state
         progress.state = result.state
+        recordOutcome()
         save()
         pour = presentation
         animation = Task { [weak self] in
@@ -184,6 +208,11 @@ final class GameModel {
     }
 
     func finishAnimation() {
+        checkpointPlayTime()
+        if outcome != .playing {
+            _ = playTimer.setRunning(false, at: ProcessInfo.processInfo.systemUptime)
+            progress.finalizeWinningTime(difficulty: level.difficulty)
+        }
         animation?.cancel()
         animation = nil
         pour = nil
@@ -192,19 +221,27 @@ final class GameModel {
         pourDestination = nil
         fillingBoxID = nil
         animatedFillUnits = 0
+        save()
     }
 
     func restart() {
         guard !busy else { return }
         cancelHint()
-        progress = GameProgress(level: level)
+        checkpointPlayTime()
+        progress.resolveAttempt(.restart, difficulty: level.difficulty)
+        progress.startAttempt(level: level)
         save()
     }
 
     func advance() {
         guard !busy, outcome == .won else { return }
         cancelHint()
-        progress = GameProgress(level: levels[finalLevel ? 0 : progress.levelID])
+        progress.startAttempt(level: levels[finalLevel ? 0 : progress.levelID])
+        save()
+    }
+
+    func clearStatistics() {
+        progress.clearStatistics()
         save()
     }
 

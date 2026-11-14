@@ -1,6 +1,6 @@
 # Native gameplay
 
-Color Flow is an offline queue-management puzzle. Nine authored 10 × 10 levels progress through three easy, three medium, and three hard puzzles. Easy and medium have three active bucket slots; hard has two. Difficulty labels remain provisional until human playtesting confirms them.
+Color Flow is an offline queue-management puzzle. The campaign contains 50 fixed 10 × 10 levels. The original nine progress through three easy, three medium, and three hard puzzles; levels 10–50 add 14 easy, 14 medium, and 13 hard puzzles in a fixed shuffled order. Easy and medium have three active bucket slots; hard has two. Difficulty labels remain provisional until human playtesting confirms them.
 
 ## Boxes and liquid
 
@@ -22,7 +22,7 @@ Only the front tin of each of four queues is retrievable; two further tins remai
 
 An empty board wins immediately. Full slots with no available pour lose, even if a blocked color could be recharged. Other non-winning states with no legal retrieval or pour also lose. Paint supply exactly matches each color's total box capacity, so a valid cleared board exhausts all paint.
 
-Progression is linear: victory offers Next Level, defeat offers Retry, and completing level nine offers Start Again. Retrying an unfinished level from the top-right settings menu requires confirmation. The 56 × 56-point settings button opens a menu that also provides Hint with a yellow bulb icon. Results use centered cartoon overlays with prominent action buttons. There is no level picker or Exit game control. Blocked buckets display a lock above their artwork, leaving paint quantities visible.
+Progression is linear: victory offers Next Level, defeat offers Retry, and completing level 50 offers Start Again. Retrying an unfinished level from the top-right settings menu requires confirmation. A tilted golden badge shows the current level beside “Level of 50,” with difficulty underneath. Its combined accessibility label reads “Level 12 of 50.” The 44 × 44-point settings button uses a 24-point gear and opens Hint, Stats, and Retry level. Hint uses a yellow bulb; Stats uses a histogram icon. Results use centered cartoon overlays with prominent action buttons. There is no level picker or Exit game control. Blocked buckets display a lock above their artwork, leaving paint quantities visible.
 
 ## Authored data and saved state
 
@@ -30,7 +30,15 @@ Progression is linear: victory offers Next Level, defeat offers Retry, and compl
 
 Levels are generated offline with a randomized algorithm and bundled as fixed JSON. Generation and on-demand hints share the solver and the app's engine transitions; neither requires an LLM or network. Stored winning paths cover all levels; stored losing alternatives cover every medium and hard level. See [level generation](level-generation.md). Search size and solution length do not establish human difficulty, and inconclusive searches prove neither solvability nor impossibility.
 
-Save version 4 resets all earlier saves to level one. Invalid current-version state restarts its recorded level; unreadable, unknown-version, or unknown-level saves start level one. Saved states validate geometry, support, integer fill bounds, queue positions, bucket uniqueness, and paint conservation. Save failures remain visible and offer retry. Completed and lost states survive relaunch.
+Save version 4 resets saves from earlier versions to level one. Appending levels preserves version-4 progress, including partial boards and a completed level 9, which now offers Next Level. The original nine level definitions, box ordering, queues, and paths are unchanged. Invalid current-version state restarts its recorded level while retaining decoded statistics; unreadable, unknown-version, or unknown-level saves start level one. Saved states validate geometry, support, integer fill bounds, queue positions, bucket uniqueness, and paint conservation. Save failures remain visible and offer retry. Completed and lost states survive relaunch.
+
+## Statistics
+
+Settings → Stats opens a cream cartoon table with Easy, Medium, and Hard rows, win percentage, and average win time. Percentages are rounded to whole numbers and equal wins divided by wins, failures, and confirmed manual restarts. Each attempt contributes one result; retrying a failure does not count twice. Cancelling a restart changes nothing; restarting before the first move still counts. Starting the campaign again retains lifetime totals. A centered Clear stats button with an eraser icon opens a confirmation dialog. Confirming clears all recorded totals and averages; cancelling changes nothing. The current board and active attempt, including its elapsed time, are retained.
+
+Average time includes successful attempts only. It counts foreground gameplay and automatic pours, including the final animation, and pauses during menus, hints, dialogs, result overlays, splash, and app inactivity. Durations through 60 seconds use seconds; longer averages use minutes with one decimal. Missing samples appear as “—”.
+
+Older version-4 saves start with empty statistics. A restored playing attempt contributes its future result but no duration because its earlier time is unknown. Existing result screens create no historical result. Fresh attempts are timed normally. Outcome counts are saved with the settled move before presentation; winning time is finalized after animation or interruption. Restoration finalizes a pending win from its saved elapsed checkpoint without recounting the result or including time away.
 
 ## Hints
 

@@ -82,7 +82,7 @@ def main():
     parser.add_argument('--simulator', default=os.environ.get('SIMULATOR_UDID'))
     parser.add_argument('--device', default=os.environ.get('DEVICE_UDID'))
     parser.add_argument('--full-campaign', action='store_true',
-                        help='Also play all nine levels through the UI (slow release check).')
+                        help='Also play the entire bundled campaign through the UI (slow release check).')
     args = parser.parse_args()
     run(['xcodebuild', '-checkFirstLaunchStatus'])
     destination = simulator_destination(args.simulator)

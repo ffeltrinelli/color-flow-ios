@@ -51,19 +51,10 @@ private func audit() throws {
             throw AuditError.invalidLosingPath(level.id)
         }
     }
-    let metrics = try LevelCatalog.generationMetrics()
-    guard metrics.map(\.levelID) == levels.map(\.id),
-          zip(metrics, metrics.dropFirst()).allSatisfy({ $0.sampledWins >= $1.sampledWins }) else {
-        throw AuditError.invalidGenerationReport
-    }
-    for (index, metric) in metrics.enumerated() {
-        let level = levels[index]
-        guard metric.profile.difficulty == level.difficulty,
-              metric.profile.bucketSlots == level.bucketSlots,
-              metric.profile.colorCount == Set(level.boxes.map(\.color)).count,
-              metric.profile.largeBoxArea == level.boxes.filter({ $0.capacity > 1 }).reduce(0, { $0 + $1.capacity }),
-              metric.profile.sampledWinRange.contains(metric.sampledWins), metric.sampledPlays == 32,
-              metric.solutionMoves == (rewrite ? solutions[index].count : stored[index].count) else {
+    let report = try LevelCatalog.generationReport()
+    try report.validate(levels: levels)
+    for (index, metric) in report.metrics.enumerated() {
+        guard metric.solutionMoves == (rewrite ? solutions[index].count : stored[index].count) else {
             throw AuditError.invalidGenerationReport
         }
     }
