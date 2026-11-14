@@ -1,20 +1,82 @@
 import Foundation
 import ColorFlowCore
 
-let levels = try LevelCatalog.load()
-var solutions: [[Move]] = []
-for level in levels {
-    let engine = try PuzzleEngine(level: level)
-    switch LevelSolver.solve(engine: engine) {
-    case .solved(let moves, let visited):
-        print("Level \(level.id) (\(level.difficulty.rawValue)): \(moves.count) moves, \(visited) states")
-        solutions.append(moves)
-    case .unsolvable(let visited): fatalError("Level \(level.id) is unsolvable (\(visited) states)")
-    case .inconclusive(let visited): fatalError("Level \(level.id): search inconclusive (\(visited) states)")
-    }
+private enum AuditError: Error {
+    case missingSolutions, invalidWinningPath(Int), invalidLosingPath(Int), missingLosingPaths, invalidGenerationReport
 }
-if CommandLine.arguments.contains("--write-solutions") {
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-    try encoder.encode(solutions).write(to: URL(fileURLWithPath: "Sources/ColorFlowCore/Resources/solutions.json"))
+
+private func replay(_ moves: [Move], engine: PuzzleEngine) throws -> GameOutcome {
+    var state = GameState(level: engine.level)
+    for move in moves {
+        state = try engine.applying(move, to: state)
+        guard engine.validate(state: state) else { throw AuditError.invalidWinningPath(engine.level.id) }
+    }
+    return engine.outcome(state: state)
+}
+
+private func audit() throws {
+    let arguments = Set(CommandLine.arguments.dropFirst())
+    let rewrite = arguments.contains("--write-solutions")
+    let search = rewrite || arguments.contains("--solve")
+    let levels = try LevelCatalog.load()
+    let stored = rewrite ? [] : try LevelCatalog.solutions()
+    guard rewrite || stored.count == levels.count else { throw AuditError.missingSolutions }
+    var solutions: [[Move]] = []
+    for (index, level) in levels.enumerated() {
+        let engine = try PuzzleEngine(level: level)
+        if !rewrite {
+            guard try replay(stored[index], engine: engine) == .won else { throw AuditError.invalidWinningPath(level.id) }
+        }
+        if search {
+            switch LevelSolver.solve(engine: engine) {
+            case .solved(let moves, let visited):
+                guard try replay(moves, engine: engine) == .won else { throw AuditError.invalidWinningPath(level.id) }
+                solutions.append(moves)
+                print("Level \(level.id) (\(level.difficulty.rawValue)): \(moves.count) moves, \(visited) search states")
+            case .unsolvable(let visited):
+                throw NSError(domain: "LevelCheck", code: 1, userInfo: [NSLocalizedDescriptionKey: "Level \(level.id) is unsolvable (\(visited) states)"])
+            case .inconclusive(let visited):
+                throw NSError(domain: "LevelCheck", code: 2, userInfo: [NSLocalizedDescriptionKey: "Level \(level.id): search inconclusive (\(visited) states)"])
+            }
+        } else {
+            print("Level \(level.id) (\(level.difficulty.rawValue)): verified \(stored[index].count) winning moves")
+        }
+    }
+    let losing = try LevelCatalog.losingBranches()
+    let expected = Set(levels.filter { $0.difficulty != .easy }.map(\.id))
+    guard Set(losing.keys) == expected else { throw AuditError.missingLosingPaths }
+    for level in levels where expected.contains(level.id) {
+        guard let moves = losing[level.id],
+              try replay(moves, engine: PuzzleEngine(level: level)) == .lost else {
+            throw AuditError.invalidLosingPath(level.id)
+        }
+    }
+    let metrics = try LevelCatalog.generationMetrics()
+    guard metrics.map(\.levelID) == levels.map(\.id),
+          zip(metrics, metrics.dropFirst()).allSatisfy({ $0.sampledWins >= $1.sampledWins }) else {
+        throw AuditError.invalidGenerationReport
+    }
+    for (index, metric) in metrics.enumerated() {
+        let level = levels[index]
+        guard metric.profile.difficulty == level.difficulty,
+              metric.profile.bucketSlots == level.bucketSlots,
+              metric.profile.colorCount == Set(level.boxes.map(\.color)).count,
+              metric.profile.largeBoxArea == level.boxes.filter({ $0.capacity > 1 }).reduce(0, { $0 + $1.capacity }),
+              metric.profile.sampledWinRange.contains(metric.sampledWins), metric.sampledPlays == 32,
+              metric.solutionMoves == (rewrite ? solutions[index].count : stored[index].count) else {
+            throw AuditError.invalidGenerationReport
+        }
+    }
+    if rewrite {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(solutions).write(to: URL(fileURLWithPath: "Sources/ColorFlowCore/Resources/solutions.json"), options: .atomic)
+    }
+    print("Verified all \(levels.count) levels and \(losing.count) losing alternatives.")
+}
+
+do { try audit() }
+catch {
+    FileHandle.standardError.write(Data("Level audit failed: \(error)\n".utf8))
+    exit(1)
 }

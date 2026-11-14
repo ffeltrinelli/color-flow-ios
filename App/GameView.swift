@@ -6,6 +6,8 @@ struct GameView: View {
     @Environment(\.accessibilityReduceMotion) private var reducedMotion
     @Environment(\.scenePhase) private var scenePhase
     @State private var confirmRestart = false
+    @State private var panel: GamePanel?
+    private var hasOverlay: Bool { panel != nil || (!model.busy && model.outcome != .playing) }
     private var reduceMotionEnabled: Bool {
         reducedMotion || (ProcessInfo.processInfo.environment["COLOR_FLOW_UI_TEST"] == "1" &&
                           ProcessInfo.processInfo.environment["COLOR_FLOW_REDUCE_MOTION"] == "1")
@@ -14,20 +16,25 @@ struct GameView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let gridSize = min(geometry.size.width - 8, geometry.size.height - 276, 440)
-            VStack(spacing: 2) {
-                header
-                    .frame(height: 44)
-                board(size: gridSize)
-                slots
-                    .frame(height: 64)
-                queues
-                    .frame(height: 92)
-                result
-                    .frame(height: 32)
+            let gridSize = min(geometry.size.width - 8, geometry.size.height - 280, 440)
+            ZStack {
+                VStack(spacing: 2) {
+                    header.frame(height: 56)
+                    board(size: gridSize)
+                    slots.frame(height: 84)
+                    queues.frame(height: 92)
+                }
+                .padding(.horizontal, 4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .allowsHitTesting(!hasOverlay)
+                .accessibilityHidden(hasOverlay)
+                if hasOverlay {
+                    Color.black.opacity(0.65).ignoresSafeArea()
+                    modal(maxHeight: geometry.size.height - 32)
+                        .padding(.horizontal, 20)
+                        .accessibilityAddTraits(.isModal)
+                }
             }
-            .padding(.horizontal, 4)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(background.ignoresSafeArea())
         .preferredColorScheme(.dark)
@@ -39,7 +46,11 @@ struct GameView: View {
             Button("Try Again") { model.save() }
         } message: { Text(model.saveError ?? "") }
         .onChange(of: scenePhase) { _, phase in
-            if phase != .active { model.finishAnimation() }
+            if phase != .active {
+                model.finishAnimation()
+                model.cancelHint()
+                panel = nil
+            }
         }
     }
 
@@ -52,12 +63,18 @@ struct GameView: View {
                     .accessibilityIdentifier("level-difficulty")
             }
             Spacer()
-            Button { confirmRestart = true } label: {
-                Image(systemName: "arrow.counterclockwise").frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
+            Button { panel = .settings } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .foregroundStyle(.cyan)
+                    .frame(width: 56, height: 56)
+                    .background(Color.cyan.opacity(0.14), in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(.cyan.opacity(0.65), lineWidth: 2))
+                    .contentShape(RoundedRectangle(cornerRadius: 16))
             }
-            .accessibilityLabel("Restart level")
-            .accessibilityIdentifier("restart")
+            .buttonStyle(.plain)
+            .accessibilityLabel("Game settings")
+            .accessibilityIdentifier("settings")
             .disabled(model.busy || model.outcome != .playing)
         }
     }
@@ -146,15 +163,19 @@ struct GameView: View {
                 let bucket = model.displayedBucket(slot: slot)
                 let canPour = model.engine.canPour(slot: slot, state: model.progress.state)
                 Button { model.pour(slot: slot, reducedMotion: reduceMotionEnabled) } label: {
-                    PaintArtwork(color: bucket?.color, quantity: bucket?.paintUnits)
-                        .frame(maxWidth: 96)
-                        .frame(height: 64)
-                        .contentShape(Rectangle())
-                        .overlay(alignment: .bottom) {
-                            if bucket != nil, !canPour, !model.busy {
-                                Text("Blocked").font(.caption2).foregroundStyle(.secondary)
-                            }
-                        }
+                    VStack(spacing: 0) {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 19, weight: .black, design: .rounded))
+                            .foregroundStyle(.yellow)
+                            .shadow(color: .orange, radius: 0, x: 1, y: 2)
+                            .frame(height: 20)
+                            .opacity(bucket != nil && !canPour && !model.busy ? 1 : 0)
+                            .accessibilityHidden(true)
+                        PaintArtwork(color: bucket?.color, quantity: bucket?.paintUnits)
+                            .frame(maxWidth: 96)
+                            .frame(height: 64)
+                    }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .disabled(model.busy || model.outcome != .playing || !canPour)
@@ -198,24 +219,59 @@ struct GameView: View {
         }
     }
 
-    @ViewBuilder private var result: some View {
-        if model.busy {
-            Color.clear
-        } else {
-            switch model.outcome {
-            case .playing: Color.clear
-            case .lost:
-                HStack {
-                    Text("No Moves Left").font(.headline)
-                    Button("Retry") { model.restart() }.buttonStyle(.borderedProminent).accessibilityIdentifier("retry")
+    @ViewBuilder private func modal(maxHeight: CGFloat) -> some View {
+        if panel == .settings {
+            CartoonPanel(title: "Game settings", icon: "gearshape.fill", close: closePanel) {
+                VStack(spacing: 16) {
+                    Button {
+                        model.requestHint()
+                        panel = .hints
+                    } label: {
+                        SettingsEntryLabel(title: "Hint", icon: "lightbulb.fill")
+                    }
+                    .buttonStyle(CartoonButtonStyle())
+                    .accessibilityIdentifier("hint")
+                    Button {
+                        closePanel()
+                        confirmRestart = true
+                    } label: {
+                        SettingsEntryLabel(title: "Retry level", icon: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(CartoonButtonStyle())
+                    .accessibilityIdentifier("restart")
                 }
-            case .won:
-                HStack {
-                    Text(model.finalLevel ? "Game Complete" : "Level Complete!").font(.headline)
-                    Button(model.finalLevel ? "Start Again" : "Next Level") { model.advance() }
-                        .buttonStyle(.borderedProminent).accessibilityIdentifier("advance")
+            }
+        } else if panel == .hints {
+            CartoonPanel(title: "Your next 5 moves", icon: "lightbulb.fill", close: closePanel) {
+                HintRiverView(presentation: model.hintPresentation)
+                    .frame(maxHeight: max(180, maxHeight - 116))
+            }
+        } else if model.outcome != .playing && !model.busy {
+            let won = model.outcome == .won
+            CartoonPanel(title: won ? (model.finalLevel ? "Game Complete!" : "Level Complete!") : "No Moves Left",
+                         icon: won ? "star.fill" : "arrow.counterclockwise") {
+                VStack(spacing: 24) {
+                    Text(won ? (model.finalLevel ? "You cleared every paint puzzle!" : "Beautiful pouring! Ready for the next puzzle?") : "A fresh start can open a new path.")
+                        .font(.system(.title3, design: .rounded, weight: .semibold))
+                        .multilineTextAlignment(.center)
+                    if won {
+                        Button(model.finalLevel ? "Start Again" : "Next Level") { model.advance() }
+                            .buttonStyle(CartoonButtonStyle())
+                            .accessibilityIdentifier("advance")
+                    } else {
+                        Button("Retry") { model.restart() }
+                            .buttonStyle(CartoonButtonStyle())
+                            .accessibilityIdentifier("retry")
+                    }
                 }
             }
         }
     }
+
+    private func closePanel() {
+        model.cancelHint()
+        panel = nil
+    }
 }
+
+enum GamePanel { case settings, hints }

@@ -116,6 +116,14 @@ public enum LevelCatalog {
         return levels
     }
 
+    public static func generationMetrics() throws -> [GenerationMetrics] {
+        struct Report: Decodable { let metrics: [GenerationMetrics] }
+        guard let url = Bundle.module.url(forResource: "generation", withExtension: "json") else {
+            throw CocoaError(.fileReadNoSuchFile)
+        }
+        return try JSONDecoder().decode(Report.self, from: Data(contentsOf: url)).metrics
+    }
+
     public static func losingBranches() throws -> [Int: [Move]] {
         let url = Bundle.module.url(forResource: "losing-branch", withExtension: "json")!
         return try JSONDecoder().decode([Int: [Move]].self, from: Data(contentsOf: url))

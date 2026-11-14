@@ -36,6 +36,10 @@ for name, files, producttype, extension in [
     if name=='ColorFlow':
         assets=ref('App/Assets.xcassets','folder.assetcatalog'); fileids.append(assets)
         resourcebuilds.append(build(name+'assets',assets))
+    if name=='ColorFlowTests':
+        for resource in sorted(Path('Tests/ColorFlowCoreTests/Resources').glob('*.json')):
+            resourceid=ref(str(resource),'text.json'); fileids.append(resourceid)
+            resourcebuilds.append(build(name+str(resource),resourceid))
     resources=add(name+'resources', '{isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = '+array(resourcebuilds)+'; runOnlyForDeploymentPostprocessing = 0;}')
     product=add(name+'product',f'{{isa = PBXFileReference; explicitFileType = {"wrapper.application" if extension=="app" else "wrapper.cfbundle"}; path = {name}.{extension}; sourceTree = BUILT_PRODUCTS_DIR;}}')
     products.append(product)

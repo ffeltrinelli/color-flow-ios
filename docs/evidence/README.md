@@ -1,5 +1,21 @@
 # Visual evidence
 
+## Paint river hints and cartoon controls
+
+Inspected on the physical iPhone SE second generation, iOS 17.1.1 (375 × 667 points):
+
+- [Larger settings button](larger-settings-button-device.png) and [settings menu](cartoon-settings-device.png), with consistent icon-and-text controls.
+- [Loading-wheel regression](hint-loading-device.png), showing the empty startup state without a false timeout.
+- [Paint river hints](paint-river-hints-device.png) and [scrolled fifth step](paint-river-hints-scrolled-device.png), with exact queue/bucket targets and readable quantities.
+- [Blocked bucket lock](blocked-lock-device.png), positioned above the bucket without covering its paint count.
+- Centered [level completion](level-complete-device.png), [game completion](game-complete-device.png), and [defeat](defeat-device.png) overlays from the passing routine suite.
+
+The [larger-phone hint capture](paint-river-hints-large.png) was also inspected on iPhone 18 Pro simulator, iOS 27.2.
+
+The final river and stone sprites follow [option 5 of the original comparison](hint-design-options.png); see [artwork notes](../hint-artwork.md). Final focused checks passed on the physical SE and compact simulator (three tests each), plus the larger simulator hint check.
+
+Earlier [SE board](mixed-boxes-board-device.png) provides the before reference for the header and bucket captions.
+
 ## Mixed-size boxes and splash
 
 Inspected on iPhone SE third-generation Simulator (375 × 667 points) and iPhone 18 Pro Simulator, both iOS 27.2:

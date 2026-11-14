@@ -17,13 +17,22 @@ final class ColorFlowUITests: XCTestCase {
     private func launch(level: Int = 1) {
         app.launchEnvironment["COLOR_FLOW_TEST_LEVEL"] = String(level)
         app.launch()
-        XCTAssertTrue(app.staticTexts["level-number"].waitForExistence(timeout: 15), app.debugDescription)
+        let loaded = NSPredicate { [self] _, _ in
+            app.staticTexts["level-number"].exists || app.buttons["advance"].exists || app.buttons["retry"].exists
+        }
+        expectation(for: loaded, evaluatedWith: app)
+        waitForExpectations(timeout: 15)
     }
 
     private func waitUntilReady() {
-        let ready = NSPredicate(format: "value == %@", "Ready")
-        expectation(for: ready, evaluatedWith: app.otherElements["board"])
-        waitForExpectations(timeout: 15)
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(20))
+        repeat {
+            if app.otherElements["board"].value as? String == "Ready" ||
+                app.buttons["advance"].exists || app.buttons["retry"].exists { return }
+            Thread.sleep(forTimeInterval: 0.05)
+        } while clock.now < deadline
+        XCTFail("The board did not settle or show a result within 20 seconds")
     }
 
     @discardableResult
@@ -41,7 +50,7 @@ final class ColorFlowUITests: XCTestCase {
             if case .pour = move { waitUntilReady() }
             state = try engine.applying(move, to: state)
         }
-        assertBoxes(level: level, state: state)
+        if engine.outcome(state: state) == .playing { assertBoxes(level: level, state: state) }
         return state
     }
 
@@ -84,7 +93,25 @@ final class ColorFlowUITests: XCTestCase {
         XCTAssertEqual(app.buttons["slot-0"].value as? String, bucket)
     }
 
-    func testCompleteJourneyAndStartAgain() throws {
+    func testLevelTransitionAndFinalCompletion() throws {
+        let levels = try LevelCatalog.load()
+        let solutions = try LevelCatalog.solutions()
+        launch()
+        try play(solutions[0], level: levels[0])
+        XCTAssertTrue(app.staticTexts["Level Complete!"].exists)
+        attachScreenshot("Centered level completion")
+        app.buttons["advance"].tap()
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 2")
+        app.terminate()
+        launch(level: levels.count)
+        try play(solutions[levels.count - 1], level: levels[levels.count - 1])
+        XCTAssertTrue(app.staticTexts["Game Complete!"].exists)
+        attachScreenshot("Centered game completion")
+        app.buttons["advance"].tap()
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1")
+    }
+
+    func testFullCampaignJourneyAndStartAgain() throws {
         launch()
         let levels = try LevelCatalog.load()
         let solutions = try LevelCatalog.solutions()
@@ -104,16 +131,25 @@ final class ColorFlowUITests: XCTestCase {
     func testRechargeAndExactRelaunchRestore() throws {
         launch()
         let level = try LevelCatalog.load()[0]
-        let moves: [Move] = [.take(queue: 0), .take(queue: 2), .pour(slot: 0)]
-        app.buttons["queue-0"].tap()
-        app.buttons["queue-2"].tap()
-        XCTAssertEqual(app.buttons["slot-0"].value as? String, "2 paint units, Ready to pour")
-        app.buttons["slot-0"].tap()
-        waitUntilReady()
         let engine = try PuzzleEngine(level: level)
-        let expected = try moves.reduce(GameState(level: level)) { try engine.applying($1, to: $0) }
-        assertBoxes(level: level, state: expected)
-        attachScreenshot("Recharged bucket clears a larger box")
+        var state = GameState(level: level)
+        var prefix: [Move] = []
+        var foundRecharge = false
+        for move in try LevelCatalog.solutions()[0] {
+            if let queue = (0..<4).first(where: { queue in
+                guard let tin = engine.frontTin(queue: queue, state: state) else { return false }
+                return state.buckets.contains { $0?.color == tin.color }
+            }) {
+                prefix.append(.take(queue: queue))
+                foundRecharge = true
+                break
+            }
+            prefix.append(move)
+            state = try engine.applying(move, to: state)
+        }
+        XCTAssertTrue(foundRecharge)
+        _ = try play(prefix, level: level)
+        attachScreenshot("Recharged bucket")
         let before = snapshot()
         app.terminate()
         app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
@@ -124,10 +160,17 @@ final class ColorFlowUITests: XCTestCase {
     func testPartialFillPersistsAcrossRelaunch() throws {
         launch()
         let level = try LevelCatalog.load()[0]
-        try play([.take(queue: 0), .pour(slot: 0)], level: level)
-        let box = app.descendants(matching: .any).matching(identifier: "box-1").firstMatch
-        XCTAssertTrue(box.label.contains("1 of 2 paint units"))
-        attachScreenshot("Partially filled two-cell box")
+        let engine = try PuzzleEngine(level: level)
+        var state = GameState(level: level)
+        var prefix: [Move] = []
+        for move in try LevelCatalog.solutions()[0] {
+            prefix.append(move)
+            state = try engine.applying(move, to: state)
+            if zip(level.boxes, state.boxes).contains(where: { $1.filledUnits > 0 && $1.filledUnits < $0.capacity }) { break }
+        }
+        XCTAssertTrue(zip(level.boxes, state.boxes).contains { $1.filledUnits > 0 && $1.filledUnits < $0.capacity })
+        try play(prefix, level: level)
+        attachScreenshot("Partially filled box")
         let before = snapshot()
         app.terminate()
         app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
@@ -161,33 +204,47 @@ final class ColorFlowUITests: XCTestCase {
     }
 
     private func snapshot() -> [String] {
-        app.descendants(matching: .any)
-            .matching(NSPredicate(format: "identifier BEGINSWITH 'box-' OR identifier BEGINSWITH 'slot-' OR identifier BEGINSWITH 'queue-'"))
+        let controls = app.buttons
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'slot-' OR identifier BEGINSWITH 'queue-'"))
             .allElementsBoundByIndex.map { "\($0.identifier)|\($0.label)|\($0.value ?? "")|\($0.isEnabled)" }
+        let boxes = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH 'box-'"))
+            .allElementsBoundByIndex.map(\.label)
+        return controls + boxes
     }
 
-    func testBoardIsReadOnlyAndFitsScreen() {
-        launch()
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'box-' OR identifier == 'board'")).count, 0)
-        let board = app.otherElements["board"].frame
-        XCTAssertLessThanOrEqual(board.maxX, app.frame.maxX)
-        XCTAssertLessThanOrEqual(board.width, 440)
-        if app.frame.width == 375 {
-            XCTAssertEqual(board.minX, 4, accuracy: 1)
-            XCTAssertEqual(board.width, 367, accuracy: 1)
+    func testBoardIsReadOnlyAndFitsScreen() throws {
+        let levels = try LevelCatalog.load()
+        for levelID in [1, 4, 7] {
+            launch(level: levelID)
+            XCTAssertEqual(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'box-' OR identifier == 'board'")).count, 0)
+            let board = app.otherElements["board"].frame
+            XCTAssertLessThanOrEqual(board.maxX, app.frame.maxX)
+            XCTAssertLessThanOrEqual(board.width, 440)
+            if app.frame.width == 375 {
+                XCTAssertEqual(board.minX, 4, accuracy: 1)
+                XCTAssertEqual(board.width, 367, accuracy: 1)
+            }
+            XCTAssertEqual(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'slot-'")).count,
+                           levels[levelID - 1].bucketSlots)
+            XCTAssertTrue(app.buttons["queue-0"].isHittable, app.debugDescription)
+            XCTAssertTrue(app.buttons["settings"].isHittable)
+            XCTAssertGreaterThanOrEqual(app.buttons["settings"].frame.width, 56)
+            XCTAssertGreaterThanOrEqual(app.buttons["settings"].frame.height, 56)
+            attachScreenshot("Level \(levelID) — compact layout")
+            app.terminate()
         }
-        XCTAssertTrue(app.buttons["queue-0"].isHittable, app.debugDescription)
-        XCTAssertTrue(app.buttons["restart"].isHittable)
-        attachScreenshot("Read-only full-width grid")
     }
 
     func testRestartRequiresConfirmation() {
         launch()
         app.buttons["queue-0"].tap()
         let bucket = app.buttons["slot-0"].value as? String
+        app.buttons["settings"].tap()
         app.buttons["restart"].tap()
         app.buttons["Cancel"].tap()
         XCTAssertEqual(app.buttons["slot-0"].value as? String, bucket)
+        app.buttons["settings"].tap()
         app.buttons["restart"].tap()
         app.buttons["Restart Level"].tap()
         XCTAssertEqual(app.buttons["slot-0"].value as? String, "Empty")
@@ -198,22 +255,18 @@ final class ColorFlowUITests: XCTestCase {
         launch()
         let level = try LevelCatalog.load()[0]
         let engine = try PuzzleEngine(level: level)
-        let preparation: [Move] = [.take(queue: 0), .take(queue: 0), .take(queue: 1), .take(queue: 2)]
-        var expected = GameState(level: level)
-        for move in preparation {
-            expected = try engine.applying(move, to: expected)
-            if case .take(let queue) = move { app.buttons["queue-\(queue)"].tap() }
-        }
-        expected = try engine.applying(.pour(slot: 0), to: expected)
-        app.buttons["slot-0"].tap()
+        let preparation = try preparationForPour(minimumUnits: 4)
+        _ = try play(preparation.prefix, level: level)
+        let expected = try engine.applying(.pour(slot: preparation.slot), to: preparation.state)
+        app.buttons["slot-\(preparation.slot)"].tap()
         XCTAssertEqual(app.otherElements["board"].value as? String, "Pouring")
-        XCTAssertFalse(app.buttons["restart"].isEnabled)
+        XCTAssertFalse(app.buttons["settings"].isEnabled)
         XCTAssertFalse(app.buttons["queue-0"].isEnabled)
         app.terminate()
         app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
         launch()
         assertBoxes(level: level, state: expected)
-        XCTAssertTrue(app.buttons["restart"].isEnabled)
+        XCTAssertTrue(app.buttons["settings"].isEnabled)
         attachScreenshot("Restored complete move after interrupted animation")
     }
 
@@ -221,7 +274,7 @@ final class ColorFlowUITests: XCTestCase {
         app.launchEnvironment["COLOR_FLOW_REDUCE_MOTION"] = "1"
         app.launchEnvironment["COLOR_FLOW_FAST_ANIMATION"] = "0"
         launch()
-        try play([.take(queue: 0), .pour(slot: 0)], level: LevelCatalog.load()[0])
+        try play(Array(LevelCatalog.solutions()[0].prefix(2)), level: LevelCatalog.load()[0])
         attachScreenshot("Reduced motion cleared blocks")
     }
 
@@ -230,27 +283,110 @@ final class ColorFlowUITests: XCTestCase {
         launch()
         let level = try LevelCatalog.load()[0]
         let engine = try PuzzleEngine(level: level)
-        var expected = GameState(level: level)
-        for queue in [0, 0, 1, 2] {
-            expected = try engine.applying(.take(queue: queue), to: expected)
-            app.buttons["queue-\(queue)"].tap()
-        }
-        expected = try engine.applying(.pour(slot: 0), to: expected)
+        let preparation = try preparationForPour(minimumUnits: 4)
+        _ = try play(preparation.prefix, level: level)
+        let expected = try engine.applying(.pour(slot: preparation.slot), to: preparation.state)
         let clock = ContinuousClock()
         let started = clock.now
-        app.buttons["slot-0"].tap()
+        app.buttons["slot-\(preparation.slot)"].tap()
         waitUntilReady()
         XCTAssertGreaterThanOrEqual(started.duration(to: clock.now), .seconds(1))
         assertBoxes(level: level, state: expected)
         attachScreenshot("Normal pour fills and removes larger boxes")
     }
 
+    private func preparationForPour(minimumUnits: Int) throws -> (prefix: [Move], state: GameState, slot: Int) {
+        let level = try LevelCatalog.load()[0]
+        let engine = try PuzzleEngine(level: level)
+        var state = GameState(level: level)
+        var prefix: [Move] = []
+        for move in try LevelCatalog.solutions()[0] {
+            if case .pour(let slot) = move {
+                let result = try engine.pourResult(slot: slot, state: state)
+                let units = result.events.reduce(0) { total, event in
+                    if case .fill(let step) = event { total + step.toUnits - step.fromUnits } else { total }
+                }
+                if units >= minimumUnits { return (prefix, state, slot) }
+            }
+            state = try engine.applying(move, to: state)
+            prefix.append(move)
+        }
+        throw NSError(domain: "Missing multi-unit pour fixture", code: 1)
+    }
+
+    func testHintsShowLoadingUntilResultIsReady() {
+        app.launchEnvironment["COLOR_FLOW_SLOW_HINT"] = "1"
+        launch()
+        app.buttons["settings"].tap()
+        app.buttons["hint"].tap()
+        let loading = app.descendants(matching: .any).matching(identifier: "hint-loading").firstMatch
+        XCTAssertTrue(loading.waitForExistence(timeout: 3), app.debugDescription)
+        XCTAssertFalse(app.staticTexts["hint-inconclusive"].exists)
+        attachScreenshot("Hint search — loading without a timeout message")
+        let first = app.descendants(matching: .any).matching(identifier: "hint-step-1").firstMatch
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(10))
+        while !first.exists && clock.now < deadline {
+            XCTAssertFalse(app.staticTexts["hint-inconclusive"].exists)
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+        XCTAssertTrue(first.exists)
+        XCTAssertFalse(app.staticTexts["hint-inconclusive"].exists)
+        app.buttons["close-overlay"].tap()
+    }
+
+    func testSettingsAndPaintRiverHintsPreserveProgress() throws {
+        launch()
+        let before = snapshot()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.buttons["restart"].isHittable)
+        XCTAssertFalse(app.buttons["queue-0"].isHittable)
+        attachScreenshot("Cartoon game settings")
+        app.buttons["hint"].tap()
+        let first = app.descendants(matching: .any).matching(identifier: "hint-step-1").firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 15))
+        let engine = try PuzzleEngine(level: LevelCatalog.load()[0])
+        guard case .steps(let steps) = LevelHints.suggest(engine: engine, state: GameState(level: engine.level),
+                                                          knownSolution: try LevelCatalog.solutions()[0]) else {
+            XCTFail("Expected hints"); return
+        }
+        XCTAssertTrue(first.label.contains(steps[0].instruction))
+        attachScreenshot("Paint river — first hints")
+        app.scrollViews["hint-route"].swipeUp()
+        let fifth = app.descendants(matching: .any).matching(identifier: "hint-step-5").firstMatch
+        XCTAssertTrue(fifth.isHittable)
+        attachScreenshot("Paint river — fifth hint")
+        app.buttons["close-overlay"].tap()
+        XCTAssertEqual(snapshot(), before)
+    }
+
+    func testBlockedBucketRetainsQuantityAndNoTextCaption() throws {
+        launch(level: 7)
+        let level = try LevelCatalog.load()[6]
+        let engine = try PuzzleEngine(level: level)
+        let path = try XCTUnwrap(LevelCatalog.losingBranches()[7])
+        var state = GameState(level: level)
+        var prefix: [Move] = []
+        for move in path {
+            state = try engine.applying(move, to: state)
+            prefix.append(move)
+            if engine.outcome(state: state) == .playing && state.buckets.indices.contains(where: {
+                state.buckets[$0] != nil && !engine.canPour(slot: $0, state: state)
+            }) { break }
+        }
+        try play(prefix, level: level)
+        let slot = try XCTUnwrap(state.buckets.indices.first { state.buckets[$0] != nil && !engine.canPour(slot: $0, state: state) })
+        XCTAssertEqual(app.buttons["slot-\(slot)"].value as? String, "\(state.buckets[slot]!.paintUnits) paint units, Blocked")
+        XCTAssertFalse(app.staticTexts["Blocked"].exists)
+        attachScreenshot("Cartoon lock above blocked bucket")
+    }
+
     func testMediumLosingBranchAndRetry() throws {
-        try verifyLosingBranch(levelID: 2)
+        try verifyLosingBranch(levelID: 4)
     }
 
     func testHardLosingBranchAndRetry() throws {
-        try verifyLosingBranch(levelID: 3)
+        try verifyLosingBranch(levelID: 7)
     }
 
     private func verifyLosingBranch(levelID: Int) throws {

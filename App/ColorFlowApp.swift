@@ -39,7 +39,10 @@ private struct GameRootView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background {
-                if case .success(let game) = model { game.finishAnimation() }
+                if case .success(let game) = model {
+                    game.finishAnimation()
+                    game.cancelHint()
+                }
                 showingSplash = true
             }
         }

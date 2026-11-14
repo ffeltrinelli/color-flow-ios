@@ -8,6 +8,7 @@ let package = Package(
     targets: [
         .target(name: "ColorFlowCore", resources: [.process("Resources")]),
         .executableTarget(name: "LevelCheck", dependencies: ["ColorFlowCore"]),
-        .testTarget(name: "ColorFlowCoreTests", dependencies: ["ColorFlowCore"])
+        .executableTarget(name: "LevelGenerate", dependencies: ["ColorFlowCore"]),
+        .testTarget(name: "ColorFlowCoreTests", dependencies: ["ColorFlowCore"], resources: [.process("Resources")])
     ]
 )

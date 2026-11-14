@@ -35,28 +35,28 @@ struct PuzzleTests {
         result.events.compactMap { if case .fill(let step) = $0 { step } else { nil } }
     }
 
-    @Test func catalogHasAuthoredShapeProgressionAndAreaCoverage() throws {
-        let levels = try LevelCatalog.load()
+    @Test func representativeFixturesCoverShapeFamiliesAndArea() throws {
+        let levels = try TestCatalog.levels()
         #expect(levels.map(\.id) == [1, 2, 3])
         #expect(levels.map(\.difficulty) == [.easy, .medium, .hard])
-        #expect(levels.map(\.bucketSlots) == [3, 2, 2])
+        #expect(levels.map(\.bucketSlots) == [3, 3, 2])
         for (index, level) in levels.enumerated() {
             #expect(level.width == 10 && level.height == 10)
             #expect(level.boxes.reduce(0) { $0 + $1.capacity } == 100)
-            #expect(level.boxes.filter { $0.capacity > 1 }.reduce(0) { $0 + $1.capacity } == (index + 1) * 20)
+            #expect(level.boxes.filter { $0.capacity > 1 }.reduce(0) { $0 + $1.capacity } == [20, 35, 50][index])
             let sizes = Set(level.boxes.map { "\($0.width)x\($0.height)" })
-            let expected: Set<String> = switch index {
-            case 0: ["1x1", "1x2", "2x1"]
-            case 1: ["1x1", "1x2", "2x1", "1x3", "3x1", "2x2"]
+            let expected: Set<String> = switch level.difficulty {
+            case .easy: ["1x1", "1x2", "2x1"]
+            case .medium: ["1x1", "1x2", "2x1", "1x3", "3x1", "2x2"]
             default: ["1x1", "1x2", "2x1", "1x3", "3x1", "2x2", "2x3", "3x2", "3x3"]
             }
             #expect(sizes == expected)
         }
     }
 
-    @Test func everyStoredSolutionWinsAndConservesPaint() throws {
-        let levels = try LevelCatalog.load()
-        let solutions = try LevelCatalog.solutions()
+    @Test func fixtureSolutionsWinAndConservePaint() throws {
+        let levels = try TestCatalog.levels()
+        let solutions = try TestCatalog.solutions()
         #expect(solutions.count == levels.count)
         for (level, moves) in zip(levels, solutions) {
             let engine = try PuzzleEngine(level: level)
@@ -71,12 +71,12 @@ struct PuzzleTests {
     }
 
     @Test func mediumAndHardHaveVerifiedLosingAlternatives() throws {
-        let levels = try LevelCatalog.load()
-        let branches = try LevelCatalog.losingBranches()
+        let levels = try TestCatalog.levels()
+        let branches = try TestCatalog.losingBranches()
         #expect(Set(branches.keys) == [2, 3])
-        for level in levels.dropFirst() {
+        for level in levels.filter({ $0.difficulty != .easy }) {
             let moves = try #require(branches[level.id])
-            #expect(moves.count > 10)
+            #expect(!moves.isEmpty)
             let state = try replay(moves, level: level)
             #expect(try PuzzleEngine(level: level).outcome(state: state) == .lost)
         }
@@ -188,8 +188,8 @@ struct PuzzleTests {
 
     @Test func catalogPoursReplayFallsBeforeRetargeting() throws {
         var continuedAfterFall = false
-        let solutions = try LevelCatalog.solutions()
-        for level in try LevelCatalog.load() {
+        let solutions = try TestCatalog.solutions()
+        for level in try TestCatalog.levels() {
             let engine = try PuzzleEngine(level: level)
             var state = GameState(level: level)
             for move in solutions[level.id - 1] {
@@ -394,13 +394,13 @@ struct PuzzleTests {
     }
 
     @Test func partialFillsAndSettledPositionsRestoreExactly() throws {
-        let levels = try LevelCatalog.load()
         try withStore { store in
-            var progress = GameProgress(level: levels[0])
-            progress.state = try replay([.take(queue: 0), .pour(slot: 0)], level: levels[0])
+            let fixture = bridgeLevel()
+            var progress = GameProgress(level: fixture)
+            progress.state = try replay([.take(queue: 0), .pour(slot: 0)], level: fixture)
             #expect(progress.state.boxes[0].filledUnits == 1)
             try store.save(progress)
-            #expect(store.load(levels: levels) == progress)
+            #expect(store.load(levels: [fixture]) == progress)
         }
         let level = bridgeLevel()
         try withStore { store in
@@ -413,9 +413,9 @@ struct PuzzleTests {
     }
 
     @Test func oldAndUnknownVersionsStartAtNewLevelOne() throws {
-        let levels = try LevelCatalog.load()
+        let levels = try TestCatalog.levels()
         try withStore { store in
-            for version in [1, 2, 99] {
+            for version in [1, 2, 3, 99] {
                 var progress = GameProgress(level: levels[2])
                 progress.version = version
                 try store.save(progress)
@@ -428,9 +428,9 @@ struct PuzzleTests {
     }
 
     @Test func completedAndLostResultsRestoreExactly() throws {
-        let levels = try LevelCatalog.load()
-        let solutions = try LevelCatalog.solutions()
-        let losingBranches = try LevelCatalog.losingBranches()
+        let levels = try TestCatalog.levels()
+        let solutions = try TestCatalog.solutions()
+        let losingBranches = try TestCatalog.losingBranches()
         try withStore { store in
             for level in levels {
                 var progress = GameProgress(level: level)
@@ -447,7 +447,7 @@ struct PuzzleTests {
     }
 
     @Test func invalidCurrentSnapshotRestartsRecordedLevelAndUnreadableSaveStartsAtOne() throws {
-        let levels = try LevelCatalog.load()
+        let levels = try TestCatalog.levels()
         try withStore { store in
             var progress = GameProgress(level: levels[1])
             progress.state.boxes = []

@@ -1,6 +1,6 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 board of mixed-size boxes while managing active buckets and four reserve queues. Paint spreads across each box and remains until it fills; full boxes disappear and unsupported boxes fall. Tap a bucket to pour automatically into exposed matching boxes from left to right. Three fixed levels progress through easy, medium, and hard. Your exact board is saved after every move. Save version 3 resets earlier games to level one.
+An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 board of mixed-size boxes while managing active buckets and four reserve queues. Paint spreads across each box and remains until it fills; full boxes disappear and unsupported boxes fall. Tap a bucket to pour automatically into exposed matching boxes from left to right. Nine fixed levels progress through three easy, three medium, and three hard puzzles. Your exact board is saved after every move. Save version 4 resets earlier games to level one.
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
 
@@ -29,13 +29,15 @@ If Xcode fails at launch with `_XPCTypeBool` in an old `/Library/Developer/Priva
 ## Tests
 
 ```sh
-swift test
+swift test -c release
 swift run LevelCheck
 python3 scripts/test_device_selection.py
 python3 scripts/run-tests.py
 ```
 
-The final command always runs the simulator suite and also runs the same end-to-end UI suite on an available iPhone SE second generation. It reports an absent phone as skipped; trust, pairing, lock, signing, and execution failures are blockers. Tests use separate game-save files and never reset normal play progress.
+Release mode keeps the algorithmic generation/search tests fast.
+
+The final command runs the routine simulator UI suite and also runs the same UI suite on an available iPhone SE second generation. It reports an absent phone as skipped; trust, pairing, lock, signing, and execution failures are blockers. Tests use separate game-save files and never reset normal play progress.
 
 A unique device identifier (UDID) selects a simulator or phone. Select specific destinations when necessary:
 
@@ -48,9 +50,9 @@ python3 scripts/run-tests.py --simulator SIMULATOR_UDID --device DEVICE_UDID
 
 The shared scheme uses automatic screenshots: Xcode 27.2 automatic video recording crashes the automation service on iOS 17.1.1. Preserve this setting when changing schemes; capture animation recordings separately.
 
-Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The suite covers the three-level journey, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. The full UI journey takes several minutes.
+Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The routine suite covers representative easy/medium/hard layouts, one level transition and campaign completion, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. Core tests use fixed engine/search fixtures. `LevelCheck` separately audits every published winning path, losing alternative, and generation report. Use `python3 scripts/run-tests.py --full-campaign` for the optional, slower nine-level UI journey before release.
 
-After intentionally editing authored levels, run `swift run LevelCheck --write-solutions`, review the new winning paths, and rerun tests. Runtime level generation and runtime solving are not used. `python3 scripts/create-project.py` reproducibly updates Xcode target membership if app/test Swift files are added or removed.
+Publish level replacements as a complete generated output set, then run `swift run -c release LevelCheck`. Its default audit replays stored proofs; `--solve` additionally searches for fresh paths, and `--write-solutions` recomputes the winning-path file. Generation metadata must remain consistent. Levels are generated offline; the app uses the same algorithmic solver for on-demand hints. See [level generation](docs/level-generation.md) for randomized generation, reproducible seeds, difficulty profiles, and safe campaign replacement. `python3 scripts/create-project.py` reproducibly updates Xcode target membership if app/test Swift files are added or removed.
 
 ## Visual review and pull requests
 
