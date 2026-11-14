@@ -27,6 +27,38 @@ struct GenerationAndHintTests {
         }
     }
 
+    @Test func balancedExpansionCyclesProfilesAndShufflesReproducibly() throws {
+        let profiles = try GenerationProfile.balanced(count: 41)
+        #expect(profiles.filter { $0.difficulty == .easy }.count == 14)
+        #expect(profiles.filter { $0.difficulty == .medium }.count == 14)
+        #expect(profiles.filter { $0.difficulty == .hard }.count == 13)
+        #expect(profiles[0] == profiles[9])
+        let existing = try TestCatalog.levels()
+        let first = try LevelGenerator.generate(seed: 8, profiles: [profile, profile], searchLimit: 500,
+                                                order: .shuffled, existingLevels: existing)
+        let repeated = try LevelGenerator.generate(seed: 8, profiles: [profile, profile], searchLimit: 500,
+                                                   order: .shuffled, existingLevels: existing)
+        #expect(first.levels == repeated.levels)
+        #expect(first.metrics == repeated.metrics)
+        #expect(first.levels.map(\.id) == [4, 5])
+        #expect(first.metrics.map(\.levelID) == [4, 5])
+        try LevelGenerator.validateUnique(existing + first.levels)
+        for (level, moves) in zip(first.levels, first.solutions) {
+            let engine = try PuzzleEngine(level: level)
+            let end = try moves.reduce(GameState(level: level)) { try engine.applying($1, to: $0) }
+            #expect(engine.outcome(state: end) == .won)
+        }
+    }
+
+    @Test func duplicateDetectionIgnoresCampaignID() throws {
+        let level = try TestCatalog.levels()[0]
+        let duplicate = LevelDefinition(id: 99, difficulty: level.difficulty, bucketSlots: level.bucketSlots,
+            width: level.width, height: level.height, boxes: level.boxes, paintQueues: level.paintQueues)
+        #expect(throws: GenerationError.invalidConfiguration) {
+            try LevelGenerator.validateUnique([level, duplicate])
+        }
+    }
+
     @Test func limitsAndImpossibleProfilesFailExplicitly() {
         #expect(throws: GenerationError.attemptsExhausted(levelID: 1)) {
             try LevelGenerator.generate(seed: 1, profiles: [profile], attemptLimit: 1, searchLimit: 1)

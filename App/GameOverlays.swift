@@ -44,10 +44,12 @@ struct CartoonPanel<Content: View>: View {
         VStack(spacing: 22) {
             HStack(alignment: .center, spacing: 8) {
                 Image(systemName: icon)
+                    .resizable()
+                    .scaledToFit()
                     .foregroundStyle(icon == "lightbulb.fill" ? Color.yellow : Color.orange)
-                    .padding(5)
+                    .padding(9)
+                    .frame(width: 42, height: 42)
                     .background(ink, in: Circle())
-                    .font(.system(.title, design: .rounded, weight: .black))
                     .accessibilityHidden(true)
                 Text(title)
                     .font(.system(.title2, design: .rounded, weight: .heavy))
@@ -57,9 +59,9 @@ struct CartoonPanel<Content: View>: View {
                 if let close {
                     Button(action: close) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.title)
+                            .font(.system(size: 34, weight: .regular))
                             .foregroundStyle(ink)
-                            .frame(width: 44, height: 44)
+                            .frame(width: 48, height: 48)
                     }
                     .accessibilityLabel("Close")
                     .accessibilityIdentifier("close-overlay")
@@ -75,6 +77,67 @@ struct CartoonPanel<Content: View>: View {
         .shadow(color: .black.opacity(0.35), radius: 12, y: 8)
         .frame(maxWidth: 440)
         .environment(\.colorScheme, .light)
+    }
+}
+
+struct StatsTable: View {
+    let statistics: GameStatistics
+
+    var body: some View {
+        VStack(spacing: 9) {
+            HStack(spacing: 4) {
+                heading("Difficulty", alignment: .leading)
+                heading("Win %")
+                heading("Avg. win\ntime")
+            }
+            .padding(.horizontal, 10)
+            ForEach(Difficulty.allCases, id: \.self) { difficulty in
+                let stats = statistics[difficulty]
+                let percentage = stats.victoryPercentage.map { "\(Int($0.rounded()))%" } ?? "—"
+                let duration = formattedDuration(stats.averageWinningSeconds)
+                HStack(spacing: 4) {
+                    HStack(spacing: 6) {
+                        Circle().fill(difficultyColor(difficulty)).frame(width: 8, height: 8)
+                        Text(difficulty.rawValue.capitalized)
+                            .font(.system(size: 15, weight: .heavy, design: .rounded))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    Text(percentage).frame(maxWidth: .infinity)
+                    Text(duration).frame(maxWidth: .infinity)
+                }
+                .font(.system(size: 19, weight: .heavy, design: .rounded))
+                .monospacedDigit()
+                .padding(.horizontal, 10)
+                .padding(.vertical, 18)
+                .background(Color(red: 1, green: 0.99, blue: 0.96), in: RoundedRectangle(cornerRadius: 13))
+                .overlay(RoundedRectangle(cornerRadius: 13).strokeBorder(ink, lineWidth: 2))
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(difficulty.rawValue.capitalized). Win percentage: \(percentage). Average win time: \(duration).")
+                .accessibilityIdentifier("stats-\(difficulty.rawValue)")
+            }
+        }
+        .foregroundStyle(ink)
+    }
+
+    private func heading(_ title: String, alignment: Alignment = .center) -> some View {
+        Text(title)
+            .font(.system(size: 12, weight: .heavy, design: .rounded))
+            .multilineTextAlignment(alignment == .leading ? .leading : .center)
+            .frame(maxWidth: .infinity, alignment: alignment)
+    }
+
+    private func formattedDuration(_ seconds: TimeInterval?) -> String {
+        guard let seconds else { return "—" }
+        if seconds <= 60 { return "\(Int(seconds.rounded())) sec" }
+        return String(format: "%.1f min", locale: Locale(identifier: "en_US_POSIX"), seconds / 60)
+    }
+
+    private func difficultyColor(_ difficulty: Difficulty) -> Color {
+        switch difficulty {
+        case .easy: river
+        case .medium: Color(red: 0.91, green: 0.65, blue: 0.13)
+        case .hard: Color(red: 0.62, green: 0.42, blue: 0.78)
+        }
     }
 }
 

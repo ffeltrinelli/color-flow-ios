@@ -1,5 +1,19 @@
 {
-  "formatVersion" : 1,
+  "batches" : [
+    {
+      "firstLevelID" : 1,
+      "levelCount" : 9,
+      "order" : "progressive",
+      "seed" : 20261114
+    },
+    {
+      "firstLevelID" : 10,
+      "levelCount" : 41,
+      "order" : "shuffled",
+      "seed" : 2026111401
+    }
+  ],
+  "formatVersion" : 2,
   "metrics" : [
     {
       "attempts" : 8,
@@ -108,7 +122,498 @@
       "sampledWins" : 0,
       "solutionMoves" : 73,
       "visitedStates" : 995
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 10,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 35
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 12,
+      "solutionMoves" : 74,
+      "visitedStates" : 74
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 11,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 24
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 25,
+      "solutionMoves" : 77,
+      "visitedStates" : 461
+    },
+    {
+      "attempts" : 7,
+      "levelID" : 12,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 30
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 20,
+      "solutionMoves" : 84,
+      "visitedStates" : 326
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 13,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 45
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 10,
+      "solutionMoves" : 71,
+      "visitedStates" : 300
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 14,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 30
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 20,
+      "solutionMoves" : 72,
+      "visitedStates" : 72
+    },
+    {
+      "attempts" : 22,
+      "levelID" : 15,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 35
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 15,
+      "solutionMoves" : 73,
+      "visitedStates" : 848
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 16,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 50
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 71,
+      "visitedStates" : 12582
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 17,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 40
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 11,
+      "solutionMoves" : 67,
+      "visitedStates" : 275
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 18,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 20
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 25,
+      "solutionMoves" : 94,
+      "visitedStates" : 94
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 19,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 45
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 7,
+      "solutionMoves" : 72,
+      "visitedStates" : 156
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 20,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 60
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 73,
+      "visitedStates" : 150
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 21,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 24
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 25,
+      "solutionMoves" : 73,
+      "visitedStates" : 73
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 22,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 40
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 9,
+      "solutionMoves" : 80,
+      "visitedStates" : 215
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 23,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 50
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 67,
+      "visitedStates" : 271
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 24,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 30
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 22,
+      "solutionMoves" : 82,
+      "visitedStates" : 82
+    },
+    {
+      "attempts" : 18,
+      "levelID" : 25,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 20
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 25,
+      "solutionMoves" : 97,
+      "visitedStates" : 109
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 26,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 60
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 68,
+      "visitedStates" : 329
+    },
+    {
+      "attempts" : 9,
+      "levelID" : 27,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 24
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 21,
+      "solutionMoves" : 90,
+      "visitedStates" : 90
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 28,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 50
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 75,
+      "visitedStates" : 9623
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 29,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 50
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 68,
+      "visitedStates" : 10595
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 30,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 60
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 70,
+      "visitedStates" : 140
+    },
+    {
+      "attempts" : 7,
+      "levelID" : 31,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 24
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 20,
+      "solutionMoves" : 77,
+      "visitedStates" : 216
+    },
+    {
+      "attempts" : 5,
+      "levelID" : 32,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 20
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 25,
+      "solutionMoves" : 83,
+      "visitedStates" : 185
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 33,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 45
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 9,
+      "solutionMoves" : 71,
+      "visitedStates" : 76
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 34,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 50
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 66,
+      "visitedStates" : 72
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 35,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 55
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 62,
+      "visitedStates" : 2048
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 36,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 55
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 64,
+      "visitedStates" : 419
+    },
+    {
+      "attempts" : 7,
+      "levelID" : 37,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 24
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 20,
+      "solutionMoves" : 81,
+      "visitedStates" : 209
+    },
+    {
+      "attempts" : 8,
+      "levelID" : 38,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 40
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 10,
+      "solutionMoves" : 62,
+      "visitedStates" : 97
+    },
+    {
+      "attempts" : 15,
+      "levelID" : 39,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 35
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 17,
+      "solutionMoves" : 71,
+      "visitedStates" : 71
+    },
+    {
+      "attempts" : 18,
+      "levelID" : 40,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 20
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 29,
+      "solutionMoves" : 91,
+      "visitedStates" : 115
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 41,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 35
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 14,
+      "solutionMoves" : 74,
+      "visitedStates" : 87
+    },
+    {
+      "attempts" : 17,
+      "levelID" : 42,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 20
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 28,
+      "solutionMoves" : 94,
+      "visitedStates" : 118
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 43,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 45
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 11,
+      "solutionMoves" : 78,
+      "visitedStates" : 182
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 44,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 35
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 12,
+      "solutionMoves" : 70,
+      "visitedStates" : 82
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 45,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 55
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 69,
+      "visitedStates" : 159
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 46,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 40
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 14,
+      "solutionMoves" : 75,
+      "visitedStates" : 79
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 47,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 40
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 15,
+      "solutionMoves" : 61,
+      "visitedStates" : 183
+    },
+    {
+      "attempts" : 4,
+      "levelID" : 48,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 60
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 68,
+      "visitedStates" : 3419
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 49,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 30
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 22,
+      "solutionMoves" : 106,
+      "visitedStates" : 207
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 50,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 55
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 72,
+      "visitedStates" : 96
     }
-  ],
-  "seed" : 20261114
+  ]
 }
