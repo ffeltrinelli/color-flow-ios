@@ -1,0 +1,114 @@
+{
+  "formatVersion" : 1,
+  "metrics" : [
+    {
+      "attempts" : 8,
+      "levelID" : 1,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 20
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 24,
+      "solutionMoves" : 81,
+      "visitedStates" : 2712
+    },
+    {
+      "attempts" : 8,
+      "levelID" : 2,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 24
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 24,
+      "solutionMoves" : 88,
+      "visitedStates" : 88
+    },
+    {
+      "attempts" : 3,
+      "levelID" : 3,
+      "profile" : {
+        "difficulty" : "easy",
+        "largeBoxArea" : 30
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 16,
+      "solutionMoves" : 78,
+      "visitedStates" : 78
+    },
+    {
+      "attempts" : 12,
+      "levelID" : 4,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 35
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 13,
+      "solutionMoves" : 63,
+      "visitedStates" : 70
+    },
+    {
+      "attempts" : 2,
+      "levelID" : 5,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 40
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 11,
+      "solutionMoves" : 69,
+      "visitedStates" : 1849
+    },
+    {
+      "attempts" : 5,
+      "levelID" : 6,
+      "profile" : {
+        "difficulty" : "medium",
+        "largeBoxArea" : 45
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 6,
+      "solutionMoves" : 56,
+      "visitedStates" : 155
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 7,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 50
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 72,
+      "visitedStates" : 217
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 8,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 55
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 69,
+      "visitedStates" : 74
+    },
+    {
+      "attempts" : 1,
+      "levelID" : 9,
+      "profile" : {
+        "difficulty" : "hard",
+        "largeBoxArea" : 60
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 0,
+      "solutionMoves" : 73,
+      "visitedStates" : 995
+    }
+  ],
+  "seed" : 20261114
+}

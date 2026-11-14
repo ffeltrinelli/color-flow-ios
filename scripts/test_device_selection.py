@@ -46,5 +46,17 @@ class DeviceSelectionTests(unittest.TestCase):
             runner.choose_device([self.phone(available=True), self.phone(available=True)], [])
 
 
+class TestSelectionTests(unittest.TestCase):
+    def test_routine_run_checks_ui_without_full_campaign(self):
+        selection = runner.test_selection(False)
+        self.assertIn('-only-testing:ColorFlowUITests', selection)
+        self.assertIn('-skip-testing:ColorFlowUITests/ColorFlowUITests/testFullCampaignJourneyAndStartAgain', selection)
+
+    def test_release_check_includes_full_campaign(self):
+        selection = runner.test_selection(True)
+        self.assertIn('-only-testing:ColorFlowUITests', selection)
+        self.assertFalse(any(item.startswith('-skip-testing:') for item in selection))
+
+
 if __name__ == '__main__':
     unittest.main()

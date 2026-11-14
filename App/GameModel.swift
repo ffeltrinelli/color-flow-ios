@@ -11,6 +11,12 @@ struct PourPresentation {
     let before: GameState
 }
 
+enum HintPresentation: Equatable {
+    case idle
+    case searching
+    case finished(HintResult)
+}
+
 @MainActor @Observable
 final class GameModel {
     let levels: [LevelDefinition]
@@ -24,7 +30,50 @@ final class GameModel {
     private var displayedState: GameState?
     var saveError: String?
     private let engines: [PuzzleEngine]
+    private let solutions: [[Move]]
     private var animation: Task<Void, Never>?
+    private var hintTask: Task<Void, Never>?
+    var hintPresentation: HintPresentation = .idle
+
+    func requestHint() {
+        cancelHint()
+        guard !busy, outcome == .playing else { return }
+        let state = progress.state
+        let levelID = progress.levelID
+        let engine = engine
+        let knownSolution = solutions.indices.contains(levelID - 1) ? solutions[levelID - 1] : nil
+        let environment = ProcessInfo.processInfo.environment
+        let slowHintTest = environment["COLOR_FLOW_UI_TEST"] == "1" && environment["COLOR_FLOW_SLOW_HINT"] == "1"
+        // The regression holds the empty startup state before the worker begins.
+        hintPresentation = slowHintTest ? .idle : .searching
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(10))
+        hintTask = Task { [weak self] in
+            if slowHintTest {
+                do { try await Task.sleep(for: .seconds(4)) }
+                catch { return }
+                self?.hintPresentation = .searching
+            }
+            let worker = Task.detached(priority: .userInitiated) {
+                return LevelHints.suggest(engine: engine, state: state, limit: .max, knownSolution: knownSolution,
+                                          deadline: deadline, isCancelled: { Task.isCancelled })
+            }
+            let result = await withTaskCancellationHandler {
+                await worker.value
+            } onCancel: {
+                worker.cancel()
+            }
+            guard !Task.isCancelled, let self,
+                  self.progress.levelID == levelID, self.progress.state == state else { return }
+            self.hintPresentation = .finished(result)
+        }
+    }
+
+    func cancelHint() {
+        hintTask?.cancel()
+        hintTask = nil
+        hintPresentation = .idle
+    }
 
     var level: LevelDefinition { levels[progress.levelID - 1] }
     var engine: PuzzleEngine { engines[progress.levelID - 1] }
@@ -35,6 +84,7 @@ final class GameModel {
 
     init() throws {
         levels = try LevelCatalog.load()
+        solutions = (try? LevelCatalog.solutions()) ?? []
         engines = try levels.map { try PuzzleEngine(level: $0) }
         let environment = ProcessInfo.processInfo.environment
         let testing = environment["COLOR_FLOW_UI_TEST"] == "1"
@@ -54,6 +104,7 @@ final class GameModel {
 
     func take(queue: Int) {
         guard !busy, let next = try? engine.applying(.take(queue: queue), to: progress.state) else { return }
+        cancelHint()
         progress.state = next
         save()
     }
@@ -78,6 +129,7 @@ final class GameModel {
               let bucket = progress.state.buckets[slot] else { return }
         let presentation = PourPresentation(slot: slot, color: bucket.color, initialUnits: bucket.paintUnits,
                                             events: result.events, before: progress.state)
+        cancelHint()
         displayedState = progress.state
         progress.state = result.state
         save()
@@ -144,12 +196,14 @@ final class GameModel {
 
     func restart() {
         guard !busy else { return }
+        cancelHint()
         progress = GameProgress(level: level)
         save()
     }
 
     func advance() {
         guard !busy, outcome == .won else { return }
+        cancelHint()
         progress = GameProgress(level: levels[finalLevel ? 0 : progress.levelID])
         save()
     }

@@ -1,0 +1,16 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "docs/evidence/hint-design-options.png",
+  "assets": [
+    {
+      "path": "App/Assets.xcassets/HintRiver.imageset/river.png",
+      "transparent_background": true,
+      "prompt": "Use case: precise-object-edit. The reference is a five-option UI comparison. Extract/reconstruct ONLY THE TURQUOISE PAINT RIVER ARTWORK FROM THE RIGHTMOST PHONE, option 5 'Paint river', as a production game UI decorative background asset. Match that exact original artwork's glossy sculpted cartoon liquid style, color, white curved reflections, pale cyan edge highlights, occasional detached shiny splashes, organic sinuous generous bends, shaded turquoise depth, thin graceful head entering at the upper left and a small broad paint puddle at the bottom. The user specifically chose this original option 5 and wants its original art, not a flat vector stripe, road, ribbon or pipe. Remove ALL five peach stepping stones and their numbers, reconstruct the matching liquid where stones occluded it. Remove ALL phones, cream backgrounds, cards, text, controls, headings and other imagery. Genuinely transparent background. Output a single narrow vertical river sprite with the river and its splashes occupying nearly the full canvas width and nearly the full canvas height, minimal transparent padding. Tall narrow portrait asset, ideally 384x2048 or nearest supported very tall aspect ratio. Only the illustrated cyan/turquoise flowing paint with its glossy highlights and little droplets on transparency; absolutely no labels or stones."
+    },
+    {
+      "path": "App/Assets.xcassets/HintStone.imageset/stone.png",
+      "transparent_background": true,
+      "prompt": "Use case: precise-object-edit. Extract ONE peach stepping stone from the RIGHTMOST PHONE in the reference, option 5 'Paint river'. Preserve that exact original stone's cozy cartoon illustration style: broad horizontal irregular rounded river pebble, soft warm peach/beige top, light cream upper highlight, golden tan side bevel, gently darker warm brown underside and a thin soft brown perimeter; subtle three-dimensional shading, as seen on option 5. Remove the printed number completely, leaving a clean blank top so the app can render its own number. Remove the river, phone, UI, text, all other objects and background. Output only ONE large blank peach stepping stone, tightly framed with minimal transparent padding, centered on a genuinely transparent background. Horizontal oval organic silhouette, approximately 5:4 width-to-height. No letters, numbers, symbols, water or extra stones. This is the actual production UI sprite; match the original option 5 stone, not a flat vector badge or square button."
+    }
+  ]
+}

@@ -70,10 +70,19 @@ def simulator_destination(requested):
     raise RuntimeError('Create an iPhone SE-sized simulator in Xcode first, or pass --simulator UDID. See README.')
 
 
+def test_selection(full_campaign):
+    selection = ['-only-testing:ColorFlowUITests']
+    if not full_campaign:
+        selection.append('-skip-testing:ColorFlowUITests/ColorFlowUITests/testFullCampaignJourneyAndStartAgain')
+    return selection
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--simulator', default=os.environ.get('SIMULATOR_UDID'))
     parser.add_argument('--device', default=os.environ.get('DEVICE_UDID'))
+    parser.add_argument('--full-campaign', action='store_true',
+                        help='Also play all nine levels through the UI (slow release check).')
     args = parser.parse_args()
     run(['xcodebuild', '-checkFirstLaunchStatus'])
     destination = simulator_destination(args.simulator)
@@ -81,7 +90,7 @@ def main():
     results = ROOT / 'TestResults' / stamp
     results.mkdir(parents=True)
     base = ['xcodebuild', '-project', 'ColorFlow.xcodeproj', '-scheme', 'ColorFlow',
-            '-derivedDataPath', str(ROOT / 'DerivedData'), '-parallel-testing-enabled', 'NO']
+            '-derivedDataPath', str(ROOT / 'DerivedData'), '-parallel-testing-enabled', 'NO'] + test_selection(args.full_campaign)
     failures = []
     try:
         run(base + ['-destination', f'platform=iOS Simulator,id={destination}',
@@ -102,7 +111,7 @@ def main():
                 raise RuntimeError('Configure personal signing in Config/Local.xcconfig before physical-device tests. See README.')
             run(base + ['-destination', f'platform=iOS,id={device["identifier"]}',
                         '-resultBundlePath', str(results / 'device.xcresult'),
-                        '-only-testing:ColorFlowUITests', '-allowProvisioningUpdates',
+                        '-allowProvisioningUpdates',
                         '-allowProvisioningDeviceRegistration', 'test'])
     except (RuntimeError, subprocess.CalledProcessError) as error:
         failures.append('DEVICE TESTS BLOCKED/FAILED: ' + str(error))
