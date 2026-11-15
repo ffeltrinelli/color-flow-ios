@@ -37,7 +37,7 @@ python3 scripts/run-tests.py
 
 Release mode keeps the algorithmic generation/search tests fast.
 
-The final command runs the routine simulator UI suite and also runs the same UI suite on an available iPhone SE second generation. It reports an absent phone as skipped; trust, pairing, lock, signing, and execution failures are blockers. Tests use separate game-save files and never reset normal play progress.
+The final command runs all UI tests on the simulator and also runs the same suite on an available iPhone SE second generation. The runner reports an absent phone as skipped; during agent-led local validation, the agent must first ask you to connect a phone or explicitly approve skipping device tests. Trust, pairing, lock, signing, and execution failures are blockers. Tests use separate game-save files and never reset normal play progress.
 
 A unique device identifier (UDID) selects a simulator or phone. Select specific destinations when necessary:
 
@@ -50,9 +50,20 @@ python3 scripts/run-tests.py --simulator SIMULATOR_UDID --device DEVICE_UDID
 
 The shared scheme uses automatic screenshots: Xcode 27.2 automatic video recording crashes the automation service on iOS 17.1.1. Preserve this setting when changing schemes; capture animation recordings separately.
 
-Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The routine suite covers representative easy/medium/hard layouts, one level transition and campaign completion, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. Stats in Settings shows win percentage and average winning time for each difficulty. Core tests use fixed engine/search fixtures. `LevelCheck` separately audits every published winning path, losing alternative, and generation report. Use `python3 scripts/run-tests.py --full-campaign` for the optional, slower 50-level UI journey before release.
+Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The routine suite covers representative easy/medium/hard layouts, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. Campaign boundary tests check a fresh level one, completing it and advancing to level two, restoring that progress, completing the final level, and starting again with a fresh level one that persists across relaunch. They play only the first and last levels. Stats in Settings shows win percentage and average winning time for each difficulty. Core tests use fixed engine/search fixtures. `LevelCheck` separately audits every published winning path, losing alternative, and generation report.
 
 Publish level replacements as a complete generated output set, then run `swift run -c release LevelCheck`. Its default audit replays stored proofs; `--solve` additionally searches for fresh paths, and `--write-solutions` recomputes the winning-path file. Generation metadata must remain consistent. Levels are generated offline; the app uses the same algorithmic solver for on-demand hints. See [level generation](docs/level-generation.md) for randomized generation, reproducible seeds, difficulty profiles, and safe campaign replacement. `python3 scripts/create-project.py` reproducibly updates Xcode target membership if app/test Swift files are added or removed.
+
+## Pull request checks
+
+[Pull request checks](.github/workflows/pull-request.yml) runs on every pull request, including new commits, and can also be started manually from Actions. Both jobs use macOS 15 with Xcode 16.4, which is included in the [GitHub runner image](https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md).
+
+- **Core tests** checks generated Xcode project consistency, runs release-mode core tests, audits all published level paths, and tests device selection.
+- **iOS build and tests** builds the Release app for iOS without signing and runs all UI tests on an iPhone SE (third generation) simulator with iOS 18.5. Test reports are uploaded as `simulator-test-results` for 14 days, including on test failures.
+
+After the first workflow run, select **Core tests** and **iOS build and tests** as required status checks in the target branch's GitHub ruleset or branch protection settings. Keep these job names stable. New commits cancel an older run for the same pull request. There are no path filters, so documentation-only pull requests also produce both checks.
+
+Hosted checks run every local automated check that does not require a physical phone: project consistency, core tests, level audits, runner tests, and all simulator UI tests, including campaign boundaries. They require no signing secrets. Physical iOS 17 device runs remain separate local checks; if no phone is connected, the agent asks you to connect one or approve skipping them.
 
 ## Visual review and pull requests
 

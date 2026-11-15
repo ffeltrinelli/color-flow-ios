@@ -93,15 +93,19 @@ final class ColorFlowUITests: XCTestCase {
         XCTAssertEqual(app.buttons["slot-0"].value as? String, bucket)
     }
 
-    func testLevelTransitionAndFinalCompletion() throws {
+    func testLevelCompletionAdvancesAndPersistsProgress() throws {
         let levels = try LevelCatalog.load()
         let solutions = try LevelCatalog.solutions()
         launch()
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1 of \(levels.count)")
+        XCTAssertEqual(app.buttons["slot-0"].value as? String, "Empty")
+        assertBoxes(level: levels[0], state: GameState(level: levels[0]))
         try play(solutions[0], level: levels[0])
         XCTAssertTrue(app.staticTexts["Level Complete!"].exists)
         attachScreenshot("Centered level completion")
         app.buttons["advance"].tap()
         XCTAssertEqual(app.staticTexts["level-number"].label, "Level 2 of \(levels.count)")
+        assertBoxes(level: levels[1], state: GameState(level: levels[1]))
         openStats()
         let easy = statsRow("easy")
         XCTAssertTrue(easy.label.contains("100%"), easy.label)
@@ -112,34 +116,30 @@ final class ColorFlowUITests: XCTestCase {
         app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
         app.launch()
         XCTAssertTrue(app.buttons["settings"].waitForExistence(timeout: 10))
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 2 of \(levels.count)")
+        assertBoxes(level: levels[1], state: GameState(level: levels[1]))
         openStats()
         XCTAssertTrue(statsRow("easy").label.contains("100%"))
         app.buttons["close-overlay"].tap()
-        app.launchEnvironment["COLOR_FLOW_RESET"] = "1"
-        app.terminate()
+    }
+
+    func testFinalLevelCompletionStartsNewCampaign() throws {
+        let levels = try LevelCatalog.load()
+        let solutions = try LevelCatalog.solutions()
         launch(level: levels.count)
         try play(solutions[levels.count - 1], level: levels[levels.count - 1])
         XCTAssertTrue(app.staticTexts["Game Complete!"].exists)
         attachScreenshot("Centered game completion")
         app.buttons["advance"].tap()
         XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1 of \(levels.count)")
-    }
-
-    func testFullCampaignJourneyAndStartAgain() throws {
+        XCTAssertEqual(app.buttons["slot-0"].value as? String, "Empty")
+        assertBoxes(level: levels[0], state: GameState(level: levels[0]))
+        app.terminate()
+        app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
         launch()
-        let levels = try LevelCatalog.load()
-        let solutions = try LevelCatalog.solutions()
-        for (level, moves) in zip(levels, solutions) {
-            XCTAssertEqual(app.staticTexts["level-number"].label, "Level \(level.id) of \(levels.count)")
-            XCTAssertEqual(app.staticTexts["level-difficulty"].label, level.difficulty.rawValue.capitalized)
-            attachScreenshot("Level \(level.id) — initial")
-            try play(moves, level: level)
-            XCTAssertTrue(app.buttons["advance"].waitForExistence(timeout: 5))
-            attachScreenshot("Level \(level.id) — empty grid")
-            app.buttons["advance"].tap()
-        }
         XCTAssertEqual(app.staticTexts["level-number"].label, "Level 1 of \(levels.count)")
         XCTAssertEqual(app.buttons["slot-0"].value as? String, "Empty")
+        assertBoxes(level: levels[0], state: GameState(level: levels[0]))
     }
 
     func testRechargeAndExactRelaunchRestore() throws {
