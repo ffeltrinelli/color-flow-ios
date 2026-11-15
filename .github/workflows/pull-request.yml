@@ -61,7 +61,7 @@ jobs:
           echo "SIMULATOR_UDID=$simulator_id" >> "$GITHUB_ENV"
           xcrun simctl boot "$simulator_id"
           xcrun simctl bootstatus "$simulator_id" -b
-      - name: Run representative UI tests
+      - name: Run all UI tests
         run: python3 scripts/run-tests.py
       - name: Upload simulator test reports
         if: ${{ always() }}
