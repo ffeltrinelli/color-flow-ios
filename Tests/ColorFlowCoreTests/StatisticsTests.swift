@@ -81,7 +81,7 @@ struct StatisticsTests {
 
     private func legacyData(state: GameState, levelID: Int) throws -> Data {
         struct LegacyProgress: Encodable {
-            let version = 4
+            let version = 5
             let levelID: Int
             let state: GameState
         }
@@ -95,14 +95,14 @@ struct StatisticsTests {
         try body(ProgressStore(url: directory.appendingPathComponent("progress.json")))
     }
 
-    @Test func legacyPlayingSaveKeepsBoardAndCountsOnlyItsFutureResult() throws {
+    @Test func currentSaveWithoutStatisticsKeepsBoardAndCountsOnlyItsFutureResult() throws {
         let level = try TestCatalog.levels()[0]
         let engine = try PuzzleEngine(level: level)
         let state = try engine.applying(.take(queue: 0), to: GameState(level: level))
         try withStore { store in
             try legacyData(state: state, levelID: level.id).write(to: store.url)
             var saved = store.load(levels: [level])
-            #expect(saved.version == 4)
+            #expect(saved.version == 5)
             #expect(saved.state == state)
             #expect(!saved.attempt.timingEligible)
             saved.addPlayTime(50)
@@ -120,7 +120,7 @@ struct StatisticsTests {
         }
     }
 
-    @Test func legacyTerminalSaveDoesNotInventAResultOrCountRetryTwice() throws {
+    @Test func currentSaveWithoutStatisticsDoesNotInventAResultOrCountRetryTwice() throws {
         let levels = try TestCatalog.levels()
         let solutions = try TestCatalog.solutions()
         let losing = try TestCatalog.losingBranches()

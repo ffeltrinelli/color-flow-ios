@@ -117,7 +117,16 @@ struct GameView: View {
     private let boardHeadroom: CGFloat = 36
     private let blockGap: CGFloat = 2
 
+    @ViewBuilder
     private func board(size: CGFloat) -> some View {
+        if model.level.boardKind == .circular {
+            CircularBoardView(model: model, size: size, reducedMotion: reduceMotionEnabled)
+        } else {
+            squareBoard(size: size)
+        }
+    }
+
+    private func squareBoard(size: CGFloat) -> some View {
         let cellSize = (size - CGFloat(model.level.width - 1) * blockGap) / CGFloat(model.level.width)
         return ZStack(alignment: .topLeading) {
             ForEach(model.engine.remainingBoxes(state: model.presentationState)) { box in
@@ -218,7 +227,9 @@ struct GameView: View {
                 .accessibilityValue(bucket.map {
                     "\($0.paintUnits) paint units, " + (model.busy ? "Pouring" : canPour ? "Ready to pour" : "Blocked")
                 } ?? "Empty")
-                .accessibilityHint("Pours automatically into the leftmost exposed matching boxes")
+                .accessibilityHint(model.level.boardKind == .circular
+                    ? "Pours automatically into exposed matching blocks in lane order from the white divider"
+                    : "Pours automatically into the leftmost exposed matching boxes")
                 .accessibilityIdentifier("slot-\(slot)")
             }
         }

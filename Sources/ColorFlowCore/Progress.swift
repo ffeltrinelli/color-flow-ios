@@ -1,19 +1,21 @@
 import Foundation
 
 public struct GameProgress: Codable, Equatable, Sendable {
-    public var version = 4
+    public var version = 5
+    public var circularEntryLane = 0
     public var levelID: Int
     public var state: GameState
     public private(set) var statistics = GameStatistics()
     public private(set) var attempt = AttemptProgress()
 
     private enum CodingKeys: String, CodingKey {
-        case version, levelID, state, statistics, attempt
+        case version, levelID, state, statistics, attempt, circularEntryLane
     }
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         version = try values.decode(Int.self, forKey: .version)
+        circularEntryLane = try values.decodeIfPresent(Int.self, forKey: .circularEntryLane) ?? 0
         levelID = try values.decode(Int.self, forKey: .levelID)
         state = try values.decode(GameState.self, forKey: .state)
         statistics = try values.decodeIfPresent(GameStatistics.self, forKey: .statistics) ?? GameStatistics()
@@ -44,6 +46,7 @@ public struct GameProgress: Codable, Equatable, Sendable {
     }
 
     public mutating func startAttempt(level: LevelDefinition) {
+        circularEntryLane = 0
         levelID = level.id
         state = GameState(level: level)
         attempt = AttemptProgress()
@@ -73,11 +76,19 @@ public struct ProgressStore: Sendable {
 
     public func load(levels: [LevelDefinition]) -> GameProgress {
         guard let data = try? Data(contentsOf: url),
-              var progress = try? JSONDecoder().decode(GameProgress.self, from: data),
-              progress.version == 4,
+              var progress = try? JSONDecoder().decode(GameProgress.self, from: data)
+        else { return GameProgress(level: levels[0]) }
+        if progress.version == 4 {
+            progress.version = 5
+            progress.startAttempt(level: levels[0])
+            return progress
+        }
+        guard progress.version == 5,
               let level = levels.first(where: { $0.id == progress.levelID })
         else { return GameProgress(level: levels[0]) }
-        guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state) else {
+        let orientationValid = level.boardKind == .circular
+            ? (0..<level.width).contains(progress.circularEntryLane) : progress.circularEntryLane == 0
+        guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state), orientationValid else {
             progress.startAttempt(level: level)
             return progress
         }

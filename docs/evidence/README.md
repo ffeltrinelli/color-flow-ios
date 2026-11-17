@@ -1,5 +1,15 @@
 # Visual evidence
 
+## Mixed-board prototype
+
+Current gameplay media is embedded in the [README table](../../README.md#gameplay): one screenshot and one 30-second normal-speed recording for each board kind, captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The circular recording shows automatic counterclockwise alignment, pouring, clearing, and inward settling. Filled arcs use concentric bands even in the lower half of the board.
+
+Larger-layout inspection on iPhone 18 Pro simulator, iOS 27.2: [full circular board](prototype-circular-full-large.png) and [restored partial board](prototype-circular-partial-large.png). The white divider remains visible through cleared sectors, and its head and adjacent arrow fit inside the board's reserved outer margin.
+
+Physical iPhone SE second generation, iOS 27.2.1: [circular gameplay after inward settling](prototype-circular-device.png). Its full suite passed all 23 cases; the report and screenshot were inspected. See [validation](../validation.md) for complete results, including the corrected compact test-fixture assertion.
+
+Earlier evidence below documents previous campaigns and designs; it is retained for before/after comparisons.
+
 ## Stats and 50-level campaign
 
 Inspected on iPhone SE third-generation simulator, iOS 27.2, and physical iPhone SE second generation, iOS 17.1.1 (both 375 × 667 points):

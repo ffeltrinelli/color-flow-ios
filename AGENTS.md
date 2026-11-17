@@ -1,9 +1,10 @@
 # Development guidance
 
 - Use the `clean-code` skill for code changes and reviews. Keep engine rules independent of SwiftUI, persistence, and animation.
+- Treat circular boards as a polar presentation of the shared engine: preserve logical capacities, fill ratios, entry lanes, and support checks. Paint occupies concentric area from the inner edge, not screen gravity; board orientation is presentation metadata.
 - Animate engine-provided fill, removal, and fall events; do not duplicate targeting or gravity in the UI. Commit and save the complete settled move before presentation begins.
 - Keep UI, accessibility labels, data, identifiers, code, and technical documentation in English.
-- Save attempt outcomes with settled moves before animation; finalize winning time after animation or interruption. Keep legacy version-4 saves compatible when adding optional progress fields.
+- Save attempt outcomes with settled moves before animation; finalize winning time after animation or interruption. Keep version-5 saves compatible when adding optional progress fields; version-4 migration retains statistics and resets board progress.
 - Keep hint status and result in one presentation state; a missing result must not be interpreted as a timeout.
 - See [README](README.md) for setup/testing and [native design](docs/game-design.md) for behavior. Maintain iOS 17 compatibility and the iPhone SE 375 × 667-point layout.
 - Bundle fixed level JSON; randomize only with the offline `LevelGenerate` tool. Keep generation and runtime hints on the shared engine/solver. Record seeds, validate with `swift run LevelCheck`, and preserve/test winning paths after edits. An inconclusive search proves neither solvability nor impossibility. See [generation](docs/level-generation.md).
@@ -19,5 +20,6 @@
 - Keep Canvas-backed button labels accessible. Apply `accessibilityHidden(true)` only to decorative uses; hiding the label artwork makes buttons report as unhittable on iOS 17.1.1.
 - After adding/removing app or test Swift files, regenerate target membership with `python3 scripts/create-project.py` and review the project diff. Personal signing belongs in ignored `Config/Local.xcconfig`.
 - Keep launcher and splash artwork in `App/Assets.xcassets`; the project generator includes this catalog. Update `AppIcon` and `GameIcon` together when changing the selected artwork; see [icon proposals](docs/icon-proposals/README.md). See [hint artwork](docs/hint-artwork.md) for the approved hint reference and source assets.
+- Keep the README gameplay table populated with a current in-game screenshot and a 30-second normal-speed video for each board kind (square and circular). Refresh affected media when visible gameplay changes; inspect captures, verify durations and links, and report capture blockers rather than claiming stale or missing evidence is current. See [gameplay](README.md#gameplay).
 - Every PR affecting visible UI must embed relevant inspected screenshots, identify device/OS, and include before/after views when changing an existing screen. Pour-animation changes also require a short recording. Use uploaded images or accessible artifacts, not local file links. State capture/upload blockers explicitly; never claim missing evidence exists.
 - Review this guidance before completing a PR; update only durable, verified conventions. Keep product explanations, validation evidence, and outstanding work in docs rather than here.

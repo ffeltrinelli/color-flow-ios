@@ -1,7 +1,7 @@
 import Foundation
 
 public enum GenerationOrder: String, Codable, Sendable {
-    case progressive, shuffled
+    case progressive, shuffled, authored
 }
 
 public struct GenerationBatch: Codable, Equatable, Sendable {
@@ -73,6 +73,8 @@ public struct GenerationReport: Codable, Sendable {
         try LevelGenerator.validateUnique(levels)
         for (level, metric) in zip(levels, metrics) {
             guard metric.profile.difficulty == level.difficulty,
+                  metric.profile.boardKind == level.boardKind,
+                  metric.profile.width == level.width, metric.profile.height == level.height,
                   metric.profile.bucketSlots == level.bucketSlots,
                   metric.profile.colorCount == Set(level.boxes.map(\.color)).count,
                   metric.profile.largeBoxArea == level.boxes.filter({ $0.capacity > 1 }).reduce(0, { $0 + $1.capacity }),

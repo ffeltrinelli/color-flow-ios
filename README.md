@@ -1,6 +1,17 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 board of mixed-size boxes while managing active buckets and four reserve queues. Paint spreads across each box and remains until it fills; full boxes disappear and unsupported boxes fall. Tap a bucket to pour automatically into exposed matching boxes from left to right. The fixed campaign has 50 levels: the original nine followed by 41 puzzles in a seeded, shuffled difficulty order. Your exact board is saved after every move. Version-4 saves keep their current level and exact board when updating; older save versions start at level one.
+An offline iPhone puzzle game for iOS 17+. The ten-level prototype alternates square 10 × 10 boards with circular boards of ten lanes and five bands, starting with a square. Fill matching containers while managing active buckets and four reserve queues. Full containers disappear; unsupported containers settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed centered pour. Paint inside arcs always forms a concentric band expanding outward from the inner edge, independent of screen gravity.
+
+Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional pending playtesting. Version-5 saves preserve settled boards and circular orientation. Updating from version 4 restarts at level one while retaining lifetime statistics.
+
+## Gameplay
+
+Captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay.
+
+| Board | Gameplay screenshot | Gameplay video |
+| --- | --- | --- |
+| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | [Watch 30 seconds](docs/evidence/prototype-square.mp4) |
+| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | [Watch 30 seconds](docs/evidence/prototype-circular.mp4) |
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
 
@@ -76,4 +87,8 @@ xcrun simctl io booted screenshot /tmp/color-flow.png
 xcrun simctl io booted recordVideo /tmp/color-flow.mov
 ```
 
-Stop recording with Control-C. UI tests also preserve selected screenshots as test-report attachments. Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.
+Stop recording with Control-C. UI tests also preserve selected screenshots as test-report attachments.
+
+For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint near a fall, relaunches at normal animation speed, and prints `GAMEPLAY_CAPTURE_READY` after the splash. Start recording at that marker, capture at least 30 seconds, and trim to exactly 30 seconds without changing playback speed. Inspect the screenshot and video, and verify duration with `ffprobe` before replacing the corresponding `docs/evidence/prototype-square.*` or `prototype-circular.*` files.
+
+Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.

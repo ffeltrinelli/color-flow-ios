@@ -26,6 +26,7 @@ final class GameModel {
     var consumedDuringPour = 0
     var pourDestination: Cell?
     var fillingBoxID: Int?
+    var circularRotation: Double = 0
     var animatedFillUnits: Double = 0
     private var displayedState: GameState?
     var saveError: String?
@@ -119,6 +120,7 @@ final class GameModel {
            let level = levels.first(where: { $0.id == levelID }) {
             progress = GameProgress(level: level)
         }
+        resetBoardOrientation()
     }
 
     func take(queue: Int) {
@@ -137,6 +139,9 @@ final class GameModel {
 
     func boxSummary(_ box: BoxDefinition) -> String {
         let current = engine.boxState(id: box.id, state: presentationState)
+        if level.boardKind == .circular {
+            return "\(box.color.name), band \(current.row + 1), lane \(box.column + 1), \(box.width) lanes by \(box.height) bands, \(current.filledUnits) of \(box.capacity) paint units"
+        }
         return "\(box.color.name), row \(current.row + 1), column \(box.column + 1), \(box.width) by \(box.height), \(current.filledUnits) of \(box.capacity) paint units"
     }
 
@@ -155,6 +160,13 @@ final class GameModel {
         checkpointPlayTime()
         displayedState = progress.state
         progress.state = result.state
+        if level.boardKind == .circular,
+           let last = result.events.compactMap({ event -> Int? in
+               if case .fill(let step) = event { return step.entry.column }
+               return nil
+           }).last {
+            progress.circularEntryLane = last
+        }
         recordOutcome()
         save()
         pour = presentation
@@ -193,7 +205,16 @@ final class GameModel {
     private func animateFill(_ step: FillStep, brief: Bool) async throws {
         let previousColumn = pourDestination?.column
         pourDestination = step.entry
-        if previousColumn != nil, previousColumn != step.entry.column {
+        if level.boardKind == .circular {
+            let geometry = CircularGeometry(lanes: level.width, bands: level.height, radius: 1)
+            let target = geometry.rotation(from: circularRotation, to: step.entry.column)
+            let distance = circularRotation - target
+            if distance > 0 {
+                let duration = brief ? 0 : 0.2 + distance / 360 * 0.55
+                withAnimation(.easeInOut(duration: duration)) { circularRotation = target }
+                try await Task.sleep(for: .seconds(brief ? 0.008 : duration))
+            }
+        } else if previousColumn != nil, previousColumn != step.entry.column {
             try await Task.sleep(for: .seconds(brief ? 0.008 : 0.25))
         }
         animatedFillUnits = Double(step.fromUnits)
@@ -221,6 +242,7 @@ final class GameModel {
         pourDestination = nil
         fillingBoxID = nil
         animatedFillUnits = 0
+        resetBoardOrientation()
         save()
     }
 
@@ -230,6 +252,7 @@ final class GameModel {
         checkpointPlayTime()
         progress.resolveAttempt(.restart, difficulty: level.difficulty)
         progress.startAttempt(level: level)
+        resetBoardOrientation()
         save()
     }
 
@@ -237,7 +260,12 @@ final class GameModel {
         guard !busy, outcome == .won else { return }
         cancelHint()
         progress.startAttempt(level: levels[finalLevel ? 0 : progress.levelID])
+        resetBoardOrientation()
         save()
+    }
+
+    private func resetBoardOrientation() {
+        circularRotation = -Double(progress.circularEntryLane) * 360 / Double(level.width)
     }
 
     func clearStatistics() {

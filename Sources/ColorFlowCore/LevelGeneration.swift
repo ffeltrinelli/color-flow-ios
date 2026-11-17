@@ -26,13 +26,46 @@ struct LevelRandom {
 public struct GenerationProfile: Codable, Equatable, Sendable {
     public let difficulty: Difficulty
     public let largeBoxArea: Int
+    public let boardKind: BoardKind
+    public let width: Int
+    public let height: Int
+    public let samplingArea: Int
     public var bucketSlots: Int { difficulty == .hard ? 2 : 3 }
     public var colorCount: Int { difficulty == .hard ? 5 : 4 }
 
-    public init(difficulty: Difficulty, largeBoxArea: Int) {
+    public init(difficulty: Difficulty, largeBoxArea: Int, boardKind: BoardKind = .square,
+                width: Int = 10, height: Int = 10, samplingArea: Int? = nil) {
         self.difficulty = difficulty
         self.largeBoxArea = largeBoxArea
+        self.boardKind = boardKind
+        self.width = width
+        self.height = height
+        self.samplingArea = samplingArea ?? largeBoxArea
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case difficulty, largeBoxArea, boardKind, width, height, samplingArea
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(difficulty: try values.decode(Difficulty.self, forKey: .difficulty),
+                  largeBoxArea: try values.decode(Int.self, forKey: .largeBoxArea),
+                  boardKind: try values.decodeIfPresent(BoardKind.self, forKey: .boardKind) ?? .square,
+                  width: try values.decodeIfPresent(Int.self, forKey: .width) ?? 10,
+                  height: try values.decodeIfPresent(Int.self, forKey: .height) ?? 10,
+                  samplingArea: try values.decodeIfPresent(Int.self, forKey: .samplingArea))
+    }
+
+    public static let prototype: [GenerationProfile] = {
+        let pairs: [(Difficulty, Int, Int)] = [(.easy, 20, 10), (.easy, 24, 12),
+            (.medium, 35, 18), (.medium, 40, 20), (.hard, 50, 25)]
+        return pairs.flatMap { difficulty, squareArea, circleArea in
+            [GenerationProfile(difficulty: difficulty, largeBoxArea: squareArea),
+             GenerationProfile(difficulty: difficulty, largeBoxArea: circleArea,
+                boardKind: .circular, height: 5, samplingArea: squareArea)]
+        }
+    }()
 
     public static let campaign: [GenerationProfile] = [
         .init(difficulty: .easy, largeBoxArea: 20),
@@ -58,9 +91,9 @@ public struct GenerationProfile: Codable, Equatable, Sendable {
     public var sampledWinRange: ClosedRange<Int> {
         switch difficulty {
         case .easy:
-            switch largeBoxArea { case ...20: 24...32; case ...24: 20...27; default: 16...23 }
+            switch samplingArea { case ...20: 24...32; case ...24: 20...27; default: 16...23 }
         case .medium:
-            switch largeBoxArea { case ...35: 12...19; case ...40: 8...15; default: 4...11 }
+            switch samplingArea { case ...35: 12...19; case ...40: 8...15; default: 4...11 }
         case .hard: 0...4
         }
     }
@@ -105,8 +138,10 @@ public enum LevelGenerator {
         guard !profiles.isEmpty, attemptLimit > 0, searchLimit > 0,
               existingLevels.enumerated().allSatisfy({ $0.element.id == $0.offset + 1 }),
               profiles.allSatisfy({ profile in
-                  let minimum = profile.shapes.reduce(0) { $0 + $1.0 * $1.1 }
-                  return (minimum...80).contains(profile.largeBoxArea) &&
+                  let minimum = profile.boardKind == .circular ? 2 : profile.shapes.reduce(0) { $0 + $1.0 * $1.1 }
+                  return (1...100).contains(profile.width) && (1...100).contains(profile.height) &&
+                      profile.largeBoxArea >= minimum && profile.largeBoxArea <= profile.width * profile.height &&
+                      profile.shapes.allSatisfy { $0.0 <= profile.width && $0.1 <= profile.height } &&
                       (profile.difficulty != .easy || profile.largeBoxArea.isMultiple(of: 2))
               }) else { throw GenerationError.invalidConfiguration }
         var random = LevelRandom(seed: seed)
@@ -114,6 +149,8 @@ public enum LevelGenerator {
         var solutions: [[Move]] = []
         var losingBranches: [Int: [Move]] = [:]
         var metrics: [GenerationMetrics] = []
+        var circularPartialFall = false
+        var circularGapPour = false
         try validateUnique(existingLevels)
         var fingerprints = try Set(existingLevels.map(fingerprint))
         let orderedProfiles = order == .shuffled ? random.shuffle(profiles) : profiles
@@ -128,9 +165,17 @@ public enum LevelGenerator {
                 let engine = try PuzzleEngine(level: level)
                 guard case .solved(let moves, let visited) = LevelSolver.solve(engine: engine, limit: searchLimit),
                       try replay(moves, engine: engine) == .won else { continue }
+                let features = profile.boardKind == .circular ? try PathFeatures(level: level, moves: moves) : nil
+                if let features {
+                    guard features.hasFall else { continue }
+                    if profiles == GenerationProfile.prototype, profile == profiles.last {
+                        guard circularPartialFall || features.hasPartiallyFilledFall,
+                              circularGapPour || features.hasGapPour else { continue }
+                    }
+                }
                 let samples = try samplePlay(engine: engine, random: &random)
                 guard profile.sampledWinRange.contains(samples.wins),
-                      (order == .shuffled || samples.wins <= (metrics.last?.sampledWins ?? 32)),
+                      (order != .progressive || samples.wins <= (metrics.last?.sampledWins ?? 32)),
                       profile.difficulty == .easy || samples.loss != nil else { continue }
                 fingerprints.insert(fingerprint)
                 levels.append(level)
@@ -139,6 +184,10 @@ public enum LevelGenerator {
                 metrics.append(.init(levelID: id, profile: profile, attempts: attempt, solutionMoves: moves.count,
                                      visitedStates: visited, sampledWins: samples.wins, sampledPlays: 32))
                 accepted = true
+                if let features {
+                    circularPartialFall = circularPartialFall || features.hasPartiallyFilledFall
+                    circularGapPour = circularGapPour || features.hasGapPour
+                }
                 break
             }
             guard accepted else { throw GenerationError.attemptsExhausted(levelID: id) }
@@ -157,13 +206,18 @@ public enum LevelGenerator {
         encoder.outputFormatting = [.sortedKeys]
         return try encoder.encode(LevelDefinition(id: 1, difficulty: level.difficulty,
             bucketSlots: level.bucketSlots, width: level.width, height: level.height,
-            boxes: level.boxes, paintQueues: level.paintQueues))
+            boxes: level.boxes, paintQueues: level.paintQueues, boardKind: level.boardKind))
     }
 
     private static func makeBoxes(profile: GenerationProfile, random: inout LevelRandom) -> [BoxDefinition]? {
         var occupied = Set<Int>()
         var geometry: [(row: Int, column: Int, width: Int, height: Int)] = []
         var shapes = random.shuffle(profile.shapes).sorted { $0.0 * $0.1 > $1.0 * $1.1 }
+        if profile.boardKind == .circular {
+            let wide = profile.shapes.filter { $0.0 > 1 && $0.0 * $0.1 <= profile.largeBoxArea }
+            guard !wide.isEmpty else { return nil }
+            shapes = [wide[random.index(wide.count)]]
+        }
         var area = shapes.reduce(0) { $0 + $1.0 * $1.1 }
         while area < profile.largeBoxArea {
             let available = profile.shapes.filter { $0.0 * $0.1 <= profile.largeBoxArea - area }
@@ -173,21 +227,21 @@ public enum LevelGenerator {
             area += shape.0 * shape.1
         }
         for (width, height) in shapes {
-            let positions = random.shuffle(Array(0..<100))
+            let positions = random.shuffle(Array(0..<(profile.width * profile.height)))
             guard let cell = positions.first(where: { cell in
-                let row = cell / 10, column = cell % 10
-                return row + height <= 10 && column + width <= 10 &&
+                let row = cell / profile.width, column = cell % profile.width
+                return row + height <= profile.height && column + width <= profile.width &&
                     (row..<(row + height)).allSatisfy { r in
-                        (column..<(column + width)).allSatisfy { !occupied.contains(r * 10 + $0) }
+                        (column..<(column + width)).allSatisfy { !occupied.contains(r * profile.width + $0) }
                     }
             }) else { return nil }
-            let row = cell / 10, column = cell % 10
+            let row = cell / profile.width, column = cell % profile.width
             geometry.append((row, column, width, height))
             for r in row..<(row + height) {
-                for c in column..<(column + width) { occupied.insert(r * 10 + c) }
+                for c in column..<(column + width) { occupied.insert(r * profile.width + c) }
             }
         }
-        for cell in 0..<100 where !occupied.contains(cell) { geometry.append((cell / 10, cell % 10, 1, 1)) }
+        for cell in 0..<(profile.width * profile.height) where !occupied.contains(cell) { geometry.append((cell / profile.width, cell % profile.width, 1, 1)) }
         geometry.sort { ($0.row, $0.column) < ($1.row, $1.column) }
         let colors = random.shuffle(Array(PaintColor.allCases.prefix(profile.colorCount)))
         let assignments = random.shuffle(geometry.indices.map { colors[$0 % colors.count] })
@@ -201,7 +255,7 @@ public enum LevelGenerator {
                                   random: inout LevelRandom) throws -> LevelDefinition {
         func definition(_ queues: [[PaintTin]]) -> LevelDefinition {
             LevelDefinition(id: id, difficulty: profile.difficulty, bucketSlots: profile.bucketSlots,
-                            width: 10, height: 10, boxes: boxes, paintQueues: queues)
+                            width: profile.width, height: profile.height, boxes: boxes, paintQueues: queues, boardKind: profile.boardKind)
         }
         var supply = Array(repeating: [PaintTin](), count: 4)
         for (index, color) in PaintColor.allCases.prefix(profile.colorCount).enumerated() {

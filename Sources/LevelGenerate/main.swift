@@ -3,6 +3,7 @@ import ColorFlowCore
 
 struct Options {
     var seed = UInt64.random(in: .min ... .max)
+    var prototype = false
     var difficulty: Difficulty?
     var count: Int?
     var output = "GeneratedLevels"
@@ -13,6 +14,12 @@ struct Options {
         var index = 0
         while index < arguments.count {
             let flag = arguments[index]
+            if flag == "--prototype" {
+                prototype = true
+                order = .authored
+                index += 1
+                continue
+            }
             if flag == "--shuffle" {
                 order = .shuffled
                 index += 1
@@ -36,11 +43,13 @@ struct Options {
             }
             index += 2
         }
-        guard difficulty != nil || count == nil || appendFrom != nil,
+        guard !prototype || (difficulty == nil && count == nil && appendFrom == nil && order == .authored),
+              difficulty != nil || count == nil || appendFrom != nil,
               appendFrom == nil || (count != nil && difficulty == nil && order == .shuffled) else { throw GenerationError.invalidConfiguration }
     }
 
     func generationProfiles() throws -> [GenerationProfile] {
+        if prototype { return GenerationProfile.prototype }
         if appendFrom != nil, let count { return try GenerationProfile.balanced(count: count) }
         guard let difficulty else { return GenerationProfile.campaign }
         let group = GenerationProfile.campaign.filter { $0.difficulty == difficulty }
@@ -90,7 +99,7 @@ struct ExistingCampaign {
 
 func run() throws {
     if CommandLine.arguments.contains("--help") {
-        print("Usage: swift run LevelGenerate [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
+        print("Usage: swift run LevelGenerate [--prototype] [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
         print("Default: a nine-level campaign. Output must be a new directory; copy verified files into Resources explicitly.")
         return
     }
@@ -104,6 +113,12 @@ func run() throws {
     let profiles = try options.generationProfiles()
     let campaign = try LevelGenerator.generate(seed: options.seed, profiles: profiles,
                                                order: options.order, existingLevels: existing.levels)
+    if options.prototype {
+        let features = try zip(campaign.levels, campaign.solutions).filter { $0.0.boardKind == .circular }
+            .map { try PathFeatures(level: $0.0, moves: $0.1) }
+        guard features.allSatisfy(\.hasFall), features.contains(where: \.hasPartiallyFilledFall),
+              features.contains(where: \.hasGapPour) else { throw GenerationError.invalidConfiguration }
+    }
     existing.report.batches.append(GenerationBatch(seed: options.seed, firstLevelID: existing.levels.count + 1,
                                                     levelCount: campaign.levels.count, order: options.order))
     existing.levels += campaign.levels
@@ -127,7 +142,7 @@ func run() throws {
     for (name, data) in files { try data.write(to: staging.appendingPathComponent(name), options: .atomic) }
     try FileManager.default.moveItem(at: staging, to: destination)
     for metric in campaign.metrics {
-        print("Level \(metric.levelID) \(metric.profile.difficulty.rawValue): \(metric.profile.largeBoxArea)% large boxes, \(metric.solutionMoves) moves, \(metric.visitedStates) states, random-play wins \(metric.sampledWins)/\(metric.sampledPlays), attempts \(metric.attempts)")
+        print("Level \(metric.levelID) \(metric.profile.difficulty.rawValue): \(metric.profile.largeBoxArea) large-block cells, \(metric.solutionMoves) moves, \(metric.visitedStates) states, random-play wins \(metric.sampledWins)/\(metric.sampledPlays), attempts \(metric.attempts)")
     }
     print("Verified campaign saved to \(destination.path)")
 }
