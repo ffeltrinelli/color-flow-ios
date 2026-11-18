@@ -70,7 +70,7 @@ Publish level replacements as a complete generated output set, then run `swift r
 [Pull request checks](.github/workflows/pull-request.yml) runs on every pull request, including new commits, and can also be started manually from Actions. Both jobs use macOS 15 with Xcode 16.4, which is included in the [GitHub runner image](https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md).
 
 - **Core tests** checks generated Xcode project consistency, runs release-mode core tests, audits all published level paths, and tests device selection.
-- **iOS build and tests** builds the Release app for iOS without signing and runs all UI tests on an iPhone SE (third generation) simulator with iOS 18.5. Test reports are uploaded as `simulator-test-results` for 14 days, including on test failures.
+- **iOS build and tests** builds the Release app for iOS without signing and runs all UI tests on an iPhone SE (third generation) simulator with iOS 18.5. Test reports are uploaded as `simulator-test-results` for one day, including on test failures.
 
 After the first workflow run, select **Core tests** and **iOS build and tests** as required status checks in the target branch's GitHub ruleset or branch protection settings. Keep these job names stable. New commits cancel an older run for the same pull request. There are no path filters, so documentation-only pull requests also produce both checks.
 
