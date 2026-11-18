@@ -26,6 +26,7 @@ final class GameModel {
     var consumedDuringPour = 0
     var pourDestination: Cell?
     var fillingBoxID: Int?
+    var boardRotation: Double = 0
     var animatedFillUnits: Double = 0
     private var displayedState: GameState?
     var saveError: String?
@@ -119,6 +120,7 @@ final class GameModel {
            let level = levels.first(where: { $0.id == levelID }) {
             progress = GameProgress(level: level)
         }
+        resetBoardOrientation()
     }
 
     func take(queue: Int) {
@@ -133,11 +135,6 @@ final class GameModel {
 
     func fillUnits(for box: BoxDefinition) -> Double {
         fillingBoxID == box.id ? animatedFillUnits : Double(engine.boxState(id: box.id, state: presentationState).filledUnits)
-    }
-
-    func boxSummary(_ box: BoxDefinition) -> String {
-        let current = engine.boxState(id: box.id, state: presentationState)
-        return "\(box.color.name), row \(current.row + 1), column \(box.column + 1), \(box.width) by \(box.height), \(current.filledUnits) of \(box.capacity) paint units"
     }
 
     func displayedBucket(slot: Int) -> PaintTin? {
@@ -191,10 +188,14 @@ final class GameModel {
     }
 
     private func animateFill(_ step: FillStep, brief: Bool) async throws {
-        let previousColumn = pourDestination?.column
+        let transition = level.boardKind.alignment(lanes: level.width)
+            .transition(from: boardRotation, previousEntry: pourDestination, to: step.entry)
         pourDestination = step.entry
-        if previousColumn != nil, previousColumn != step.entry.column {
-            try await Task.sleep(for: .seconds(brief ? 0.008 : 0.25))
+        if transition.duration > 0 {
+            withAnimation(.easeInOut(duration: brief ? 0 : transition.duration)) {
+                boardRotation = transition.rotation
+            }
+            try await Task.sleep(for: .seconds(brief ? 0.008 : transition.duration))
         }
         animatedFillUnits = Double(step.fromUnits)
         fillingBoxID = step.boxID
@@ -221,6 +222,7 @@ final class GameModel {
         pourDestination = nil
         fillingBoxID = nil
         animatedFillUnits = 0
+        resetBoardOrientation()
         save()
     }
 
@@ -230,6 +232,7 @@ final class GameModel {
         checkpointPlayTime()
         progress.resolveAttempt(.restart, difficulty: level.difficulty)
         progress.startAttempt(level: level)
+        resetBoardOrientation()
         save()
     }
 
@@ -237,7 +240,12 @@ final class GameModel {
         guard !busy, outcome == .won else { return }
         cancelHint()
         progress.startAttempt(level: levels[finalLevel ? 0 : progress.levelID])
+        resetBoardOrientation()
         save()
+    }
+
+    private func resetBoardOrientation() {
+        boardRotation = level.boardKind.alignment(lanes: level.width).restoredRotation(lane: progress.state.alignedLane)
     }
 
     func clearStatistics() {

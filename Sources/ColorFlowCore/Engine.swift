@@ -51,6 +51,17 @@ public struct GameState: Codable, Equatable, Hashable, Sendable {
     public internal(set) var boxes: [BoxState]
     public internal(set) var queuePositions: [Int]
     public internal(set) var buckets: [PaintTin?]
+    public internal(set) var alignedLane = 0
+
+    private enum CodingKeys: String, CodingKey { case boxes, queuePositions, buckets, alignedLane }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        boxes = try values.decode([BoxState].self, forKey: .boxes)
+        queuePositions = try values.decode([Int].self, forKey: .queuePositions)
+        buckets = try values.decode([PaintTin?].self, forKey: .buckets)
+        alignedLane = try values.decodeIfPresent(Int.self, forKey: .alignedLane) ?? 0
+    }
 
     public init(level: LevelDefinition) {
         boxes = level.boxes.map { BoxState(row: $0.row, filledUnits: 0) }
@@ -62,10 +73,12 @@ public struct GameState: Codable, Equatable, Hashable, Sendable {
 public struct PuzzleEngine: Sendable {
     public let level: LevelDefinition
     private let boxIndices: [Int: Int]
+    private let targeting: any TargetingPolicy
 
     public init(level: LevelDefinition) throws {
         try LevelValidator.validate(level)
         self.level = level
+        targeting = level.boardKind.targetingPolicy
         boxIndices = Dictionary(uniqueKeysWithValues: level.boxes.enumerated().map { ($0.element.id, $0.offset) })
     }
 
@@ -111,7 +124,7 @@ public struct PuzzleEngine: Sendable {
 
     private func firstTarget(color: PaintColor, state: GameState) -> (index: Int, entry: Cell)? {
         let cells = occupancy(state: state)
-        for column in 0..<level.width {
+        for column in targeting.columns(width: level.width, alignedLane: state.alignedLane) {
             for row in 0..<level.height {
                 guard let index = cells[row * level.width + column] else { continue }
                 if level.boxes[index].color == color { return (index, Cell(row: row, column: column)) }
@@ -138,6 +151,7 @@ public struct PuzzleEngine: Sendable {
         var next = state
         switch event {
         case .fill(let step):
+            next.alignedLane = targeting.alignment(afterEntry: step.entry.column)
             let index = boxIndices[step.boxID]!
             next.boxes[index].filledUnits = step.toUnits
             if step.toUnits == level.boxes[index].capacity {
@@ -215,7 +229,8 @@ public struct PuzzleEngine: Sendable {
     }
 
     public func validate(state: GameState) -> Bool {
-        guard state.boxes.count == level.boxes.count, state.queuePositions.count == 4,
+        guard targeting.validAlignment(state.alignedLane, width: level.width),
+              state.boxes.count == level.boxes.count, state.queuePositions.count == 4,
               state.buckets.count == level.bucketSlots,
               (0..<4).allSatisfy({ (0...level.paintQueues[$0].count).contains(state.queuePositions[$0]) }),
               state.buckets.compactMap({ $0 }).allSatisfy({ $0.paintUnits > 0 && $0.paintUnits <= level.width * level.height }),

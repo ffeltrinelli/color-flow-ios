@@ -1,14 +1,14 @@
 import Foundation
 
 public struct GameProgress: Codable, Equatable, Sendable {
-    public var version = 4
+    public var version = 6
     public var levelID: Int
     public var state: GameState
     public private(set) var statistics = GameStatistics()
     public private(set) var attempt = AttemptProgress()
 
     private enum CodingKeys: String, CodingKey {
-        case version, levelID, state, statistics, attempt
+        case version, levelID, state, statistics, attempt, circularEntryLane
     }
 
     public init(from decoder: Decoder) throws {
@@ -16,8 +16,20 @@ public struct GameProgress: Codable, Equatable, Sendable {
         version = try values.decode(Int.self, forKey: .version)
         levelID = try values.decode(Int.self, forKey: .levelID)
         state = try values.decode(GameState.self, forKey: .state)
+        if let legacyLane = try values.decodeIfPresent(Int.self, forKey: .circularEntryLane) {
+            state.alignedLane = legacyLane
+        }
         statistics = try values.decodeIfPresent(GameStatistics.self, forKey: .statistics) ?? GameStatistics()
         attempt = try values.decodeIfPresent(AttemptProgress.self, forKey: .attempt) ?? AttemptProgress(timingEligible: false)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(version, forKey: .version)
+        try values.encode(levelID, forKey: .levelID)
+        try values.encode(state, forKey: .state)
+        try values.encode(statistics, forKey: .statistics)
+        try values.encode(attempt, forKey: .attempt)
     }
 
     public mutating func addPlayTime(_ seconds: TimeInterval) {
@@ -73,8 +85,14 @@ public struct ProgressStore: Sendable {
 
     public func load(levels: [LevelDefinition]) -> GameProgress {
         guard let data = try? Data(contentsOf: url),
-              var progress = try? JSONDecoder().decode(GameProgress.self, from: data),
-              progress.version == 4,
+              var progress = try? JSONDecoder().decode(GameProgress.self, from: data)
+        else { return GameProgress(level: levels[0]) }
+        if progress.version == 4 || progress.version == 5 {
+            progress.version = 6
+            progress.startAttempt(level: levels[0])
+            return progress
+        }
+        guard progress.version == 6,
               let level = levels.first(where: { $0.id == progress.levelID })
         else { return GameProgress(level: levels[0]) }
         guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state) else {

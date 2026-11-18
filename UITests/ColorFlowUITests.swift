@@ -56,13 +56,20 @@ final class ColorFlowUITests: XCTestCase {
 
     private func assertBoxes(level: LevelDefinition, state: GameState) {
         let engine = try! PuzzleEngine(level: level)
+        if level.boardKind == .circular {
+            XCTAssertEqual(app.otherElements["board"].label,
+                           "Circular puzzle board, lane \(state.alignedLane + 1) beneath the pour pointer")
+        }
         for box in level.boxes {
             let element = app.descendants(matching: .any).matching(identifier: "box-\(box.id)").firstMatch
             if engine.isRemoved(box, state: state) {
                 XCTAssertFalse(element.exists)
             } else {
                 let current = engine.boxState(id: box.id, state: state)
-                let expected = "\(box.color.name), row \(current.row + 1), column \(box.column + 1), \(box.width) by \(box.height), \(current.filledUnits) of \(box.capacity) paint units"
+                let position = level.boardKind == .circular
+                    ? "band \(current.row + 1), lane \(box.column + 1), \(box.width) lanes by \(box.height) bands"
+                    : "row \(current.row + 1), column \(box.column + 1), \(box.width) by \(box.height)"
+                let expected = "\(box.color.name), \(position), \(current.filledUnits) of \(box.capacity) paint units"
                 XCTAssertEqual(element.label, expected)
             }
         }
@@ -121,6 +128,86 @@ final class ColorFlowUITests: XCTestCase {
         openStats()
         XCTAssertTrue(statsRow("easy").label.contains("100%"))
         app.buttons["close-overlay"].tap()
+    }
+
+    func testSquareCompletionReturnsToCircle() throws {
+        let levels = try LevelCatalog.load()
+        launch(level: 2)
+        XCTAssertEqual(app.otherElements["board"].label, "Puzzle grid")
+        try play(LevelCatalog.solutions()[1], level: levels[1])
+        app.buttons["advance"].tap()
+        XCTAssertEqual(app.staticTexts["level-number"].label, "Level 3 of 10")
+        XCTAssertEqual(app.otherElements["board"].label, "Circular puzzle board, lane 1 beneath the pour pointer")
+        assertBoxes(level: levels[2], state: GameState(level: levels[2]))
+    }
+
+    func testCircularReducedMotionAndRestoration() throws {
+        app.launchEnvironment["COLOR_FLOW_REDUCE_MOTION"] = "1"
+        launch(level: 1)
+        attachScreenshot("Circular initial board")
+        let level = try LevelCatalog.load()[0]
+        let moves = try LevelCatalog.solutions()[0]
+        let end = try XCTUnwrap(moves.firstIndex { if case .pour = $0 { true } else { false } })
+        try play(Array(moves.prefix(end + 1)), level: level)
+        let before = snapshot()
+        app.terminate()
+        app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
+        launch(level: 1)
+        XCTAssertEqual(snapshot(), before)
+        attachScreenshot("Circular restored partial board")
+    }
+
+    func testSquareGameplayMedia() throws { try captureGameplay(levelID: 6) }
+
+    func testCircularGameplayMedia() throws { try captureGameplay(levelID: 9) }
+
+    private func captureGameplay(levelID: Int) throws {
+        let level = try LevelCatalog.load()[levelID - 1]
+        let moves = try LevelCatalog.solutions()[levelID - 1]
+        let engine = try PuzzleEngine(level: level)
+        var state = GameState(level: level)
+        var firstFall = 0
+        for (index, move) in moves.enumerated() {
+            if case .pour(let slot) = move,
+               try engine.pourResult(slot: slot, state: state).events.contains(where: {
+                   if case .fall = $0 { true } else { false }
+               }) {
+                firstFall = index
+                break
+            }
+            state = try engine.applying(move, to: state)
+        }
+        let start = max(0, firstFall - 3)
+        launch(level: levelID)
+        state = try play(Array(moves.prefix(start)), level: level)
+        app.terminate()
+        app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
+        app.launchEnvironment["COLOR_FLOW_FAST_ANIMATION"] = "0"
+        launch(level: levelID)
+        print("GAMEPLAY_CAPTURE_READY \(level.boardKind.rawValue)")
+        Thread.sleep(forTimeInterval: 3)
+        let clock = ContinuousClock()
+        let began = clock.now
+        var captured = false
+        for (offset, move) in moves.dropFirst(start).enumerated() {
+            if clock.now - began >= .seconds(32) { break }
+            let button: XCUIElement
+            switch move {
+            case .take(let queue): button = app.buttons["queue-\(queue)"]
+            case .pour(let slot): button = app.buttons["slot-\(slot)"]
+            }
+            XCTAssertTrue(button.isEnabled)
+            button.tap()
+            if case .pour = move { waitUntilReady() }
+            state = try engine.applying(move, to: state)
+            if !captured, start + offset >= firstFall, engine.outcome(state: state) == .playing {
+                attachScreenshot("README \(level.boardKind.rawValue) gameplay")
+                captured = true
+            }
+            if engine.outcome(state: state) != .playing { break }
+        }
+        XCTAssertTrue(captured, "Capture must demonstrate a settled fall during gameplay")
+        assertBoxes(level: level, state: state)
     }
 
     func testFinalLevelCompletionStartsNewCampaign() throws {
@@ -194,10 +281,10 @@ final class ColorFlowUITests: XCTestCase {
 
     func testGravityMatchesEnginePositions() throws {
         app.launchEnvironment["COLOR_FLOW_FAST_ANIMATION"] = "0"
-        launch(level: 3)
-        let level = try LevelCatalog.load()[2]
+        launch(level: 4)
+        let level = try LevelCatalog.load()[3]
         let engine = try PuzzleEngine(level: level)
-        let solution = try LevelCatalog.solutions()[2]
+        let solution = try LevelCatalog.solutions()[3]
         var state = GameState(level: level)
         var prefix: [Move] = []
         var observedFall = false
@@ -224,12 +311,12 @@ final class ColorFlowUITests: XCTestCase {
         let boxes = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier BEGINSWITH 'box-'"))
             .allElementsBoundByIndex.map(\.label)
-        return controls + boxes
+        return [app.otherElements["board"].label] + controls + boxes
     }
 
     func testBoardIsReadOnlyAndFitsScreen() throws {
         let levels = try LevelCatalog.load()
-        for levelID in [1, 4, 7] {
+        for levelID in [1, 2, 5, 6, 9, 10] {
             launch(level: levelID)
             XCTAssertEqual(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'box-' OR identifier == 'board'")).count, 0)
             let board = app.otherElements["board"].frame
@@ -344,20 +431,30 @@ final class ColorFlowUITests: XCTestCase {
     }
 
     func testNormalPourLocksInputAndSurvivesTermination() throws {
+        try verifyInterruptedPour(levelID: 2)
+    }
+
+    func testCircularPourLocksInputAndSurvivesTermination() throws {
+        try verifyInterruptedPour(levelID: 1)
+    }
+
+    private func verifyInterruptedPour(levelID: Int) throws {
         app.launchEnvironment["COLOR_FLOW_FAST_ANIMATION"] = "0"
-        launch()
-        let level = try LevelCatalog.load()[0]
+        launch(level: levelID)
+        let level = try LevelCatalog.load()[levelID - 1]
         let engine = try PuzzleEngine(level: level)
-        let preparation = try preparationForPour(minimumUnits: 4)
+        let preparation = try preparationForPour(minimumUnits: 4, levelID: levelID)
         _ = try play(preparation.prefix, level: level)
         let expected = try engine.applying(.pour(slot: preparation.slot), to: preparation.state)
         app.buttons["slot-\(preparation.slot)"].tap()
         XCTAssertEqual(app.otherElements["board"].value as? String, "Pouring")
         XCTAssertFalse(app.buttons["settings"].isEnabled)
-        XCTAssertFalse(app.buttons["queue-0"].isEnabled)
+        for queue in app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'queue-'")).allElementsBoundByIndex {
+            XCTAssertFalse(queue.isEnabled)
+        }
         app.terminate()
         app.launchEnvironment["COLOR_FLOW_RESET"] = "0"
-        launch()
+        launch(level: levelID)
         assertBoxes(level: level, state: expected)
         XCTAssertTrue(app.buttons["settings"].isEnabled)
         attachScreenshot("Restored complete move after interrupted animation")
@@ -388,12 +485,12 @@ final class ColorFlowUITests: XCTestCase {
         attachScreenshot("Normal pour fills and removes larger boxes")
     }
 
-    private func preparationForPour(minimumUnits: Int) throws -> (prefix: [Move], state: GameState, slot: Int) {
-        let level = try LevelCatalog.load()[0]
+    private func preparationForPour(minimumUnits: Int, levelID: Int = 1) throws -> (prefix: [Move], state: GameState, slot: Int) {
+        let level = try LevelCatalog.load()[levelID - 1]
         let engine = try PuzzleEngine(level: level)
         var state = GameState(level: level)
         var prefix: [Move] = []
-        for move in try LevelCatalog.solutions()[0] {
+        for move in try LevelCatalog.solutions()[levelID - 1] {
             if case .pour(let slot) = move {
                 let result = try engine.pourResult(slot: slot, state: state)
                 let units = result.events.reduce(0) { total, event in
@@ -454,10 +551,10 @@ final class ColorFlowUITests: XCTestCase {
     }
 
     func testBlockedBucketRetainsQuantityAndNoTextCaption() throws {
-        launch(level: 7)
-        let level = try LevelCatalog.load()[6]
+        launch(level: 8)
+        let level = try LevelCatalog.load()[7]
         let engine = try PuzzleEngine(level: level)
-        let path = try XCTUnwrap(LevelCatalog.losingBranches()[7])
+        let path = try XCTUnwrap(LevelCatalog.losingBranches()[8])
         var state = GameState(level: level)
         var prefix: [Move] = []
         for move in path {
@@ -475,11 +572,11 @@ final class ColorFlowUITests: XCTestCase {
     }
 
     func testMediumLosingBranchAndRetry() throws {
-        try verifyLosingBranch(levelID: 4)
+        try verifyLosingBranch(levelID: 5)
     }
 
     func testHardLosingBranchAndRetry() throws {
-        try verifyLosingBranch(levelID: 7)
+        try verifyLosingBranch(levelID: 9)
     }
 
     private func verifyLosingBranch(levelID: Int) throws {

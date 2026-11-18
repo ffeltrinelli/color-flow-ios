@@ -1,34 +1,52 @@
 # Algorithmic level generation
 
-`LevelGenerate` randomizes layouts, color assignments, paint quantities, and queue placement offline. It uses no large language model (LLM), network, or external service. The app plays a fixed bundled campaign and only invokes the shared solver for hints.
+`LevelGenerate` creates fixed puzzles offline using the shared engine and solver. Runtime gameplay never generates levels or uses an external service.
+
+## Reproduce the prototype
+
+The original prototype resources are the baseline in commit `24f3d16229624dcaecbbf7907a3a9678d107d0e5`. Reproduce the current revision with the current generator and that fixed baseline. Fetch the PR history so the baseline is available in a fresh clone after a squash merge:
 
 ```sh
-swift run -c release LevelGenerate --output GeneratedLevels
-swift run -c release LevelGenerate --seed 20261114 --output ReproducedLevels
-swift run -c release LevelGenerate --difficulty medium --count 3 --output MediumLevels
-swift run -c release LevelGenerate --append-from ReproducedLevels --count 41 --shuffle --seed 2026111401 --output ExpandedLevels
+git fetch origin refs/pull/7/head
+mkdir PrototypeBaseline
+git archive 24f3d16229624dcaecbbf7907a3a9678d107d0e5 Sources/ColorFlowCore/Resources | tar -x -C PrototypeBaseline
+swift run -c release LevelGenerate --revise-prototype-from PrototypeBaseline/Sources/ColorFlowCore/Resources --seed 2026111701 --output PrototypeLevels
 ```
 
-Without `--seed`, the tool chooses and records a fresh 64-bit seed. A supplied seed reproduces generation for the same generator version and configuration. The default tool mode generates a nine-level progressive campaign; the bundled app campaign has 50 levels. With a difficulty, count defaults to three; counts beyond three repeat that group's final profile. Append mode preserves all input levels and paths, cycles each difficulty’s three profiles in a balanced mix (extra levels go to easy, then medium), and shuffles additions once with the recorded seed. Existing catalog definitions participate in duplicate rejection. Output directories must not already exist. Generation finishes and verifies every level before staging files and renaming the completed directory, so failure cannot overwrite a published campaign.
+The output directory must not already exist. Review and copy all four output files (`levels.json`, `solutions.json`, `losing-branch.json`, `generation.json`) into `Sources/ColorFlowCore/Resources/`, then run `swift run -c release LevelCheck` and `swift test -c release`. Generation stages verified output before publishing it; failures do not replace resources.
 
-The output contains `levels.json`, `solutions.json`, `losing-branch.json`, and `generation.json`. Review these files, then copy all four into `Sources/ColorFlowCore/Resources/`. Run `swift run -c release LevelCheck` and `swift test -c release`. Publishing changed geometry, box order, or queues requires a save-version bump; campaign save version 4 resets older-version saves to level one. Appending unchanged published levels does not require a save-version bump.
+The revision preserves all square definitions and re-audits each circular level with seed `2026111701 + levelID`. Existing circles are retained when they pass solving, fall witnesses, sampling, and losing-alternative requirements. Rejected circles are regenerated using the same per-level seed/profile. The revision first reorders each pair Circular → Square and assigns final IDs before sampling or regeneration. It replaces circular definitions at final IDs 5, 7, and 9; all square geometry and queues remain unchanged. Report revision metadata records the base seed, audited IDs, and replaced IDs. Definitions and all four output resources were reproduced byte-for-byte. `--prototype --seed 2026111701` remains available to generate a fresh entire prototype under current rules; it does not reproduce the preserved baseline squares.
 
-## Difficulty and acceptance
+The ten-level configuration is ordered, never shuffled. Each pair starts with a circular board, followed by its square partner:
 
-| Group | Buckets | Colors | Larger-box area across three levels | Random-play wins accepted out of 32 |
-| --- | ---: | ---: | --- | --- |
-| Easy | 3 | 4 | 20%, 24%, 30% | 24–32, 20–27, 16–23 |
-| Medium | 3 | 4 | 35%, 40%, 45% | 12–19, 8–15, 4–11 |
-| Hard | 2 | 5 | 50%, 55%, 60% | 0–4 |
+| Levels | Difficulty | Circular geometry / larger-block cells | Square geometry / larger-block cells | Accepted random-play wins / 32 |
+| --- | --- | --- | --- | --- |
+| 1–2 | Easy | 10 lanes × 5 bands / 10 | 10 × 10 / 20 | 24–32 |
+| 3–4 | Easy | 10 lanes × 5 bands / 12 | 10 × 10 / 24 | 20–27 |
+| 5–6 | Medium | 10 lanes × 5 bands / 18 | 10 × 10 / 35 | 12–19 |
+| 7–8 | Medium | 10 lanes × 5 bands / 20 | 10 × 10 / 40 | 8–15 |
+| 9–10 | Hard | 10 lanes × 5 bands / 25 | 10 × 10 / 50 | 0–4 |
 
-Sampled wins must never increase within a progressive generation batch. Shuffled batches retain each profile’s acceptance range without imposing a relationship between adjacent levels. Easy's 24% replaces the originally proposed 25% because its 1 × 2 and 2 × 1 shapes occupy even areas. Medium adds 1 × 3, 3 × 1, and 2 × 2; hard adds 2 × 3, 3 × 2, and 3 × 3. Each level includes its complete shape family and covers exactly 100 cells with exactly matching paint supply.
+Easy and medium use three bucket slots and four colors; hard uses two slots and five colors. The circular sampling profile matches its square partner even though its absolute large-block area is smaller. Sampling is a reproducible selection heuristic, not a measure of human difficulty. Scores need not decrease between differently sized boards.
 
-Random-play sampling chooses uniformly among legal actions for 32 seeded runs. This is a reproducible selection heuristic, not a model of human reasoning or a proof of human difficulty. Geometry and the two-bucket constraint continue progression within hard even when all samples lose. Human playtesting is still needed.
+Square and circular generation policies own initial shape selection and board-specific acceptance. Packing, queue derivation, solving, and sampling remain shared. Square levels contain the complete difficulty shape family. Easy allows dominoes; medium adds 1 × 3, 3 × 1, and 2 × 2; hard also adds 2 × 3, 3 × 2, and 3 × 3. Circular levels sample a subset and include wide arcs. Logical capacity remains width × height regardless of position or displayed area.
 
-The generator first packs rectangles, then derives a paint-consumption schedule using actual engine targeting and gravity. Assigning these tins to random queues preserves a chronological winning witness while introducing alternative choices. Acceptance independently requires the shared solver to find a full path within 25,000 visited states, and replays every move while validating paint conservation and settled geometry. Medium and hard additionally require a sampled losing path. Each level gets at most 200 candidate attempts; exhaustion is an explicit failure. Duplicate definitions are rejected without considering their campaign IDs.
+The generator packs containers, derives queues using real engine transitions, and independently searches for a winning path within 25,000 visited states. Candidates must pass seeded sampling and replay validation. Medium/hard require a losing alternative. Each level gets at most 200 attempts; an inconclusive search or exhausted budget is an explicit failure, never proof of impossibility.
 
-`generation.json` records the seed, profiles, attempts, solution lengths, search-state counts, and sampled wins. The bundled campaign preserves levels 1–9 from seed `20261114` and appends levels 10–50 from seed `2026111401`: 14 easy, 14 medium, and 13 hard levels. Report format 2 records each batch’s seed, first ID, count, and ordering; format-1 reports remain readable. The seeded commands above reproduce the original nine levels in `ReproducedLevels`, then the exact 50-level catalog in `ExpandedLevels`. For future additions, pass the current resource directory as the append input. For focused core tests, generation accepts explicit attempt and search limits. Hints first replay the bundled winning path and reuse its continuation when the exact current state matches. Invalid or nonmatching paths fall back to the same stable, pour-first search. Runtime hints use a ten-second deadline with a loading wheel and cancellation instead of a state-count cutoff. Offline generation remains bounded by visited-state counts for reproducibility; a timed-out hint remains inconclusive, never proof of a dead end.
+Every circular winning path must demonstrate a fall. The circular set must also demonstrate a partially filled falling arc and an exposed inner entry through an outer gap. `PathFeatures` checks actual engine events, and `LevelCheck` audits these witnesses alongside all ten wins and six losing alternatives.
 
-## Validation as the catalog grows
+## Metadata and other workflows
 
-Routine core tests load three fixed fixtures from the test target, not the published campaign. Their engine, hint, persistence, and solver coverage stays bounded as levels are added. Newly generated levels are checked before export. The separate `LevelCheck` command audits every published winning path, losing alternative, generation batch, and duplicate definition; replaying a valid winning path proves solvability without searching again. Run this audit whenever level data changes and in release validation. Use `--solve` for a fresh catalog-wide search when changing the solver; it is intentionally separate from routine unit tests.
+Report format 2 records batches, seed, ordering, attempts, solution lengths, visited states, and sampling results. Profiles now also record board kind, dimensions, logical large-block area, and the square-equivalent sampling area. Missing fields decode as legacy square configurations; format-1 reports remain readable. `authored` batches preserve their explicit order without a cross-level score constraint. Progressive and shuffled square workflows remain available:
+
+```sh
+swift run -c release LevelGenerate --seed 20261114 --output SquareLevels
+swift run -c release LevelGenerate --difficulty medium --count 3 --output MediumLevels
+swift run -c release LevelGenerate --append-from SquareLevels --count 6 --shuffle --seed 2026111702 --output ExpandedLevels
+```
+
+Append workflows preserve input IDs, definitions, queues, box order, and paths. Replacing published geometry or queues requires a save-version bump; the prototype uses version 6 and migrates version-4/5 statistics while resetting boards. The former 50-level catalog is retained in Git history.
+
+Core tests use independent fixed fixtures. The published catalog is covered separately by `LevelCheck`; use `--solve` for fresh catalog-wide searches after solver changes. Hints verify stored continuations against the exact current state, then fall back to cancellable search with a ten-second deadline. A timeout leaves solvability unknown.
+
+Circular targeting uses the aligned lane in engine state. Each target receives a fresh clockwise scan from the current alignment, including after clearing and inward settling. Solver state identity includes alignment; hints verify the same complete state.

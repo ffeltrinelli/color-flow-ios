@@ -1,6 +1,17 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. Empty a 10 × 10 board of mixed-size boxes while managing active buckets and four reserve queues. Paint spreads across each box and remains until it fills; full boxes disappear and unsupported boxes fall. Tap a bucket to pour automatically into exposed matching boxes from left to right. The fixed campaign has 50 levels: the original nine followed by 41 puzzles in a seeded, shuffled difficulty order. Your exact board is saved after every move. Version-4 saves keep their current level and exact board when updating; older save versions start at level one.
+An offline iPhone puzzle game for iOS 17+. The ten-level prototype alternates square 10 × 10 boards with circular boards of ten lanes and five bands, starting with a circle. Fill matching containers while managing active buckets and four reserve queues. Full containers disappear; unsupported containers settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed centered pour. Paint inside arcs always forms a concentric band expanding outward from the inner edge, independent of screen gravity.
+
+Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional pending playtesting. Circular searches begin at the lane beneath the fixed pour pointer and continue clockwise, restarting from each newly aligned lane. Version-6 saves preserve settled boards and alignment. Updating from versions 4 or 5 restarts at level one while retaining lifetime statistics.
+
+## Gameplay
+
+Captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay. Click play in the table to watch inline on GitHub.
+
+| Board | Gameplay screenshot | Gameplay video |
+| --- | --- | --- |
+| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | <video src="https://github.com/user-attachments/assets/57673687-8f28-4c30-aaa4-56e537a23919" width="240" controls></video> |
+| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | <video src="https://github.com/user-attachments/assets/9577dc45-fe97-41d4-9795-c3932158613e" width="240" controls></video> |
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
 
@@ -59,7 +70,7 @@ Publish level replacements as a complete generated output set, then run `swift r
 [Pull request checks](.github/workflows/pull-request.yml) runs on every pull request, including new commits, and can also be started manually from Actions. Both jobs use macOS 15 with Xcode 16.4, which is included in the [GitHub runner image](https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md).
 
 - **Core tests** checks generated Xcode project consistency, runs release-mode core tests, audits all published level paths, and tests device selection.
-- **iOS build and tests** builds the Release app for iOS without signing and runs all UI tests on an iPhone SE (third generation) simulator with iOS 18.5. Test reports are uploaded as `simulator-test-results` for 14 days, including on test failures.
+- **iOS build and tests** builds the Release app for iOS without signing and runs all UI tests on an iPhone SE (third generation) simulator with iOS 18.5. Test reports are uploaded as `simulator-test-results` for one day, including on test failures.
 
 After the first workflow run, select **Core tests** and **iOS build and tests** as required status checks in the target branch's GitHub ruleset or branch protection settings. Keep these job names stable. New commits cancel an older run for the same pull request. There are no path filters, so documentation-only pull requests also produce both checks.
 
@@ -76,4 +87,10 @@ xcrun simctl io booted screenshot /tmp/color-flow.png
 xcrun simctl io booted recordVideo /tmp/color-flow.mov
 ```
 
-Stop recording with Control-C. UI tests also preserve selected screenshots as test-report attachments. Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.
+Stop recording with Control-C. UI tests also preserve selected screenshots as test-report attachments.
+
+For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint near a fall, relaunches at normal animation speed, and prints `GAMEPLAY_CAPTURE_READY` after the splash. Start recording at that marker, capture at least 30 seconds, and trim to exactly 30 seconds without changing playback speed. Inspect the screenshot and video, and verify duration with `ffprobe` before replacing the corresponding `docs/evidence/prototype-square.*` or `prototype-circular.*` files.
+
+Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.
+
+To refresh an inline player, upload the inspected MP4 as a GitHub attachment (for example, `gh pr edit PR_NUMBER --attach docs/evidence/prototype-circular.mp4`), then use its durable `https://github.com/user-attachments/assets/...` URL in the table's video element. Keep the repository MP4 source in sync and verify the rendered README contains a player with controls. Do not save GitHub's temporary signed playback URL. See [GitHub attachment guidance](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli).

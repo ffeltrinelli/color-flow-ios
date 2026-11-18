@@ -53,6 +53,15 @@ private func audit() throws {
     }
     let report = try LevelCatalog.generationReport()
     try report.validate(levels: levels)
+    if levels.contains(where: { $0.boardKind == .circular }) {
+        guard Array(report.metrics.prefix(10).map(\.profile)) == GenerationProfile.prototype else {
+            throw AuditError.invalidGenerationReport
+        }
+        let features = try zip(levels, rewrite ? solutions : stored).filter { $0.0.boardKind == .circular }
+            .map { try PathFeatures(level: $0.0, moves: $0.1) }
+        guard features.allSatisfy(\.hasFall), features.contains(where: \.hasPartiallyFilledFall),
+              features.contains(where: \.hasGapPour) else { throw AuditError.invalidGenerationReport }
+    }
     for (index, metric) in report.metrics.enumerated() {
         guard metric.solutionMoves == (rewrite ? solutions[index].count : stored[index].count) else {
             throw AuditError.invalidGenerationReport

@@ -18,6 +18,10 @@ public enum Difficulty: String, Codable, CaseIterable, Sendable {
     case easy, medium, hard
 }
 
+public enum BoardKind: String, Codable, Sendable {
+    case square, circular
+}
+
 public struct PaintTin: Codable, Equatable, Hashable, Sendable {
     public let color: PaintColor
     public var paintUnits: Int
@@ -49,6 +53,7 @@ public struct BoxDefinition: Codable, Equatable, Hashable, Identifiable, Sendabl
 }
 
 public struct LevelDefinition: Codable, Equatable, Sendable {
+    public let boardKind: BoardKind
     public let id: Int
     public let difficulty: Difficulty
     public let bucketSlots: Int
@@ -58,7 +63,8 @@ public struct LevelDefinition: Codable, Equatable, Sendable {
     public let paintQueues: [[PaintTin]]
 
     public init(id: Int, difficulty: Difficulty, bucketSlots: Int, width: Int, height: Int,
-                boxes: [BoxDefinition], paintQueues: [[PaintTin]]) {
+                boxes: [BoxDefinition], paintQueues: [[PaintTin]], boardKind: BoardKind = .square) {
+        self.boardKind = boardKind
         self.id = id
         self.difficulty = difficulty
         self.bucketSlots = bucketSlots
@@ -66,6 +72,22 @@ public struct LevelDefinition: Codable, Equatable, Sendable {
         self.height = height
         self.boxes = boxes
         self.paintQueues = paintQueues
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, difficulty, bucketSlots, width, height, boxes, paintQueues, boardKind
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(id: try values.decode(Int.self, forKey: .id),
+                  difficulty: try values.decode(Difficulty.self, forKey: .difficulty),
+                  bucketSlots: try values.decode(Int.self, forKey: .bucketSlots),
+                  width: try values.decode(Int.self, forKey: .width),
+                  height: try values.decode(Int.self, forKey: .height),
+                  boxes: try values.decode([BoxDefinition].self, forKey: .boxes),
+                  paintQueues: try values.decode([[PaintTin]].self, forKey: .paintQueues),
+                  boardKind: try values.decodeIfPresent(BoardKind.self, forKey: .boardKind) ?? .square)
     }
 }
 
