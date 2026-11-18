@@ -3,6 +3,7 @@
 - Use the `clean-code` skill for code changes and reviews. Keep engine rules independent of SwiftUI, persistence, and animation.
 - Treat circular boards as a polar presentation of the shared engine: preserve logical capacities, fill ratios, entry lanes, and support checks. Paint occupies concentric area from the inner edge, not screen gravity. Aligned lane belongs to engine state because it determines circular targeting; only unwrapped rotation angles are presentation state.
 - Select targeting and generation policies by board kind at construction boundaries. Keep shared exposure, paint, and gravity rules in the engine; targeting queries must not mutate state. Keep board rendering separate and alignment animation outside the engine. Select board behavior from level metadata, never level parity or IDs.
+- Convert core `Double` geometry to `CGFloat` at SwiftUI layout boundaries; keep coordinate arithmetic consistently typed for the CI compiler.
 - Animate engine-provided fill, removal, and fall events; do not duplicate targeting or gravity in the UI. Commit and save the complete settled move before presentation begins.
 - Keep UI, accessibility labels, data, identifiers, code, and technical documentation in English.
 - Save attempt outcomes with settled moves before animation; finalize winning time after animation or interruption. Keep version-6 saves compatible when adding optional progress fields; version-4/5 migration retains statistics and resets campaign progress.

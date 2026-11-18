@@ -53,7 +53,7 @@ struct CircularBoardView: View {
 
     private var pourPoint: some View {
         Path { path in
-            let y = headroom + size / 2 - geometry.radius - 6
+            let y = headroom + size / 2 - CGFloat(geometry.radius) - 6
             path.move(to: CGPoint(x: size / 2 - 4, y: y - 5))
             path.addLine(to: CGPoint(x: size / 2 + 4, y: y - 5))
             path.addLine(to: CGPoint(x: size / 2, y: y))
@@ -66,8 +66,8 @@ struct CircularBoardView: View {
     private func pouring(_ pour: PourPresentation) -> some View {
         let tilt = -48.0
         let angle = tilt * .pi / 180
-        let rimX = (-53 * cos(angle) + 18 * sin(angle)) * 0.35
-        let rimY = (-53 * sin(angle) - 18 * cos(angle)) * 0.35
+        let rimX = CGFloat((-53 * cos(angle) + 18 * sin(angle)) * 0.35)
+        let rimY = CGFloat((-53 * sin(angle) - 18 * cos(angle)) * 0.35)
         let originY = 18 + rimY
         return ZStack(alignment: .topLeading) {
             if let box = model.level.boxes.first(where: { $0.id == model.fillingBoxID }) {
@@ -76,7 +76,7 @@ struct CircularBoardView: View {
                 let outer = geometry.outerRadius(row: row) - 2
                 let filled = geometry.fillRadius(inner: inner, outer: outer,
                                                 fraction: model.fillUnits(for: box) / Double(box.capacity))
-                let endY = headroom + size / 2 - filled
+                let endY = headroom + size / 2 - CGFloat(filled)
                 Rectangle().fill(pour.color.displayColor)
                     .frame(width: 3, height: max(0, endY - originY))
                     .position(x: size / 2, y: (endY + originY) / 2)
@@ -114,8 +114,8 @@ private struct CircularBlockShape: Shape {
         let end = geometry.laneBoundaryAngle + Double(box.column + box.width) * geometry.laneAngle - inset
         let center = CGPoint(x: rect.midX, y: rect.midY)
         var path = Path()
-        path.addArc(center: center, radius: fill, startAngle: .radians(start), endAngle: .radians(end), clockwise: false)
-        path.addArc(center: center, radius: inner, startAngle: .radians(end), endAngle: .radians(start), clockwise: true)
+        path.addArc(center: center, radius: CGFloat(fill), startAngle: .radians(start), endAngle: .radians(end), clockwise: false)
+        path.addArc(center: center, radius: CGFloat(inner), startAngle: .radians(end), endAngle: .radians(start), clockwise: true)
         path.closeSubpath()
         return path
     }
