@@ -1,12 +1,14 @@
 # Visual evidence
 
+Circular targeting before/after: [previous divider presentation](circular-before-relative-targeting.png) → [current circular gameplay](prototype-circular.png), both iPhone SE third-generation simulator, iOS 27.2. The square campaign badge also changed with the circular-first order: [previous square gameplay](square-before-circular-first.png) → [current square gameplay](prototype-square.png). Both README recordings are refreshed for the new order.
+
 ## Mixed-board prototype
 
-Current gameplay media is embedded in the [README table](../../README.md#gameplay): one screenshot and one 30-second normal-speed recording for each board kind, captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The circular recording shows automatic counterclockwise alignment, pouring, clearing, and inward settling. Filled arcs use concentric bands even in the lower half of the board.
+Current gameplay media is embedded in the [README table](../../README.md#gameplay): one screenshot and one 30-second normal-speed recording for each board kind, captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The circular recording shows automatic counterclockwise alignment, pouring, clearing, and inward settling. Filled arcs use concentric bands even in the lower half of the board; see the [mid-pour capture](prototype-circular-pouring.png). The README screenshot shows the settled board and unobstructed pour pointer.
 
-Larger-layout inspection on iPhone 18 Pro simulator, iOS 27.2: [full circular board](prototype-circular-full-large.png) and [restored partial board](prototype-circular-partial-large.png). The white divider remains visible through cleared sectors, and its head and adjacent arrow fit inside the board's reserved outer margin.
+Larger-layout inspection on iPhone 18 Pro simulator, iOS 27.2: [full circular board](prototype-circular-full-large.png) and [restored partial board](prototype-circular-partial-large.png). The fixed pour pointer remains above the rim; no divider, circular head, or curved arrow is drawn. The restored board retains its aligned lane after relaunch.
 
-Physical iPhone SE second generation, iOS 27.2.1: [circular gameplay after inward settling](prototype-circular-device.png). Its full suite passed all 23 cases; the report and screenshot were inspected. See [validation](../validation.md) for complete results, including the corrected compact test-fixture assertion.
+Physical iPhone SE second generation, iOS 27.2.1: [circular gameplay after inward settling](prototype-circular-device.png). See [validation](../validation.md) for the current full-suite result.
 
 Earlier evidence below documents previous campaigns and designs; it is retained for before/after comparisons.
 
@@ -23,7 +25,7 @@ Inspected on iPhone SE third-generation simulator, iOS 27.2, and physical iPhone
 
 The physical SE captures show [empty statistics and Clear stats](stats-empty-device.png), a [recorded victory](stats-victory-device.png), and the [destructive confirmation](stats-clear-confirmation-device.png). Simulator counterparts show the [empty table](stats-empty-se.png), [victory](stats-victory-se.png), and [confirmation](stats-clear-confirmation-se.png). Histogram, gear, eraser, and close icons are visible; the table, button, and confirmation fit the compact layout.
 
-Validation: 51 release core tests and 10 device-selection tests passed. `LevelCheck` verified all 50 winning paths and 33 losing alternatives. The original nine definitions, paths, and metrics were preserved; 27 original version-4 save checkpoints restored exactly. Both generation modes reproduced their recorded data, including a byte-for-byte match of all four expanded resources.
+Historical validation: 51 release core tests passed. The runner currently contains eight device-selection tests; see the current validation document. `LevelCheck` verified all 50 winning paths and 33 losing alternatives. The original nine definitions, paths, and metrics were preserved; 27 original version-4 save checkpoints restored exactly. Both generation modes reproduced their recorded data, including a byte-for-byte match of all four expanded resources.
 
 The final routine suite passed 17 UI tests on each SE, covering clear confirmation/cancellation, persistent statistics, unchanged boards, restoration, and animation behavior. A separate full journey passed all 50 levels and Start Again on iPhone 18 Pro simulator, iOS 27.2; its [level 50 capture](stats-level-50-large.png) was inspected. Clear stats was subsequently verified in the updated routine suites. Raw result bundles remain ignored; use hosted repository URLs for these selected images when preparing a PR.
 

@@ -1,22 +1,20 @@
 # Validation status
 
-November 17, 2026; Xcode 27.2, iOS 17 deployment target.
+November 18, 2026; Xcode 27.2, iOS 17 deployment target.
 
-- `swift test -c release`: 57 tests passed. Coverage includes circular geometry and area-based filling, counterclockwise alignment, reproducible generation, version-4 statistics migration, version-5 state/orientation restoration, shared engine/search rules, and hints.
-- `swift run -c release LevelCheck`: all ten winning paths and six losing alternatives passed, including the prototype configuration and circular fall/gap/partial-fill witnesses.
-- Seed `2026111701` reproduced all four bundled resources byte-for-byte. See [generation](level-generation.md).
-- `python3 scripts/test_device_selection.py`: eight tests passed. Xcode project regeneration is consistent, and the unsigned Release iOS build passed.
+- `swift test -c release`: 65 tests passed, including relative circular targeting, wraparound and fresh scans, query purity, wide-arc entry, paint conservation, partial-arc falls, alignment-aware solver/hints, generation policies, revision reports, and version-4/5 statistics migration to version 6.
+- `swift run -c release LevelCheck`: all ten winning paths and six losing alternatives passed, including circular falling, partial-fill falling, and gap-pour witnesses.
+- The circular-first revision reproduced all four resources byte-for-byte from the recorded baseline and seed. All five square definitions retain their exact boxes, authored order, and queues; only their campaign IDs changed. See [generation](level-generation.md).
+- Eight device-selection tests passed. Project generation is idempotent, `git diff --check` passes, and the unsigned Release iOS build succeeds.
 
 | Destination | Result |
 | --- | --- |
-| iPhone SE third-generation simulator, iOS 27.2 | All 23 current UI cases passed across the full run and focused rerun |
-| Physical iPhone SE second generation, iOS 27.2.1 | Full suite: 23/23 passed, none skipped |
-| iPhone 18 Pro simulator, iOS 27.2 | Both normal-speed interruption/restoration cases passed; full and partial circular layouts inspected |
+| iPhone SE third-generation simulator, iOS 27.2 | 23/23 passed, zero failures |
+| Physical iPhone SE second generation, iOS 27.2.1 | 23/23 passed, zero failures |
+| iPhone 18 Pro simulator, iOS 27.2 | Both circular restoration/interruption cases passed; initial and restored layouts inspected |
 
-The initial compact run passed 21 of its 22 compiled cases; its interruption test assumed queue zero remained present after preparation. The corrected test checks remaining queues and passed on rerun, alongside the newly added circular interruption case. Consequently, the original `run-tests.py` invocation exits nonzero for that superseded simulator assertion even though its device suite passes. There are no unresolved failures among the current UI cases.
+Coverage includes circle → square → circle progression, final-level completion and Start Again, input locking, interrupted pours, partial-fill restoration, circular reduced motion, gravity, recharge, hints, splash return, and statistics confirmation/persistence. The deployment target remains iOS 17; these checks use the OS versions listed above.
 
-Coverage includes square → circle → square progression, final-level completion and Start Again, input locking, interrupted pours, partial-fill restoration, circular reduced motion, gravity, recharge, hints, splash return, and statistics confirmation/persistence. The deployment target remains iOS 17; this validation used the OS versions listed above rather than an iOS 17 runtime.
+Current gameplay evidence is maintained in the [README table](../README.md#gameplay); before/after and larger-phone captures are indexed in [visual evidence](evidence/README.md). Raw result bundles remain ignored because they contain device identifiers. The full current run is in `TestResults/20261118-214001/`; the larger-phone report is `TestResults/circular-first-large.xcresult`. The shared scheme retains screenshot capture rather than automatic video capture.
 
-Both [README gameplay videos](../README.md#gameplay) were inspected and verified as exactly 30.000 seconds at normal playback speed. Their screenshots and all four repository-relative table links were checked. The circular recording shows centered pouring, counterclockwise rotation, clearing, and inward settling. Compact, larger-phone, and physical-device screenshots confirm concentric paint and the persistent white divider; see [visual evidence](evidence/README.md).
-
-Raw reports remain ignored because they contain device identifiers. The full runs are in `TestResults/20261117-224334/`; corrected focused reports are `prototype-interruption-compact-fixed.xcresult` and `prototype-interruption-large-fixed.xcresult`. Screenshot recording remains enabled in the shared scheme.
+Both README videos were inspected and verified at exactly 30.000 seconds with unchanged playback speed. All four table media links resolve to existing repository files. Compact screenshots and the larger-phone initial/restored captures were inspected.

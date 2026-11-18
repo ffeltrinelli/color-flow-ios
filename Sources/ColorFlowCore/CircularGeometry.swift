@@ -1,6 +1,6 @@
 import Foundation
 
-/// Polar presentation of the engine's unchanged logical rows and columns.
+/// Polar geometry for logical bands and lanes.
 public struct CircularGeometry: Sendable {
     public let lanes: Int
     public let bands: Int
@@ -15,7 +15,7 @@ public struct CircularGeometry: Sendable {
     public var hubRadius: Double { radius / 4 }
     public var bandThickness: Double { (radius - hubRadius) / Double(bands) }
     public var laneAngle: Double { 2 * .pi / Double(lanes) }
-    public var dividerAngle: Double { -.pi / 2 - laneAngle / 2 }
+    public var laneBoundaryAngle: Double { -.pi / 2 - laneAngle / 2 }
 
     public func innerRadius(row: Double, height: Int) -> Double {
         hubRadius + (Double(bands - height) - row) * bandThickness

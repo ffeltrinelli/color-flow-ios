@@ -61,9 +61,9 @@ public struct GenerationProfile: Codable, Equatable, Sendable {
         let pairs: [(Difficulty, Int, Int)] = [(.easy, 20, 10), (.easy, 24, 12),
             (.medium, 35, 18), (.medium, 40, 20), (.hard, 50, 25)]
         return pairs.flatMap { difficulty, squareArea, circleArea in
-            [GenerationProfile(difficulty: difficulty, largeBoxArea: squareArea),
-             GenerationProfile(difficulty: difficulty, largeBoxArea: circleArea,
-                boardKind: .circular, height: 5, samplingArea: squareArea)]
+            [GenerationProfile(difficulty: difficulty, largeBoxArea: circleArea,
+                boardKind: .circular, height: 5, samplingArea: squareArea),
+             GenerationProfile(difficulty: difficulty, largeBoxArea: squareArea)]
         }
     }()
 
@@ -127,6 +127,7 @@ public struct GeneratedCampaign: Sendable {
 
 public enum GenerationError: Error, Equatable {
     case invalidConfiguration
+    case missingCircularWitnesses
     case attemptsExhausted(levelID: Int)
 }
 
@@ -134,11 +135,13 @@ public enum LevelGenerator {
     public static func generate(seed: UInt64, profiles: [GenerationProfile] = GenerationProfile.campaign,
                                 attemptLimit: Int = 200, searchLimit: Int = 25_000,
                                 order: GenerationOrder = .progressive,
-                                existingLevels: [LevelDefinition] = []) throws -> GeneratedCampaign {
+                                existingLevels: [LevelDefinition] = [],
+                                requiredFeatures: Set<PathFeature> = []) throws -> GeneratedCampaign {
         guard !profiles.isEmpty, attemptLimit > 0, searchLimit > 0,
+              requiredFeatures.isEmpty || profiles.allSatisfy({ $0.boardKind == .circular }),
               existingLevels.enumerated().allSatisfy({ $0.element.id == $0.offset + 1 }),
               profiles.allSatisfy({ profile in
-                  let minimum = profile.boardKind == .circular ? 2 : profile.shapes.reduce(0) { $0 + $1.0 * $1.1 }
+                  let minimum = profile.boardKind.generationPolicy.minimumArea(profile: profile)
                   return (1...100).contains(profile.width) && (1...100).contains(profile.height) &&
                       profile.largeBoxArea >= minimum && profile.largeBoxArea <= profile.width * profile.height &&
                       profile.shapes.allSatisfy { $0.0 <= profile.width && $0.1 <= profile.height } &&
@@ -165,10 +168,11 @@ public enum LevelGenerator {
                 let engine = try PuzzleEngine(level: level)
                 guard case .solved(let moves, let visited) = LevelSolver.solve(engine: engine, limit: searchLimit),
                       try replay(moves, engine: engine) == .won else { continue }
+                guard try profile.boardKind.generationPolicy.accepts(level: level, moves: moves) else { continue }
                 let features = profile.boardKind == .circular ? try PathFeatures(level: level, moves: moves) : nil
                 if let features {
-                    guard features.hasFall else { continue }
-                    if profiles == GenerationProfile.prototype, profile == profiles.last {
+                    guard features.contains(requiredFeatures) else { continue }
+                    if profiles == GenerationProfile.prototype, profile == profiles.last(where: { $0.boardKind == .circular }) {
                         guard circularPartialFall || features.hasPartiallyFilledFall,
                               circularGapPour || features.hasGapPour else { continue }
                     }
@@ -196,6 +200,85 @@ public enum LevelGenerator {
                                  losingBranches: losingBranches, metrics: metrics)
     }
 
+    /// Re-audit an existing prototype under the current rules; replace only rejected circles.
+    public static func revisePrototype(seed: UInt64, levels original: [LevelDefinition],
+                                       solutions originalSolutions: [[Move]],
+                                       losingBranches originalLosses: [Int: [Move]],
+                                       metrics originalMetrics: [GenerationMetrics]) throws -> GeneratedCampaign {
+        guard original.map(\.id) == Array(1...10), originalSolutions.count == 10, originalMetrics.count == 10 else {
+            throw GenerationError.invalidConfiguration
+        }
+        // Reorder each pair before auditing, so revision seeds use final campaign IDs.
+        let indices = stride(from: 0, to: 10, by: 2).flatMap { pair in
+            [pair, pair + 1].sorted { original[$0].boardKind == .circular && original[$1].boardKind == .square }
+        }
+        var levels = indices.enumerated().map { offset, index in
+            let level = original[index]
+            return LevelDefinition(id: offset + 1, difficulty: level.difficulty, bucketSlots: level.bucketSlots,
+                width: level.width, height: level.height, boxes: level.boxes,
+                paintQueues: level.paintQueues, boardKind: level.boardKind)
+        }
+        var solutions = indices.map { originalSolutions[$0] }
+        var losses: [Int: [Move]] = [:]
+        var metrics = indices.enumerated().map { offset, index in
+            let metric = originalMetrics[index]
+            return GenerationMetrics(levelID: offset + 1, profile: metric.profile, attempts: metric.attempts,
+                solutionMoves: metric.solutionMoves, visitedStates: metric.visitedStates,
+                sampledWins: metric.sampledWins, sampledPlays: metric.sampledPlays)
+        }
+        for (offset, index) in indices.enumerated() { losses[offset + 1] = originalLosses[original[index].id] }
+        guard metrics.map(\.profile) == GenerationProfile.prototype else { throw GenerationError.invalidConfiguration }
+        var witnessed: Set<PathFeature> = []
+        let circularIndices = levels.indices.filter { levels[$0].boardKind == .circular }
+        for index in circularIndices {
+            let level = levels[index]
+            let profile = metrics[index].profile
+            let engine = try PuzzleEngine(level: level)
+            var random = LevelRandom(seed: seed + UInt64(level.id))
+            let samples = try samplePlay(engine: engine, random: &random)
+            let required: Set<PathFeature> = index == circularIndices.last
+                ? Set([PathFeature.fall, .partiallyFilledFall, .gapPour]).subtracting(witnessed) : [.fall]
+            if case .solved(let moves, let visited) = LevelSolver.solve(engine: engine),
+               try PathFeatures(level: level, moves: moves).contains(required),
+               profile.sampledWinRange.contains(samples.wins),
+               profile.difficulty == .easy || samples.loss != nil {
+                solutions[index] = moves
+                if profile.difficulty != .easy { losses[level.id] = samples.loss }
+                metrics[index] = GenerationMetrics(levelID: level.id, profile: profile,
+                    attempts: metrics[index].attempts, solutionMoves: moves.count, visitedStates: visited,
+                    sampledWins: samples.wins, sampledPlays: 32)
+            } else {
+                let replacement = try generate(seed: seed + UInt64(level.id), profiles: [profile],
+                    order: .authored, existingLevels: Array(levels.prefix(index)), requiredFeatures: required)
+                levels[index] = replacement.levels[0]
+                solutions[index] = replacement.solutions[0]
+                losses[level.id] = replacement.losingBranches[level.id]
+                metrics[index] = replacement.metrics[0]
+            }
+            let features = try PathFeatures(level: levels[index], moves: solutions[index])
+            for feature in [PathFeature.fall, .partiallyFilledFall, .gapPour] where features.contains([feature]) {
+                witnessed.insert(feature)
+            }
+        }
+        try validateUnique(levels)
+        guard Set(losses.keys) == Set(levels.filter { $0.difficulty != .easy }.map(\.id)) else {
+            throw GenerationError.invalidConfiguration
+        }
+        for (level, moves) in zip(levels, solutions) {
+            let engine = try PuzzleEngine(level: level)
+            guard try replay(moves, engine: engine) == .won else { throw GenerationError.invalidConfiguration }
+            if let losing = losses[level.id] {
+                guard try replay(losing, engine: engine) == .lost else { throw GenerationError.invalidConfiguration }
+            }
+        }
+        let features = try zip(levels, solutions).filter { $0.0.boardKind == .circular }
+            .map { try PathFeatures(level: $0.0, moves: $0.1) }
+        guard features.allSatisfy(\.hasFall), features.contains(where: \.hasPartiallyFilledFall),
+              features.contains(where: \.hasGapPour) else { throw GenerationError.missingCircularWitnesses }
+        return GeneratedCampaign(seed: seed, levels: levels, solutions: solutions,
+                                 losingBranches: losses, metrics: metrics)
+    }
+
     public static func validateUnique(_ levels: [LevelDefinition]) throws {
         let fingerprints = try levels.map(fingerprint)
         guard Set(fingerprints).count == levels.count else { throw GenerationError.invalidConfiguration }
@@ -212,12 +295,8 @@ public enum LevelGenerator {
     private static func makeBoxes(profile: GenerationProfile, random: inout LevelRandom) -> [BoxDefinition]? {
         var occupied = Set<Int>()
         var geometry: [(row: Int, column: Int, width: Int, height: Int)] = []
-        var shapes = random.shuffle(profile.shapes).sorted { $0.0 * $0.1 > $1.0 * $1.1 }
-        if profile.boardKind == .circular {
-            let wide = profile.shapes.filter { $0.0 > 1 && $0.0 * $0.1 <= profile.largeBoxArea }
-            guard !wide.isEmpty else { return nil }
-            shapes = [wide[random.index(wide.count)]]
-        }
+        guard var shapes = profile.boardKind.generationPolicy.initialShapes(profile: profile, random: &random)
+        else { return nil }
         var area = shapes.reduce(0) { $0 + $1.0 * $1.1 }
         while area < profile.largeBoxArea {
             let available = profile.shapes.filter { $0.0 * $0.1 <= profile.largeBoxArea - area }

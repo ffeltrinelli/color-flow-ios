@@ -1,8 +1,7 @@
 import Foundation
 
 public struct GameProgress: Codable, Equatable, Sendable {
-    public var version = 5
-    public var circularEntryLane = 0
+    public var version = 6
     public var levelID: Int
     public var state: GameState
     public private(set) var statistics = GameStatistics()
@@ -15,11 +14,22 @@ public struct GameProgress: Codable, Equatable, Sendable {
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         version = try values.decode(Int.self, forKey: .version)
-        circularEntryLane = try values.decodeIfPresent(Int.self, forKey: .circularEntryLane) ?? 0
         levelID = try values.decode(Int.self, forKey: .levelID)
         state = try values.decode(GameState.self, forKey: .state)
+        if let legacyLane = try values.decodeIfPresent(Int.self, forKey: .circularEntryLane) {
+            state.alignedLane = legacyLane
+        }
         statistics = try values.decodeIfPresent(GameStatistics.self, forKey: .statistics) ?? GameStatistics()
         attempt = try values.decodeIfPresent(AttemptProgress.self, forKey: .attempt) ?? AttemptProgress(timingEligible: false)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(version, forKey: .version)
+        try values.encode(levelID, forKey: .levelID)
+        try values.encode(state, forKey: .state)
+        try values.encode(statistics, forKey: .statistics)
+        try values.encode(attempt, forKey: .attempt)
     }
 
     public mutating func addPlayTime(_ seconds: TimeInterval) {
@@ -46,7 +56,6 @@ public struct GameProgress: Codable, Equatable, Sendable {
     }
 
     public mutating func startAttempt(level: LevelDefinition) {
-        circularEntryLane = 0
         levelID = level.id
         state = GameState(level: level)
         attempt = AttemptProgress()
@@ -78,17 +87,15 @@ public struct ProgressStore: Sendable {
         guard let data = try? Data(contentsOf: url),
               var progress = try? JSONDecoder().decode(GameProgress.self, from: data)
         else { return GameProgress(level: levels[0]) }
-        if progress.version == 4 {
-            progress.version = 5
+        if progress.version == 4 || progress.version == 5 {
+            progress.version = 6
             progress.startAttempt(level: levels[0])
             return progress
         }
-        guard progress.version == 5,
+        guard progress.version == 6,
               let level = levels.first(where: { $0.id == progress.levelID })
         else { return GameProgress(level: levels[0]) }
-        let orientationValid = level.boardKind == .circular
-            ? (0..<level.width).contains(progress.circularEntryLane) : progress.circularEntryLane == 0
-        guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state), orientationValid else {
+        guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state) else {
             progress.startAttempt(level: level)
             return progress
         }

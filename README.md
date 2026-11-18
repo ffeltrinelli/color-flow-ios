@@ -1,8 +1,8 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. The ten-level prototype alternates square 10 × 10 boards with circular boards of ten lanes and five bands, starting with a square. Fill matching containers while managing active buckets and four reserve queues. Full containers disappear; unsupported containers settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed centered pour. Paint inside arcs always forms a concentric band expanding outward from the inner edge, independent of screen gravity.
+An offline iPhone puzzle game for iOS 17+. The ten-level prototype alternates square 10 × 10 boards with circular boards of ten lanes and five bands, starting with a circle. Fill matching containers while managing active buckets and four reserve queues. Full containers disappear; unsupported containers settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed centered pour. Paint inside arcs always forms a concentric band expanding outward from the inner edge, independent of screen gravity.
 
-Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional pending playtesting. Version-5 saves preserve settled boards and circular orientation. Updating from version 4 restarts at level one while retaining lifetime statistics.
+Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional pending playtesting. Circular searches begin at the lane beneath the fixed pour pointer and continue clockwise, restarting from each newly aligned lane. Version-6 saves preserve settled boards and alignment. Updating from versions 4 or 5 restarts at level one while retaining lifetime statistics.
 
 ## Gameplay
 

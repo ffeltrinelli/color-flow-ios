@@ -10,8 +10,24 @@
   "formatVersion" : 2,
   "metrics" : [
     {
-      "attempts" : 16,
+      "attempts" : 1,
       "levelID" : 1,
+      "profile" : {
+        "boardKind" : "circular",
+        "difficulty" : "easy",
+        "height" : 5,
+        "largeBoxArea" : 10,
+        "samplingArea" : 20,
+        "width" : 10
+      },
+      "sampledPlays" : 32,
+      "sampledWins" : 30,
+      "solutionMoves" : 49,
+      "visitedStates" : 49
+    },
+    {
+      "attempts" : 16,
+      "levelID" : 2,
       "profile" : {
         "boardKind" : "square",
         "difficulty" : "easy",
@@ -27,23 +43,23 @@
     },
     {
       "attempts" : 1,
-      "levelID" : 2,
+      "levelID" : 3,
       "profile" : {
         "boardKind" : "circular",
         "difficulty" : "easy",
         "height" : 5,
-        "largeBoxArea" : 10,
-        "samplingArea" : 20,
+        "largeBoxArea" : 12,
+        "samplingArea" : 24,
         "width" : 10
       },
       "sampledPlays" : 32,
-      "sampledWins" : 27,
-      "solutionMoves" : 48,
-      "visitedStates" : 457
+      "sampledWins" : 20,
+      "solutionMoves" : 40,
+      "visitedStates" : 40
     },
     {
       "attempts" : 5,
-      "levelID" : 3,
+      "levelID" : 4,
       "profile" : {
         "boardKind" : "square",
         "difficulty" : "easy",
@@ -59,23 +75,23 @@
     },
     {
       "attempts" : 1,
-      "levelID" : 4,
+      "levelID" : 5,
       "profile" : {
         "boardKind" : "circular",
-        "difficulty" : "easy",
+        "difficulty" : "medium",
         "height" : 5,
-        "largeBoxArea" : 12,
-        "samplingArea" : 24,
+        "largeBoxArea" : 18,
+        "samplingArea" : 35,
         "width" : 10
       },
       "sampledPlays" : 32,
-      "sampledWins" : 26,
-      "solutionMoves" : 40,
-      "visitedStates" : 40
+      "sampledWins" : 13,
+      "solutionMoves" : 42,
+      "visitedStates" : 988
     },
     {
       "attempts" : 7,
-      "levelID" : 5,
+      "levelID" : 6,
       "profile" : {
         "boardKind" : "square",
         "difficulty" : "medium",
@@ -90,24 +106,24 @@
       "visitedStates" : 79
     },
     {
-      "attempts" : 10,
-      "levelID" : 6,
+      "attempts" : 11,
+      "levelID" : 7,
       "profile" : {
         "boardKind" : "circular",
         "difficulty" : "medium",
         "height" : 5,
-        "largeBoxArea" : 18,
-        "samplingArea" : 35,
+        "largeBoxArea" : 20,
+        "samplingArea" : 40,
         "width" : 10
       },
       "sampledPlays" : 32,
-      "sampledWins" : 14,
+      "sampledWins" : 15,
       "solutionMoves" : 35,
-      "visitedStates" : 35
+      "visitedStates" : 152
     },
     {
       "attempts" : 1,
-      "levelID" : 7,
+      "levelID" : 8,
       "profile" : {
         "boardKind" : "square",
         "difficulty" : "medium",
@@ -122,24 +138,24 @@
       "visitedStates" : 59
     },
     {
-      "attempts" : 9,
-      "levelID" : 8,
+      "attempts" : 61,
+      "levelID" : 9,
       "profile" : {
         "boardKind" : "circular",
-        "difficulty" : "medium",
+        "difficulty" : "hard",
         "height" : 5,
-        "largeBoxArea" : 20,
-        "samplingArea" : 40,
+        "largeBoxArea" : 25,
+        "samplingArea" : 50,
         "width" : 10
       },
       "sampledPlays" : 32,
-      "sampledWins" : 14,
-      "solutionMoves" : 34,
-      "visitedStates" : 41
+      "sampledWins" : 0,
+      "solutionMoves" : 39,
+      "visitedStates" : 94
     },
     {
       "attempts" : 1,
-      "levelID" : 9,
+      "levelID" : 10,
       "profile" : {
         "boardKind" : "square",
         "difficulty" : "hard",
@@ -152,22 +168,23 @@
       "sampledWins" : 0,
       "solutionMoves" : 81,
       "visitedStates" : 1726
-    },
+    }
+  ],
+  "revisions" : [
     {
-      "attempts" : 28,
-      "levelID" : 10,
-      "profile" : {
-        "boardKind" : "circular",
-        "difficulty" : "hard",
-        "height" : 5,
-        "largeBoxArea" : 25,
-        "samplingArea" : 50,
-        "width" : 10
-      },
-      "sampledPlays" : 32,
-      "sampledWins" : 0,
-      "solutionMoves" : 42,
-      "visitedStates" : 86
+      "levelIDs" : [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "replacedLevelIDs" : [
+        5,
+        7,
+        9
+      ],
+      "seed" : 2026111701
     }
   ]
 }

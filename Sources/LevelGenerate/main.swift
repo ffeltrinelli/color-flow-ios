@@ -8,6 +8,7 @@ struct Options {
     var count: Int?
     var output = "GeneratedLevels"
     var appendFrom: String?
+    var reviseFrom: String?
     var order: GenerationOrder = .progressive
 
     init(arguments: [String]) throws {
@@ -39,11 +40,13 @@ struct Options {
                 count = parsed
             case "--output": output = value
             case "--append-from": appendFrom = value
+            case "--revise-prototype-from": reviseFrom = value
             default: throw GenerationError.invalidConfiguration
             }
             index += 2
         }
-        guard !prototype || (difficulty == nil && count == nil && appendFrom == nil && order == .authored),
+        guard reviseFrom == nil || (!prototype && appendFrom == nil && count == nil && difficulty == nil && order == .progressive),
+              !prototype || (difficulty == nil && count == nil && appendFrom == nil && order == .authored),
               difficulty != nil || count == nil || appendFrom != nil,
               appendFrom == nil || (count != nil && difficulty == nil && order == .shuffled) else { throw GenerationError.invalidConfiguration }
     }
@@ -63,7 +66,7 @@ struct ExistingCampaign {
     var losingBranches: [Int: [Move]] = [:]
     var report = GenerationReport(batches: [], metrics: [])
 
-    init(directory: String?) throws {
+    init(directory: String?, verifyPaths: Bool = true) throws {
         guard let directory else { return }
         let root = URL(fileURLWithPath: directory)
         func read<T: Decodable>(_ name: String, as type: T.Type) throws -> T {
@@ -78,6 +81,7 @@ struct ExistingCampaign {
               Set(losingBranches.keys) == Set(levels.filter { $0.difficulty != .easy }.map(\.id)) else {
             throw GenerationError.invalidConfiguration
         }
+        guard verifyPaths else { return }
         for (level, moves) in zip(levels, solutions) {
             let engine = try PuzzleEngine(level: level)
             func verify(_ moves: [Move], outcome: GameOutcome) throws {
@@ -99,7 +103,7 @@ struct ExistingCampaign {
 
 func run() throws {
     if CommandLine.arguments.contains("--help") {
-        print("Usage: swift run LevelGenerate [--prototype] [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
+        print("Usage: swift run LevelGenerate [--prototype | --revise-prototype-from DIRECTORY] [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
         print("Default: a nine-level campaign. Output must be a new directory; copy verified files into Resources explicitly.")
         return
     }
@@ -109,18 +113,40 @@ func run() throws {
         throw CocoaError(.fileWriteFileExists)
     }
     print("Generating with seed \(options.seed)")
-    var existing = try ExistingCampaign(directory: options.appendFrom)
+    var existing = try ExistingCampaign(directory: options.reviseFrom ?? options.appendFrom,
+                                         verifyPaths: options.reviseFrom == nil)
     let profiles = try options.generationProfiles()
-    let campaign = try LevelGenerator.generate(seed: options.seed, profiles: profiles,
+    let campaign: GeneratedCampaign
+    if options.reviseFrom != nil {
+        campaign = try LevelGenerator.revisePrototype(seed: options.seed, levels: existing.levels,
+            solutions: existing.solutions, losingBranches: existing.losingBranches, metrics: existing.report.metrics)
+        let replaced = campaign.levels.filter { updated in
+            !existing.levels.contains { old in
+                old.boardKind == updated.boardKind && old.difficulty == updated.difficulty &&
+                old.boxes == updated.boxes && old.paintQueues == updated.paintQueues
+            }
+        }.map(\.id)
+        existing.report.revisions.append(.init(seed: options.seed,
+            levelIDs: campaign.levels.filter { $0.boardKind == .circular }.map(\.id), replacedLevelIDs: replaced))
+        existing.levels = []
+        existing.solutions = []
+        existing.losingBranches = [:]
+        existing.report.metrics = []
+        print("Replaced circular definitions: \(replaced)")
+    } else {
+        campaign = try LevelGenerator.generate(seed: options.seed, profiles: profiles,
                                                order: options.order, existingLevels: existing.levels)
+    }
     if options.prototype {
         let features = try zip(campaign.levels, campaign.solutions).filter { $0.0.boardKind == .circular }
             .map { try PathFeatures(level: $0.0, moves: $0.1) }
         guard features.allSatisfy(\.hasFall), features.contains(where: \.hasPartiallyFilledFall),
               features.contains(where: \.hasGapPour) else { throw GenerationError.invalidConfiguration }
     }
-    existing.report.batches.append(GenerationBatch(seed: options.seed, firstLevelID: existing.levels.count + 1,
-                                                    levelCount: campaign.levels.count, order: options.order))
+    if options.reviseFrom == nil {
+        existing.report.batches.append(GenerationBatch(seed: options.seed, firstLevelID: existing.levels.count + 1,
+                                                        levelCount: campaign.levels.count, order: options.order))
+    }
     existing.levels += campaign.levels
     existing.solutions += campaign.solutions
     existing.losingBranches.merge(campaign.losingBranches) { _, new in new }

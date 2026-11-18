@@ -21,6 +21,253 @@
       }
     },
     {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    }
+  ],
+  [
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
       "take" : {
         "queue" : 0
       }
@@ -439,7 +686,42 @@
     },
     {
       "pour" : {
-        "slot" : 1
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 0
       }
     },
     {
@@ -454,36 +736,6 @@
     },
     {
       "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
         "queue" : 1
       }
     },
@@ -509,21 +761,6 @@
     },
     {
       "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
         "slot" : 0
       }
     },
@@ -539,57 +776,12 @@
     },
     {
       "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
+        "queue" : 1
       }
     },
     {
       "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
+        "queue" : 1
       }
     },
     {
@@ -600,21 +792,6 @@
     {
       "pour" : {
         "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
       }
     },
     {
@@ -628,13 +805,8 @@
       }
     },
     {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
+      "take" : {
+        "queue" : 3
       }
     },
     {
@@ -644,7 +816,12 @@
     },
     {
       "take" : {
-        "queue" : 1
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
       }
     },
     {
@@ -655,6 +832,36 @@
     {
       "take" : {
         "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
       }
     },
     {
@@ -1087,66 +1294,6 @@
       }
     },
     {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
       "take" : {
         "queue" : 1
       }
@@ -1167,6 +1314,21 @@
       }
     },
     {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
       "take" : {
         "queue" : 1
       }
@@ -1178,17 +1340,17 @@
     },
     {
       "take" : {
-        "queue" : 1
+        "queue" : 2
       }
     },
     {
       "pour" : {
-        "slot" : 2
+        "slot" : 1
       }
     },
     {
-      "pour" : {
-        "slot" : 0
+      "take" : {
+        "queue" : 2
       }
     },
     {
@@ -1202,6 +1364,46 @@
       }
     },
     {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
       "take" : {
         "queue" : 3
       }
@@ -1212,13 +1414,8 @@
       }
     },
     {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
       "pour" : {
-        "slot" : 2
+        "slot" : 0
       }
     },
     {
@@ -1243,7 +1440,7 @@
     },
     {
       "take" : {
-        "queue" : 3
+        "queue" : 2
       }
     },
     {
@@ -1259,6 +1456,26 @@
     {
       "pour" : {
         "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
       }
     }
   ],
@@ -1677,12 +1894,47 @@
     },
     {
       "pour" : {
-        "slot" : 1
+        "slot" : 0
       }
     },
     {
       "take" : {
-        "queue" : 0
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
       }
     },
     {
@@ -1693,6 +1945,56 @@
     {
       "take" : {
         "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
       }
     },
     {
@@ -1707,22 +2009,12 @@
     },
     {
       "take" : {
-        "queue" : 1
+        "queue" : 3
       }
     },
     {
       "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
+        "slot" : 2
       }
     },
     {
@@ -1732,22 +2024,17 @@
     },
     {
       "take" : {
-        "queue" : 1
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 2
       }
     },
     {
       "pour" : {
         "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
       }
     },
     {
@@ -1758,76 +2045,6 @@
     {
       "take" : {
         "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
       }
     },
     {
@@ -2180,13 +2397,18 @@
       }
     },
     {
+      "take" : {
+        "queue" : 0
+      }
+    },
+    {
       "pour" : {
-        "slot" : 0
+        "slot" : 1
       }
     },
     {
       "take" : {
-        "queue" : 1
+        "queue" : 0
       }
     },
     {
@@ -2201,17 +2423,12 @@
     },
     {
       "take" : {
-        "queue" : 1
+        "queue" : 0
       }
     },
     {
       "pour" : {
-        "slot" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
+        "slot" : 0
       }
     },
     {
@@ -2221,12 +2438,7 @@
     },
     {
       "pour" : {
-        "slot" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
+        "slot" : 0
       }
     },
     {
@@ -2235,43 +2447,13 @@
       }
     },
     {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 2
-      }
-    },
-    {
       "pour" : {
         "slot" : 1
       }
     },
     {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 2
-      }
-    },
-    {
       "pour" : {
         "slot" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 2
       }
     },
     {
@@ -2291,7 +2473,12 @@
     },
     {
       "take" : {
-        "queue" : 3
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
       }
     },
     {
@@ -2300,8 +2487,63 @@
       }
     },
     {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
       "pour" : {
-        "slot" : 2
+        "slot" : 1
+      }
+    },
+    {
+      "take" : {
+        "queue" : 3
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 1
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
+      }
+    },
+    {
+      "take" : {
+        "queue" : 2
+      }
+    },
+    {
+      "pour" : {
+        "slot" : 0
       }
     }
   ],
@@ -2704,218 +2946,6 @@
     {
       "pour" : {
         "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    }
-  ],
-  [
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 3
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "take" : {
-        "queue" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 1
-      }
-    },
-    {
-      "pour" : {
-        "slot" : 0
-      }
-    },
-    {
-      "take" : {
-        "queue" : 2
       }
     },
     {

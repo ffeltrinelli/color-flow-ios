@@ -3,6 +3,17 @@ import Testing
 @testable import ColorFlowCore
 
 struct CircularTests {
+    @Test func prototypeAlternatesCircularThenSquareWithExplicitPairProfiles() {
+        let profiles = GenerationProfile.prototype
+        #expect(profiles.count == 10)
+        #expect(profiles.map(\.boardKind) == [.circular, .square, .circular, .square, .circular,
+                                              .square, .circular, .square, .circular, .square])
+        #expect(profiles.map(\.difficulty) == [.easy, .easy, .easy, .easy, .medium, .medium,
+                                               .medium, .medium, .hard, .hard])
+        #expect(profiles.map(\.largeBoxArea) == [10, 20, 12, 24, 18, 35, 20, 40, 25, 50])
+        #expect(profiles.map(\.height) == [5, 10, 5, 10, 5, 10, 5, 10, 5, 10])
+    }
+
     @Test func circularGenerationIsReproducibleAndRetainsItsConfiguration() throws {
         let profile = GenerationProfile(difficulty: .easy, largeBoxArea: 12, boardKind: .circular,
                                         height: 5, samplingArea: 24)
@@ -15,11 +26,15 @@ struct CircularTests {
         #expect(level.width == 10 && level.height == 5 && level.boardKind == .circular)
         #expect(level.boxes.filter { $0.capacity > 1 }.reduce(0) { $0 + $1.capacity } == 12)
         #expect(try PathFeatures(level: level, moves: first.solutions[0]).hasFall)
-        let report = GenerationReport(batches: [.init(seed: 5, firstLevelID: 1, levelCount: 1, order: .authored)],
+        var report = GenerationReport(batches: [.init(seed: 5, firstLevelID: 1, levelCount: 1, order: .authored)],
                                       metrics: first.metrics)
+        report.revisions = [.init(seed: 5, levelIDs: [1], replacedLevelIDs: [])]
         try report.validate(levels: first.levels)
         let decoded = try JSONDecoder().decode(GenerationReport.self, from: JSONEncoder().encode(report))
         #expect(decoded.metrics == report.metrics)
+        #expect(decoded.revisions == report.revisions)
+        report.revisions = [.init(seed: 5, levelIDs: [2], replacedLevelIDs: [])]
+        #expect(throws: GenerationError.invalidConfiguration) { try report.validate(levels: first.levels) }
     }
 
     @Test func legacyLevelsDefaultToSquare() throws {
@@ -62,10 +77,10 @@ struct CircularTests {
         }
     }
 
-    @Test func versionFourRetainsStatisticsButStartsFreshCampaign() throws {
+    @Test(arguments: [4, 5]) func legacyCampaignRetainsStatisticsButStartsFresh(version: Int) throws {
         let levels = try TestCatalog.levels()
         var old = GameProgress(level: levels[2])
-        old.version = 4
+        old.version = version
         old.addPlayTime(12)
         old.resolveAttempt(.victory, difficulty: .hard)
         old.finalizeWinningTime(difficulty: .hard)
@@ -74,13 +89,13 @@ struct CircularTests {
         let store = ProgressStore(url: directory.appendingPathComponent("save.json"))
         try store.save(old)
         let migrated = store.load(levels: levels)
-        #expect(migrated.version == 5)
+        #expect(migrated.version == 6)
         #expect(migrated.levelID == 1)
         #expect(migrated.state == GameState(level: levels[0]))
         #expect(migrated.statistics == old.statistics)
         #expect(migrated.attempt.result == nil)
         #expect(migrated.attempt.elapsedSeconds == 0)
-        #expect(migrated.circularEntryLane == 0)
+        #expect(migrated.state.alignedLane == 0)
     }
 
     @Test func circularSettledStateAndOrientationRestoreAfterInterruptedPresentation() throws {
@@ -94,9 +109,6 @@ struct CircularTests {
             if case .pour(let slot) = move {
                 let result = try engine.pourResult(slot: slot, state: progress.state)
                 progress.state = result.state
-                progress.circularEntryLane = result.events.compactMap {
-                    if case .fill(let step) = $0 { return step.entry.column }; return nil
-                }.last ?? 0
                 break
             }
             progress.state = try engine.applying(move, to: progress.state)
@@ -106,7 +118,7 @@ struct CircularTests {
         let store = ProgressStore(url: directory.appendingPathComponent("save.json"))
         try store.save(progress)
         #expect(store.load(levels: [level]) == progress)
-        progress.circularEntryLane = 10
+        progress.state.alignedLane = 10
         try store.save(progress)
         #expect(store.load(levels: [level]) == GameProgress(level: level))
     }

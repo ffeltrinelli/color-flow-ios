@@ -17,17 +17,17 @@ struct CircularBoardView: View {
                 ForEach(model.engine.remainingBoxes(state: model.presentationState)) { box in
                     block(box)
                 }
-                divider
             }
             .frame(width: size, height: size)
-            .rotationEffect(.degrees(model.circularRotation))
+            .rotationEffect(.degrees(model.boardRotation))
             .offset(y: headroom)
             pourPoint
             if let pour = model.pour, !reducedMotion { pouring(pour) }
         }
         .frame(width: size, height: size + headroom)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Circular puzzle board")
+        .accessibilityLabel("Circular puzzle board, lane \(model.presentationState.alignedLane + 1) beneath the pour pointer")
         .accessibilityIdentifier("board")
         .accessibilityValue(model.busy ? "Pouring" : "Ready")
     }
@@ -42,42 +42,13 @@ struct CircularBoardView: View {
             .overlay { paint.fill(color) }
             .overlay { shape.stroke(color, lineWidth: 2) }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(model.busy ? "Pouring" : model.boxSummary(box))
+            .accessibilityLabel(model.busy ? "Pouring" : boxSummary(box))
             .accessibilityIdentifier("box-\(box.id)")
     }
 
-    private var divider: some View {
-        Canvas { context, canvas in
-            let center = CGPoint(x: canvas.width / 2, y: canvas.height / 2)
-            let angle = geometry.dividerAngle
-            func point(_ radius: Double, _ angle: Double) -> CGPoint {
-                CGPoint(x: center.x + radius * cos(angle), y: center.y + radius * sin(angle))
-            }
-            let headRadius = geometry.radius + 3
-            var pole = Path()
-            pole.move(to: point(geometry.hubRadius, angle))
-            pole.addLine(to: point(headRadius, angle))
-            context.stroke(pole, with: .color(.white), style: StrokeStyle(lineWidth: 2, lineCap: .round))
-            let head = point(headRadius, angle)
-            context.fill(Path(ellipseIn: CGRect(x: head.x - 3, y: head.y - 3, width: 6, height: 6)), with: .color(.white))
-            // Head and arrow share one radial envelope; their gap runs along the rim.
-            let start = angle - 7 / headRadius
-            let end = start - 0.18
-            var arrow = Path()
-            arrow.addArc(center: center, radius: headRadius, startAngle: .radians(start),
-                         endAngle: .radians(end), clockwise: true)
-            let tip = point(headRadius, end)
-            let tangent = CGPoint(x: sin(end), y: -cos(end))
-            let normal = CGPoint(x: cos(end), y: sin(end))
-            arrow.move(to: CGPoint(x: tip.x - 4 * tangent.x + 2.5 * normal.x,
-                                  y: tip.y - 4 * tangent.y + 2.5 * normal.y))
-            arrow.addLine(to: tip)
-            arrow.addLine(to: CGPoint(x: tip.x - 4 * tangent.x - 2.5 * normal.x,
-                                     y: tip.y - 4 * tangent.y - 2.5 * normal.y))
-            context.stroke(arrow, with: .color(.white), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-        }
-        .accessibilityHidden(true)
-        .allowsHitTesting(false)
+    private func boxSummary(_ box: BoxDefinition) -> String {
+        let current = model.engine.boxState(id: box.id, state: model.presentationState)
+        return "\(box.color.name), band \(current.row + 1), lane \(box.column + 1), \(box.width) lanes by \(box.height) bands, \(current.filledUnits) of \(box.capacity) paint units"
     }
 
     private var pourPoint: some View {
@@ -139,8 +110,8 @@ private struct CircularBlockShape: Shape {
         let outer = geometry.outerRadius(row: row) - 2
         let fill = geometry.fillRadius(inner: inner, outer: outer, fraction: fraction)
         let inset = 2 / ((inner + outer) / 2)
-        let start = geometry.dividerAngle + Double(box.column) * geometry.laneAngle + inset
-        let end = geometry.dividerAngle + Double(box.column + box.width) * geometry.laneAngle - inset
+        let start = geometry.laneBoundaryAngle + Double(box.column) * geometry.laneAngle + inset
+        let end = geometry.laneBoundaryAngle + Double(box.column + box.width) * geometry.laneAngle - inset
         let center = CGPoint(x: rect.midX, y: rect.midY)
         var path = Path()
         path.addArc(center: center, radius: fill, startAngle: .radians(start), endAngle: .radians(end), clockwise: false)

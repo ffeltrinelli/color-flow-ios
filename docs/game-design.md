@@ -1,6 +1,6 @@
 # Native gameplay
 
-Color Flow is an offline queue-management puzzle. The prototype replaces the previous campaign with ten fixed levels: square 10 × 10 boards on odd IDs and circular ten-lane, five-band boards on even IDs. Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Easy and medium have three active bucket slots; hard has two. Difficulty labels remain provisional until human playtesting confirms them.
+Color Flow is an offline queue-management puzzle. The prototype replaces the previous campaign with ten fixed levels: circular ten-lane, five-band boards on odd IDs and square 10 × 10 boards on even IDs. Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Easy and medium have three active bucket slots; hard has two. Difficulty labels remain provisional until human playtesting confirms them.
 
 ## Boxes and liquid
 
@@ -18,9 +18,9 @@ Pour until that box is full or the bucket empties. After a removal, gravity sett
 
 Paint without an exposed matching target stays in its slot. Clearing another color may make it usable, but that bucket requires another tap. The grid has no tap actions.
 
-On circular boards, columns map clockwise to angular lanes and rows map from the outside inward. Target selection restarts from the first lane beside the divider for every target, using the same exposed-entry and support rules. Blocks never cross the first/last lane boundary. Align the exposed entry lane, which need not be a wide arc's midpoint. The board turns counterclockwise only; the bucket lip and pour pointer remain horizontally centered. The stream is hidden until alignment finishes and throughout removal and falling.
+On circular boards, columns map clockwise to angular lanes and rows map from the outside inward. Target selection checks the lane currently beneath the pour pointer first, then scans clockwise through at most all ten lanes, wrapping through the original first/last boundary. After each fill and any removal/falling, a fresh search starts at the newly aligned lane if paint remains. A newly exposed matching block in that same lane can receive paint without rotation. Each search uses the shared exposed-entry and support rules. Blocks never cross the first/last lane boundary. Align the exposed entry lane, which need not be a wide arc's midpoint. The board turns counterclockwise only; the bucket lip and pour pointer remain horizontally centered. The stream is hidden until alignment finishes and throughout removal and falling.
 
-Inward falls reduce both radii by one band per engine step, preserving angular span, radial thickness, capacity, and fill percentage. Wide arcs can bridge gaps until their inward supports disappear. A thin white divider spans the full annulus and remains visible after blocks disappear. Its short external end has a small circular head; a separate compact counterclockwise arrow follows the rim beside it with a small gap. There are no lane numbers or target highlights.
+Inward falls reduce both radii by one band per engine step, preserving angular span, radial thickness, capacity, and fill percentage. Wide arcs can bridge gaps until their inward supports disappear. Only the fixed top pour pointer marks the entry point. There is no radial divider, head, curved rotation arrow, lane numbering, or target highlighting.
 
 ## Queues and outcomes
 
@@ -36,7 +36,7 @@ Progression is linear: victory offers Next Level, defeat offers Retry, and compl
 
 Levels are generated offline with a randomized algorithm and bundled as fixed JSON. Generation and on-demand hints share the solver and the app's engine transitions; neither requires an LLM or network. Stored winning paths cover all levels; stored losing alternatives cover every medium and hard level. See [level generation](level-generation.md). Search size and solution length do not establish human difficulty, and inconclusive searches prove neither solvability nor impossibility.
 
-Save version 5 restores exact settled state and the last aligned circular lane. Version-4 saves retain decoded lifetime statistics but restart at level one with a fresh attempt, without recording the discarded attempt as a failure. Unknown/unreadable saves start fresh; invalid version-5 snapshots restart their recorded level while preserving decoded statistics. Retry and level advancement reset orientation to the first lane. Moves and final presentation orientation are saved before animation; interruption displays the completed move without replay.
+Save version 6 restores exact settled state, including the aligned lane used by targeting and solver state identity. Version-4 and version-5 saves retain decoded lifetime statistics but restart at level one with a fresh attempt, without recording the discarded attempt as a failure. Unknown/unreadable saves start fresh; invalid version-6 snapshots restart their recorded level while preserving decoded statistics. Retry and level advancement reset orientation to the first lane. Moves and final aligned lane are saved before animation; interruption displays the completed move without replay.
 
 Save failures remain visible and offer retry. Completed and lost states survive relaunch.
 
@@ -60,4 +60,4 @@ The engine owns targeting and gravity and returns ordered fill, removal, and sim
 
 Every launch and return from the background shows a three-second splash with the selected Cozy Pour icon, wider peach breathing room, a playful golden Color Flow logo with blue outline and turquoise shadow, and the subtitle “for Luisa”. Game controls are absent from touch and accessibility during the splash; progress is preserved. A temporary system interruption does not retrigger a completed splash. See [icon proposals](icon-proposals/README.md) for artwork and prompts.
 
-The board uses four-point side margins on the iPhone SE's 375 × 667-point screen. Controls and three visible queue entries fit without scrolling. Read-only box descriptions report color, current row/column or band/lane, dimensions, and filled/total paint units. Circular geometry reserves margin for the white marker. Bucket labels communicate readiness or blockage in English.
+The board uses four-point side margins on the iPhone SE's 375 × 667-point screen. Controls and three visible queue entries fit without scrolling. Read-only box descriptions report color, current row/column or band/lane, dimensions, and filled/total paint units. The circular pour pointer fits above the rim within the board layout. Bucket labels communicate readiness or blockage in English.
