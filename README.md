@@ -6,12 +6,12 @@ Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional 
 
 ## Gameplay
 
-Captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay.
+Captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay. Click play in the table to watch inline on GitHub.
 
 | Board | Gameplay screenshot | Gameplay video |
 | --- | --- | --- |
-| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | [Watch 30 seconds](docs/evidence/prototype-square.mp4) |
-| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | [Watch 30 seconds](docs/evidence/prototype-circular.mp4) |
+| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | <video src="https://github.com/user-attachments/assets/57673687-8f28-4c30-aaa4-56e537a23919" width="240" controls></video> |
+| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | <video src="https://github.com/user-attachments/assets/9577dc45-fe97-41d4-9795-c3932158613e" width="240" controls></video> |
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
 
@@ -92,3 +92,5 @@ Stop recording with Control-C. UI tests also preserve selected screenshots as te
 For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint near a fall, relaunches at normal animation speed, and prints `GAMEPLAY_CAPTURE_READY` after the splash. Start recording at that marker, capture at least 30 seconds, and trim to exactly 30 seconds without changing playback speed. Inspect the screenshot and video, and verify duration with `ffprobe` before replacing the corresponding `docs/evidence/prototype-square.*` or `prototype-circular.*` files.
 
 Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.
+
+To refresh an inline player, upload the inspected MP4 as a GitHub attachment (for example, `gh pr edit PR_NUMBER --attach docs/evidence/prototype-circular.mp4`), then use its durable `https://github.com/user-attachments/assets/...` URL in the table's video element. Keep the repository MP4 source in sync and verify the rendered README contains a player with controls. Do not save GitHub's temporary signed playback URL. See [GitHub attachment guidance](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli).
