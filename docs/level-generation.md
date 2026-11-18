@@ -4,9 +4,10 @@
 
 ## Reproduce the prototype
 
-The original prototype resources are the baseline in commit `24f3d16229624dcaecbbf7907a3a9678d107d0e5`. Reproduce the current revision with the current generator and that fixed baseline:
+The original prototype resources are the baseline in commit `24f3d16229624dcaecbbf7907a3a9678d107d0e5`. Reproduce the current revision with the current generator and that fixed baseline. Fetch the PR history so the baseline is available in a fresh clone after a squash merge:
 
 ```sh
+git fetch origin refs/pull/7/head
 mkdir PrototypeBaseline
 git archive 24f3d16229624dcaecbbf7907a3a9678d107d0e5 Sources/ColorFlowCore/Resources | tar -x -C PrototypeBaseline
 swift run -c release LevelGenerate --revise-prototype-from PrototypeBaseline/Sources/ColorFlowCore/Resources --seed 2026111701 --output PrototypeLevels
