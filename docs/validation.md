@@ -1,20 +1,15 @@
 # Validation status
 
-November 18, 2026; Xcode 27.2, iOS 17 deployment target.
+Cozy Enamel refresh, November 20, 2026. Xcode 27.2, iOS 17 deployment target.
 
-- `swift test -c release`: 65 tests passed, including relative circular targeting, wraparound and fresh scans, query purity, wide-arc entry, paint conservation, partial-arc falls, alignment-aware solver/hints, generation policies, revision reports, and version-4/5 statistics migration to version 6.
-- `swift run -c release LevelCheck`: all ten winning paths and six losing alternatives passed, including circular falling, partial-fill falling, and gap-pour witnesses.
-- The circular-first revision reproduced all four resources byte-for-byte from the recorded baseline and seed. All five square definitions retain their exact boxes, authored order, and queues; only their campaign IDs changed. See [generation](level-generation.md).
-- Eight device-selection tests passed. Project generation is idempotent, `git diff --check` passes, and the unsigned Release iOS build succeeds.
+- `swift test -c release` passed all 65 tests.
+- `swift run -c release LevelCheck` replayed all ten winning paths and six losing alternatives.
+- All eight device-selection tests passed. Project generation was reproducible, the unsigned Release iOS build succeeded, and `git diff --check` passed.
 
 | Destination | Result |
 | --- | --- |
-| iPhone SE third-generation simulator, iOS 27.2 | 23/23 passed, zero failures |
-| Physical iPhone SE second generation, iOS 27.2.1 | 23/23 passed, zero failures |
-| iPhone 18 Pro simulator, iOS 27.2 | Both circular restoration/interruption cases passed; initial and restored layouts inspected |
+| iPhone SE third-generation simulator, iOS 27.2 | 23/23 user interface tests passed. Inspected dense boards, partial fills, and both pours at 375 × 667 points. |
+| Physical iPhone SE second generation, iOS 27.2.1 | 23/23 user interface tests passed. |
+| iPhone 18 Pro simulator, iOS 27.2 | Inspected before-and-after layouts for both boards. |
 
-Coverage includes circle → square → circle progression, final-level completion and Start Again, input locking, interrupted pours, partial-fill restoration, circular reduced motion, gravity, recharge, hints, splash return, and statistics confirmation/persistence. The deployment target remains iOS 17; these checks use the OS versions listed above.
-
-Current gameplay evidence is maintained in the [README table](../README.md#gameplay); before/after and larger-phone captures are indexed in [visual evidence](evidence/README.md). Raw result bundles remain ignored because they contain device identifiers. The full current run is in `TestResults/20261118-214001/`; the larger-phone report is `TestResults/circular-first-large.xcresult`. The shared scheme retains screenshot capture rather than automatic video capture.
-
-Both README videos were inspected and verified at exactly 30.000 seconds with unchanged playback speed. All four table media links resolve to existing repository files. Compact screenshots and the larger-phone initial/restored captures were inspected.
+The UI suite covers compact layout and accessibility, circular alignment, partial fills, sequential pouring, falling, Reduce Motion, and restoration after interruption. The [gameplay table](../README.md#gameplay) uses inspected screenshots and 30-second normal-speed recordings for both board kinds. Earlier captures are indexed in [visual evidence](evidence/README.md). Raw test bundles remain in the ignored `TestResults/` directory.

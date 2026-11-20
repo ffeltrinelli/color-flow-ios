@@ -6,14 +6,14 @@ Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional 
 
 ## Gameplay
 
-Captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay. Click play in the table to watch inline on GitHub.
+Cozy Enamel gameplay captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay. Click play in the table to watch inline on GitHub.
 
 | Board | Gameplay screenshot | Gameplay video |
 | --- | --- | --- |
-| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | <video src="https://github.com/user-attachments/assets/57673687-8f28-4c30-aaa4-56e537a23919" width="240" controls></video> |
-| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | <video src="https://github.com/user-attachments/assets/9577dc45-fe97-41d4-9795-c3932158613e" width="240" controls></video> |
+| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | <video src="https://github.com/user-attachments/assets/8ff2c919-a3bd-4a24-93f5-2391d37793bd" width="240" controls></video> |
+| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | <video src="https://github.com/user-attachments/assets/b512a62c-d05f-48e4-b67c-3355429b2cc6" width="240" controls></video> |
 
-The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See [game design](docs/game-design.md) and [validation status](docs/validation.md).
+The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See the [visual style guide](DESIGN.md), [game design](docs/game-design.md), and [validation status](docs/validation.md).
 
 ## First setup
 
