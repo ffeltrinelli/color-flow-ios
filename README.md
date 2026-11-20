@@ -8,12 +8,12 @@ The campaign mixes 20 easy, 20 medium, and 10 hard levels. Difficulty is provisi
 
 ## Gameplay
 
-Cozy Enamel gameplay captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay. Click play in the table to watch inline on GitHub.
+The aphorism reveal on an iPhone SE (third generation) simulator, iOS 27.2 (375 × 667 points). Each video shows 30 seconds of normal-speed play.
 
 | Board | Gameplay screenshot | Gameplay video |
 | --- | --- | --- |
-| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | <video src="https://github.com/user-attachments/assets/8ff2c919-a3bd-4a24-93f5-2391d37793bd" width="240" controls></video> |
-| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | <video src="https://github.com/user-attachments/assets/b512a62c-d05f-48e4-b67c-3355429b2cc6" width="240" controls></video> |
+| Square | <img src="docs/evidence/aphorism-square.png" width="240" alt="Square board revealing an aphorism"> | <video src="https://github.com/user-attachments/assets/ac551c85-8b0b-455d-9e91-2978329f8dd6" width="240" controls></video> |
+| Circular | <img src="docs/evidence/aphorism-circular.png" width="240" alt="Circular board revealing an aphorism"> | <video src="https://github.com/user-attachments/assets/0d983e05-450a-499d-b64e-def20e6f5606" width="240" controls></video> |
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See the [visual style guide](DESIGN.md), [game design](docs/game-design.md), and [validation status](docs/validation.md).
 

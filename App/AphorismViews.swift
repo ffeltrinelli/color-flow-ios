@@ -6,8 +6,32 @@ struct BoardAphorism: View {
     let size: CGFloat
     let revealedFraction: Double
     let reducedMotion: Bool
+    @Environment(\.displayScale) private var displayScale
+    @State private var artwork: Image?
+
+    private struct ArtworkKey: Equatable {
+        let aphorismID: String
+        let size: CGFloat
+        let scale: CGFloat
+    }
 
     var body: some View {
+        ZStack { artwork }
+            .frame(width: size, height: size)
+            .opacity(revealedFraction)
+            .animation(reducedMotion || revealedFraction == 0 ? nil : .easeOut(duration: 0.1),
+                       value: revealedFraction)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .task(id: ArtworkKey(aphorismID: aphorism.id, size: size, scale: displayScale)) {
+                // Keep the partially covered words out of the board's accessibility hierarchy.
+                let renderer = ImageRenderer(content: lettering)
+                renderer.scale = displayScale
+                artwork = renderer.uiImage.map { Image(uiImage: $0) }
+            }
+    }
+
+    private var lettering: some View {
         VStack(spacing: size * 0.025) {
             Text("“")
                 .font(.system(size: size * 0.14, design: .serif))
@@ -23,12 +47,6 @@ struct BoardAphorism: View {
         .multilineTextAlignment(.center)
         .frame(width: size * 0.86)
         .frame(width: size, height: size)
-        .opacity(revealedFraction)
-        .animation(reducedMotion || revealedFraction == 0 ? nil : .easeOut(duration: 0.1),
-                   value: revealedFraction)
-        .allowsHitTesting(false)
-        .accessibilityElement(children: .ignore)
-        .accessibilityHidden(true)
     }
 }
 
