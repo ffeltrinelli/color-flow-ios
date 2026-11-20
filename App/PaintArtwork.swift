@@ -1,14 +1,32 @@
 import ColorFlowCore
 import SwiftUI
 
+struct ArtworkColor {
+    let red: Double
+    let green: Double
+    let blue: Double
+
+    var color: Color { Color(red: red, green: green, blue: blue) }
+
+    func mixed(with other: ArtworkColor, amount: Double) -> ArtworkColor {
+        ArtworkColor(
+            red: red + (other.red - red) * amount,
+            green: green + (other.green - green) * amount,
+            blue: blue + (other.blue - blue) * amount
+        )
+    }
+}
+
 extension PaintColor {
-    var displayColor: Color {
+    var displayColor: Color { artworkColor.color }
+
+    var artworkColor: ArtworkColor {
         switch self {
-        case .red: Color(red: 0.96, green: 0.45, blue: 0.43)
-        case .green: Color(red: 0.56, green: 0.83, blue: 0.54)
-        case .blue: Color(red: 0.40, green: 0.77, blue: 0.93)
-        case .yellow: Color(red: 0.95, green: 0.78, blue: 0.36)
-        case .purple: Color(red: 0.73, green: 0.62, blue: 0.95)
+        case .red: ArtworkColor(red: 0.96, green: 0.45, blue: 0.43)
+        case .green: ArtworkColor(red: 0.56, green: 0.83, blue: 0.54)
+        case .blue: ArtworkColor(red: 0.40, green: 0.77, blue: 0.93)
+        case .yellow: ArtworkColor(red: 0.95, green: 0.78, blue: 0.36)
+        case .purple: ArtworkColor(red: 0.73, green: 0.62, blue: 0.95)
         }
     }
 }

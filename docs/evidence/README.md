@@ -1,16 +1,12 @@
 # Visual evidence
 
-Circular targeting before/after: [previous divider presentation](circular-before-relative-targeting.png) → [current circular gameplay](prototype-circular.png), both iPhone SE third-generation simulator, iOS 27.2. The square campaign badge also changed with the circular-first order: [previous square gameplay](square-before-circular-first.png) → [current square gameplay](prototype-square.png). Both README recordings are refreshed for the new order.
+## Cozy Enamel boards
 
-## Mixed-board prototype
+The [README gameplay table](../../README.md#gameplay) shows both Cozy Enamel boards on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The normal-speed recordings show the highlighted stream meeting the paint surface, then containers clearing and settling. The circular clip also shows alignment beneath the fixed pointer.
 
-Current gameplay media is embedded in the [README table](../../README.md#gameplay): one screenshot and one 30-second normal-speed recording for each board kind, captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The circular recording shows automatic counterclockwise alignment, pouring, clearing, and inward settling. Filled arcs use concentric bands even in the lower half of the board; see the [mid-pour capture](prototype-circular-pouring.png). The README screenshot shows the settled board and unobstructed pour pointer.
+## Circular-first prototype
 
-Larger-layout inspection on iPhone 18 Pro simulator, iOS 27.2: [full circular board](prototype-circular-full-large.png) and [restored partial board](prototype-circular-partial-large.png). The fixed pour pointer remains above the rim; no divider, circular head, or curved arrow is drawn. The restored board retains its aligned lane after relaunch.
-
-Physical iPhone SE second generation, iOS 27.2.1: [circular gameplay after inward settling](prototype-circular-device.png). See [validation](../validation.md) for the current full-suite result.
-
-Earlier evidence below documents previous campaigns and designs; it is retained for before/after comparisons.
+Earlier reference images show [the divider from the previous aiming design](circular-before-relative-targeting.png), [square gameplay before the campaign reorder](square-before-circular-first.png), the [initial circular layout on iPhone 18 Pro](prototype-circular-full-large.png), and a [restored partial fill](prototype-circular-partial-large.png) on the same iOS 27.2 simulator. The [circular mid-pour still](prototype-circular-pouring.png) shows paint filling in a concentric band. The [physical iPhone SE capture](prototype-circular-device.png) shows inward settling on iOS 27.2.1.
 
 ## Stats and 50-level campaign
 
