@@ -6,7 +6,7 @@ The [README gameplay table](../../README.md#gameplay) shows both boards revealin
 
 ## Cozy Enamel boards
 
-The [README gameplay table](../../README.md#gameplay) shows both Cozy Enamel boards on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The normal-speed recordings show the highlighted stream meeting the paint surface, then containers clearing and settling. The circular clip also shows alignment beneath the fixed pointer.
+The pre-aphorism [square](prototype-square.png) and [circular](prototype-circular.png) captures show the original Cozy Enamel trays on the iPhone SE third-generation simulator, iOS 27.2. The matching recordings show filling, settling, and alignment beneath the fixed pointer.
 
 ## Circular-first prototype
 
