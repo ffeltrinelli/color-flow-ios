@@ -11,7 +11,10 @@ struct SquareBoardView: View {
     var body: some View {
         let cellSize = (size - CGFloat(model.level.width - 1) * blockGap) / CGFloat(model.level.width)
         return ZStack(alignment: .topLeading) {
-            ForEach(model.engine.remainingBoxes(state: model.presentationState)) { box in
+            BoardAphorism(aphorism: model.aphorism, size: size, revealedFraction: model.revealedFraction,
+                          reducedMotion: reducedMotion)
+                .offset(y: boardHeadroom)
+            ForEach(model.presentedBoxes) { box in
                 let row = model.engine.boxState(id: box.id, state: model.presentationState).row
                 block(box, cellSize: cellSize)
                     .offset(x: CGFloat(box.column) * (cellSize + blockGap),

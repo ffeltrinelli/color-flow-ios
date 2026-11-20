@@ -22,6 +22,8 @@ final class GameModel {
     let levels: [LevelDefinition]
     let store: ProgressStore
     var progress: GameProgress
+    private let aphorismCatalog: AphorismCatalog
+    private(set) var aphorism: Aphorism
     var pour: PourPresentation?
     var consumedDuringPour = 0
     var pourDestination: Cell?
@@ -101,26 +103,41 @@ final class GameModel {
     var busy: Bool { pour != nil }
     var finalLevel: Bool { level.id == levels.count }
     var presentationState: GameState { displayedState ?? progress.state }
+    var presentedBoxes: [BoxDefinition] { engine.remainingBoxes(state: presentationState) }
+    var revealedFraction: Double {
+        let remainingCapacity = presentedBoxes.reduce(0) { $0 + $1.capacity }
+        return 1 - Double(remainingCapacity) / Double(level.width * level.height)
+    }
 
     init() throws {
         levels = try LevelCatalog.load()
+        let catalog = try AphorismCatalog.load()
+        aphorismCatalog = catalog
         solutions = (try? LevelCatalog.solutions()) ?? []
         engines = try levels.map { try PuzzleEngine(level: $0) }
         let environment = ProcessInfo.processInfo.environment
         let testing = environment["COLOR_FLOW_UI_TEST"] == "1"
+        let resetTest = testing && environment["COLOR_FLOW_RESET"] == "1"
         let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let filename = testing ? "UI-Tests/\(environment["COLOR_FLOW_TEST_SESSION"] ?? "default").json" : "progress.json"
         store = ProgressStore(url: directory.appendingPathComponent("ColorFlow/\(filename)"))
-        if testing && environment["COLOR_FLOW_RESET"] == "1" {
+        if resetTest {
             try? FileManager.default.removeItem(at: store.url)
         }
-        progress = store.load(levels: levels)
-        if testing, environment["COLOR_FLOW_RESET"] == "1",
+        var loaded = store.load(levels: levels)
+        if resetTest,
            let levelID = environment["COLOR_FLOW_TEST_LEVEL"].flatMap(Int.init),
            let level = levels.first(where: { $0.id == levelID }) {
-            progress = GameProgress(level: level)
+            loaded = GameProgress(level: level)
+            loaded.aphorismID = environment["COLOR_FLOW_TEST_APHORISM_ID"]
         }
+        let storedAphorism = catalog.entry(id: loaded.aphorismID)
+        let selectedAphorism = storedAphorism ?? catalog.randomEntry(excluding: nil)
+        aphorism = selectedAphorism
+        loaded.aphorismID = selectedAphorism.id
+        progress = loaded
         resetBoardOrientation()
+        if storedAphorism == nil || resetTest { save() }
     }
 
     func take(queue: Int) {
@@ -231,15 +248,19 @@ final class GameModel {
         cancelHint()
         checkpointPlayTime()
         progress.resolveAttempt(.restart, difficulty: level.difficulty)
-        progress.startAttempt(level: level)
-        resetBoardOrientation()
-        save()
+        startAttempt(level: level)
     }
 
     func advance() {
         guard !busy, outcome == .won else { return }
         cancelHint()
-        progress.startAttempt(level: levels[finalLevel ? 0 : progress.levelID])
+        startAttempt(level: levels[finalLevel ? 0 : progress.levelID])
+    }
+
+    private func startAttempt(level: LevelDefinition) {
+        progress.startAttempt(level: level)
+        aphorism = aphorismCatalog.randomEntry(excluding: aphorism.id)
+        progress.aphorismID = aphorism.id
         resetBoardOrientation()
         save()
     }

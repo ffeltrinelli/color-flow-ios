@@ -81,7 +81,7 @@ struct StatisticsTests {
 
     private func legacyData(state: GameState, levelID: Int) throws -> Data {
         struct LegacyProgress: Encodable {
-            let version = 6
+            let version = 7
             let levelID: Int
             let state: GameState
         }
@@ -102,7 +102,7 @@ struct StatisticsTests {
         try withStore { store in
             try legacyData(state: state, levelID: level.id).write(to: store.url)
             var saved = store.load(levels: [level])
-            #expect(saved.version == 6)
+            #expect(saved.version == 7)
             #expect(saved.state == state)
             #expect(!saved.attempt.timingEligible)
             saved.addPlayTime(50)

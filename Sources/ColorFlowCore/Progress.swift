@@ -1,14 +1,15 @@
 import Foundation
 
 public struct GameProgress: Codable, Equatable, Sendable {
-    public var version = 6
+    public var version = 7
     public var levelID: Int
     public var state: GameState
+    public var aphorismID: String?
     public private(set) var statistics = GameStatistics()
     public private(set) var attempt = AttemptProgress()
 
     private enum CodingKeys: String, CodingKey {
-        case version, levelID, state, statistics, attempt, circularEntryLane
+        case version, levelID, state, statistics, attempt, circularEntryLane, aphorismID
     }
 
     public init(from decoder: Decoder) throws {
@@ -16,6 +17,7 @@ public struct GameProgress: Codable, Equatable, Sendable {
         version = try values.decode(Int.self, forKey: .version)
         levelID = try values.decode(Int.self, forKey: .levelID)
         state = try values.decode(GameState.self, forKey: .state)
+        aphorismID = try values.decodeIfPresent(String.self, forKey: .aphorismID)
         if let legacyLane = try values.decodeIfPresent(Int.self, forKey: .circularEntryLane) {
             state.alignedLane = legacyLane
         }
@@ -28,6 +30,7 @@ public struct GameProgress: Codable, Equatable, Sendable {
         try values.encode(version, forKey: .version)
         try values.encode(levelID, forKey: .levelID)
         try values.encode(state, forKey: .state)
+        try values.encodeIfPresent(aphorismID, forKey: .aphorismID)
         try values.encode(statistics, forKey: .statistics)
         try values.encode(attempt, forKey: .attempt)
     }
@@ -58,6 +61,7 @@ public struct GameProgress: Codable, Equatable, Sendable {
     public mutating func startAttempt(level: LevelDefinition) {
         levelID = level.id
         state = GameState(level: level)
+        aphorismID = nil
         attempt = AttemptProgress()
     }
 
@@ -87,12 +91,12 @@ public struct ProgressStore: Sendable {
         guard let data = try? Data(contentsOf: url),
               var progress = try? JSONDecoder().decode(GameProgress.self, from: data)
         else { return GameProgress(level: levels[0]) }
-        if progress.version == 4 || progress.version == 5 {
-            progress.version = 6
+        if (4...6).contains(progress.version) {
+            progress.version = 7
             progress.startAttempt(level: levels[0])
             return progress
         }
-        guard progress.version == 6,
+        guard progress.version == 7,
               let level = levels.first(where: { $0.id == progress.levelID })
         else { return GameProgress(level: levels[0]) }
         guard let engine = try? PuzzleEngine(level: level), engine.validate(state: progress.state) else {

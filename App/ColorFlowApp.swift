@@ -23,7 +23,7 @@ private struct GameRootView: View {
             } else {
                 switch model {
                 case .success(let game): GameView(model: game)
-                case .failure: ContentUnavailableView("Unable to Load Levels", systemImage: "exclamationmark.triangle",
+                case .failure: ContentUnavailableView("Unable to Load Game Content", systemImage: "exclamationmark.triangle",
                                                       description: Text("The game content is damaged. Please reinstall Color Flow."))
                 }
             }

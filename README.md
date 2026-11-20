@@ -1,8 +1,10 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. The ten-level prototype alternates square 10 × 10 boards with circular boards of ten lanes and five bands, starting with a circle. Fill matching containers while managing active buckets and four reserve queues. Full containers disappear; unsupported containers settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed centered pour. Paint inside arcs always forms a concentric band expanding outward from the inner edge, independent of screen gravity.
+An offline iPhone puzzle game for iOS 17+. The 50-level campaign alternates circular boards of ten lanes and five bands with square 10 × 10 boards. Fill matching trays while managing active buckets and four reserve queues. Full trays disappear and uncover an aphorism. Unsupported trays settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed pour pointer.
 
-Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional pending playtesting. Circular searches begin at the lane beneath the fixed pour pointer and continue clockwise, restarting from each newly aligned lane. Version-6 saves preserve settled boards and alignment. Updating from versions 4 or 5 restarts at level one while retaining lifetime statistics.
+The campaign mixes 20 easy, 20 medium, and 10 hard levels. Difficulty is provisional pending playtesting. Version-7 saves preserve the settled board, circular alignment, and current aphorism. Updating from versions 4–6 restarts at level one and retains lifetime statistics.
+
+[Aphorism sources](docs/aphorism-sources.md)
 
 ## Gameplay
 
@@ -89,7 +91,7 @@ xcrun simctl io booted recordVideo /tmp/color-flow.mov
 
 Stop recording with Control-C. UI tests also preserve selected screenshots as test-report attachments.
 
-For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint near a fall, relaunches at normal animation speed, and prints `GAMEPLAY_CAPTURE_READY` after the splash. Start recording at that marker, capture at least 30 seconds, and trim to exactly 30 seconds without changing playback speed. Inspect the screenshot and video, and verify duration with `ffprobe` before replacing the corresponding `docs/evidence/prototype-square.*` or `prototype-circular.*` files.
+For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint with a partially revealed aphorism near a fall and relaunches at normal animation speed. Start recording at `GAMEPLAY_CAPTURE_READY`, then trim to exactly 30 seconds at normal speed. Inspect the screenshot and recording and verify duration with `ffprobe` before updating `docs/evidence/`.
 
 Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.
 
