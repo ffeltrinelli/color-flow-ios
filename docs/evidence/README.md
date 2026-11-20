@@ -1,8 +1,12 @@
 # Visual evidence
 
+## Aphorism reveal
+
+The [README gameplay table](../../README.md#gameplay) shows both boards revealing aphorisms on the iPhone SE (third generation) simulator, iOS 27.2, at 375 × 667 points. The [PR screenshots](https://github.com/ffeltrinelli/color-flow-ios/pull/11) compare the boards and victory panel and show the longest quote at the largest accessibility text size.
+
 ## Cozy Enamel boards
 
-The [README gameplay table](../../README.md#gameplay) shows both Cozy Enamel boards on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). The normal-speed recordings show the highlighted stream meeting the paint surface, then containers clearing and settling. The circular clip also shows alignment beneath the fixed pointer.
+The pre-aphorism [square](prototype-square.png) and [circular](prototype-circular.png) captures show the original Cozy Enamel trays on the iPhone SE third-generation simulator, iOS 27.2. The matching recordings show filling, settling, and alignment beneath the fixed pointer.
 
 ## Circular-first prototype
 

@@ -4,6 +4,7 @@ import SwiftUI
 struct GameView: View {
     @Bindable var model: GameModel
     @Environment(\.accessibilityReduceMotion) private var reducedMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @State private var confirmRestart = false
     @State private var confirmClearStats = false
@@ -233,20 +234,23 @@ struct GameView: View {
             CartoonPanel(title: won ? (model.finalLevel ? "Game Complete!" : "Level Complete!") : "No Moves Left",
                          icon: won ? "star.fill" : "arrow.counterclockwise") {
                 VStack(spacing: 24) {
-                    Text(won ? (model.finalLevel ? "You cleared every paint puzzle!" : "Beautiful pouring! Ready for the next puzzle?") : "A fresh start can open a new path.")
-                        .font(.system(.title3, design: .rounded, weight: .semibold))
-                        .multilineTextAlignment(.center)
                     if won {
+                        AphorismCard(aphorism: model.aphorism, maxHeight: maxHeight * 0.65)
+                            .environment(\.dynamicTypeSize, dynamicTypeSize)
                         Button(model.finalLevel ? "Start Again" : "Next Level") { model.advance() }
                             .buttonStyle(CartoonButtonStyle())
                             .accessibilityIdentifier("advance")
                     } else {
+                        Text("A fresh start can open a new path.")
+                            .font(.system(.title3, design: .rounded, weight: .semibold))
+                            .multilineTextAlignment(.center)
                         Button("Retry") { model.restart() }
                             .buttonStyle(CartoonButtonStyle())
                             .accessibilityIdentifier("retry")
                     }
                 }
             }
+            .dynamicTypeSize(...DynamicTypeSize.accessibility2)
         }
     }
 

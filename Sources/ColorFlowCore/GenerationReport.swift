@@ -1,7 +1,7 @@
 import Foundation
 
 public enum GenerationOrder: String, Codable, Sendable {
-    case progressive, shuffled, authored
+    case progressive, shuffled, authored, shuffledPairs
 }
 
 public struct GenerationBatch: Codable, Equatable, Sendable {
@@ -86,6 +86,11 @@ public struct GenerationReport: Codable, Sendable {
             let group = metrics[(nextID - 1)..<(nextID - 1 + batch.levelCount)]
             if batch.order == .progressive {
                 guard zip(group, group.dropFirst()).allSatisfy({ $0.sampledWins >= $1.sampledWins }) else {
+                    throw GenerationError.invalidConfiguration
+                }
+            }
+            if batch.order == .shuffledPairs {
+                guard group.map(\.profile) == GenerationProfile.mixedCampaign(seed: batch.seed) else {
                     throw GenerationError.invalidConfiguration
                 }
             }

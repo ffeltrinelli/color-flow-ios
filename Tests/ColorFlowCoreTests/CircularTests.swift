@@ -77,10 +77,11 @@ struct CircularTests {
         }
     }
 
-    @Test(arguments: [4, 5]) func legacyCampaignRetainsStatisticsButStartsFresh(version: Int) throws {
+    @Test(arguments: [4, 5, 6]) func legacyCampaignRetainsStatisticsButStartsFresh(version: Int) throws {
         let levels = try TestCatalog.levels()
         var old = GameProgress(level: levels[2])
         old.version = version
+        old.aphorismID = "obsolete-quote"
         old.addPlayTime(12)
         old.resolveAttempt(.victory, difficulty: .hard)
         old.finalizeWinningTime(difficulty: .hard)
@@ -89,13 +90,14 @@ struct CircularTests {
         let store = ProgressStore(url: directory.appendingPathComponent("save.json"))
         try store.save(old)
         let migrated = store.load(levels: levels)
-        #expect(migrated.version == 6)
+        #expect(migrated.version == 7)
         #expect(migrated.levelID == 1)
         #expect(migrated.state == GameState(level: levels[0]))
         #expect(migrated.statistics == old.statistics)
         #expect(migrated.attempt.result == nil)
         #expect(migrated.attempt.elapsedSeconds == 0)
         #expect(migrated.state.alignedLane == 0)
+        #expect(migrated.aphorismID == nil)
     }
 
     @Test func circularSettledStateAndOrientationRestoreAfterInterruptedPresentation() throws {

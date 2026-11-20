@@ -1,0 +1,602 @@
+[
+  {
+    "id": "alexander-pope-a-little-learning-is-a",
+    "text": "A little learning is a dangerous thing.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Criticism"
+  },
+  {
+    "id": "alexander-pope-act-well-your-part-there",
+    "text": "Act well your part—there all the honor lies.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Man"
+  },
+  {
+    "id": "alexander-pope-for-fools-rush-in-where",
+    "text": "For fools rush in where angels fear to tread.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Criticism"
+  },
+  {
+    "id": "alexander-pope-hope-springs-eternal-in-the",
+    "text": "Hope springs eternal in the human breast.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Man"
+  },
+  {
+    "id": "alexander-pope-just-as-the-twig-is",
+    "text": "Just as the twig is bent, the tree’s inclined.",
+    "author": "Alexander Pope",
+    "work": "Moral Essays"
+  },
+  {
+    "id": "alexander-pope-the-proper-study-of-mankind",
+    "text": "The proper study of mankind is man.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Man"
+  },
+  {
+    "id": "alexander-pope-to-err-is-human-to",
+    "text": "To err is human; to forgive, divine.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Criticism"
+  },
+  {
+    "id": "alexander-pope-true-wit-is-nature-to",
+    "text": "True wit is nature to advantage dressed, what oft was thought, but ne’er so well expressed.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Criticism"
+  },
+  {
+    "id": "alexander-pope-virtue-alone-is-happiness-below",
+    "text": "Virtue alone is happiness below.",
+    "author": "Alexander Pope",
+    "work": "An Essay on Man"
+  },
+  {
+    "id": "alfred-tennyson-tis-better-to-have-loved",
+    "text": "’Tis better to have loved and lost than never to have loved at all.",
+    "author": "Alfred Tennyson",
+    "work": "In Memoriam A.H.H."
+  },
+  {
+    "id": "benjamin-franklin-dost-thou-love-life-then",
+    "text": "Dost thou love life, then do not squander time, for that is the stuff life is made of.",
+    "author": "Benjamin Franklin",
+    "work": "Poor Richard’s Almanack"
+  },
+  {
+    "id": "benjamin-franklin-early-to-bed-and-early",
+    "text": "Early to bed, and early to rise, makes a man healthy, wealthy, and wise.",
+    "author": "Benjamin Franklin",
+    "work": "Poor Richard’s Almanack"
+  },
+  {
+    "id": "benjamin-franklin-vessels-large-may-venture-more",
+    "text": "Vessels large may venture more, but little boats should keep near shore.",
+    "author": "Benjamin Franklin",
+    "work": "Poor Richard’s Almanack"
+  },
+  {
+    "id": "edward-bulwer-lytton-the-pen-is-mightier-than",
+    "text": "The pen is mightier than the sword.",
+    "author": "Edward Bulwer-Lytton",
+    "work": "Richelieu"
+  },
+  {
+    "id": "epictetus-it-is-impossible-for-a",
+    "text": "It is impossible for a man to begin to learn that which he thinks that he knows.",
+    "author": "Epictetus",
+    "work": "Discourses"
+  },
+  {
+    "id": "epictetus-what-is-the-first-business",
+    "text": "What is the first business of him who philosophizes? To throw away self-conceit.",
+    "author": "Epictetus",
+    "work": "Discourses"
+  },
+  {
+    "id": "francis-bacon-reading-maketh-a-full-man",
+    "text": "Reading maketh a full man, conference a ready man, and writing an exact man.",
+    "author": "Francis Bacon",
+    "work": "Essays, “Of Studies”"
+  },
+  {
+    "id": "francis-bacon-some-books-are-to-be",
+    "text": "Some books are to be tasted, others to be swallowed, and some few to be chewed and digested.",
+    "author": "Francis Bacon",
+    "work": "Essays, “Of Studies”"
+  },
+  {
+    "id": "frederick-douglass-i-prefer-to-be-true",
+    "text": "I prefer to be true to myself, even at the hazard of incurring the ridicule of others.",
+    "author": "Frederick Douglass",
+    "work": "Narrative of the Life of Frederick Douglass"
+  },
+  {
+    "id": "george-crabbe-be-there-a-will-then",
+    "text": "Be there a will, then wisdom finds a way.",
+    "author": "George Crabbe",
+    "work": "The Birth of Flattery"
+  },
+  {
+    "id": "george-eliot-it-is-a-narrow-mind",
+    "text": "It is a narrow mind which cannot look at a subject from various points of view.",
+    "author": "George Eliot",
+    "work": "Middlemarch"
+  },
+  {
+    "id": "george-eliot-it-is-always-fatal-to",
+    "text": "It is always fatal to have music or poetry interrupted.",
+    "author": "George Eliot",
+    "work": "Middlemarch"
+  },
+  {
+    "id": "george-eliot-one-can-begin-so-many",
+    "text": "One can begin so many things with a new person!",
+    "author": "George Eliot",
+    "work": "Middlemarch"
+  },
+  {
+    "id": "george-eliot-people-are-almost-always-better",
+    "text": "People are almost always better than their neighbors think they are.",
+    "author": "George Eliot",
+    "work": "Middlemarch"
+  },
+  {
+    "id": "george-eliot-the-growing-good-of-the",
+    "text": "The growing good of the world is partly dependent on unhistoric acts.",
+    "author": "George Eliot",
+    "work": "Middlemarch"
+  },
+  {
+    "id": "george-eliot-what-do-we-live-for",
+    "text": "What do we live for, if it is not to make life less difficult to each other?",
+    "author": "George Eliot",
+    "work": "Middlemarch"
+  },
+  {
+    "id": "henry-david-thoreau-a-man-is-rich-in",
+    "text": "A man is rich in proportion to the number of things which he can afford to let alone.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-it-is-never-too-late",
+    "text": "It is never too late to give up our prejudices.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-not-till-we-are-lost",
+    "text": "Not till we are lost, in other words not till we have lost the world, do we begin to find ourselves.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-simplify-simplify",
+    "text": "Simplify, simplify.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-the-cost-of-a-thing",
+    "text": "The cost of a thing is the amount of what I will call life which is required to be exchanged for it.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-the-sun-is-but-a",
+    "text": "The sun is but a morning star.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-the-universe-is-wider-than",
+    "text": "The universe is wider than our views of it.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-things-do-not-change-we",
+    "text": "Things do not change; we change.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "henry-david-thoreau-we-need-the-tonic-of",
+    "text": "We need the tonic of wildness.",
+    "author": "Henry David Thoreau",
+    "work": "Walden"
+  },
+  {
+    "id": "jane-austen-angry-people-are-not-always",
+    "text": "Angry people are not always wise.",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "jane-austen-for-what-do-we-live",
+    "text": "For what do we live, but to make sport for our neighbours, and laugh at them in our turn?",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "jane-austen-none-of-us-expect-to",
+    "text": "None of us expect to be in smooth water all our days.",
+    "author": "Jane Austen",
+    "work": "Persuasion"
+  },
+  {
+    "id": "jane-austen-one-cannot-be-always-laughing",
+    "text": "One cannot be always laughing at a man without now and then stumbling on something witty.",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "jane-austen-one-does-not-love-a",
+    "text": "One does not love a place the less for having suffered in it, unless it has been all suffering, nothing but suffering.",
+    "author": "Jane Austen",
+    "work": "Persuasion"
+  },
+  {
+    "id": "jane-austen-one-mans-ways-may-be",
+    "text": "One man’s ways may be as good as another’s, but we all like our own best.",
+    "author": "Jane Austen",
+    "work": "Persuasion"
+  },
+  {
+    "id": "jane-austen-pride-relates-more-to-our",
+    "text": "Pride relates more to our opinion of ourselves, vanity to what we would have others think of us.",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "jane-austen-there-is-a-stubbornness-about",
+    "text": "There is a stubbornness about me that never can bear to be frightened at the will of others.",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "jane-austen-think-only-of-the-past",
+    "text": "Think only of the past as its remembrance gives you pleasure.",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "jane-austen-till-this-moment-i-never",
+    "text": "Till this moment I never knew myself.",
+    "author": "Jane Austen",
+    "work": "Pride and Prejudice"
+  },
+  {
+    "id": "john-dryden-beware-the-fury-of-a",
+    "text": "Beware the fury of a patient man.",
+    "author": "John Dryden",
+    "work": "Absalom and Achitophel"
+  },
+  {
+    "id": "john-dryden-errors-like-straws-upon-the",
+    "text": "Errors, like straws, upon the surface flow; he who would search for pearls must dive below.",
+    "author": "John Dryden",
+    "work": "All for Love"
+  },
+  {
+    "id": "john-dryden-great-wits-are-sure-to",
+    "text": "Great wits are sure to madness near allied, and thin partitions do their bounds divide.",
+    "author": "John Dryden",
+    "work": "Absalom and Achitophel"
+  },
+  {
+    "id": "john-dryden-men-are-but-children-of",
+    "text": "Men are but children of a larger growth.",
+    "author": "John Dryden",
+    "work": "The Conquest of Granada"
+  },
+  {
+    "id": "john-milton-fame-is-the-spur-that",
+    "text": "Fame is the spur that the clear spirit doth raise.",
+    "author": "John Milton",
+    "work": "Lycidas"
+  },
+  {
+    "id": "john-milton-the-mind-is-its-own",
+    "text": "The mind is its own place, and in itself can make a Heaven of Hell, a Hell of Heaven.",
+    "author": "John Milton",
+    "work": "Paradise Lost"
+  },
+  {
+    "id": "john-milton-they-also-serve-who-only",
+    "text": "They also serve who only stand and wait.",
+    "author": "John Milton",
+    "work": "When I Consider How My Light Is Spent"
+  },
+  {
+    "id": "joseph-addison-tis-not-in-mortals-to",
+    "text": "’Tis not in mortals to command success, but we’ll do more, Sempronius; we’ll deserve it.",
+    "author": "Joseph Addison",
+    "work": "Cato"
+  },
+  {
+    "id": "louisa-may-alcott-be-comforted-dear-soul-there",
+    "text": "Be comforted, dear soul! There is always light behind the clouds.",
+    "author": "Louisa May Alcott",
+    "work": "Little Women"
+  },
+  {
+    "id": "louisa-may-alcott-conceit-spoils-the-finest-genius",
+    "text": "Conceit spoils the finest genius.",
+    "author": "Louisa May Alcott",
+    "work": "Little Women"
+  },
+  {
+    "id": "louisa-may-alcott-have-regular-hours-for-work",
+    "text": "Have regular hours for work and play; make each day both useful and pleasant.",
+    "author": "Louisa May Alcott",
+    "work": "Little Women"
+  },
+  {
+    "id": "louisa-may-alcott-id-rather-take-coffee-than",
+    "text": "I’d rather take coffee than compliments just now.",
+    "author": "Louisa May Alcott",
+    "work": "Little Women"
+  },
+  {
+    "id": "louisa-may-alcott-im-not-afraid-of-storms",
+    "text": "I’m not afraid of storms, for I’m learning how to sail my ship.",
+    "author": "Louisa May Alcott",
+    "work": "Little Women"
+  },
+  {
+    "id": "louisa-may-alcott-love-is-a-great-beautifier",
+    "text": "Love is a great beautifier.",
+    "author": "Louisa May Alcott",
+    "work": "Little Women"
+  },
+  {
+    "id": "marcus-aurelius-everything-is-only-for-a",
+    "text": "Everything is only for a day, both that which remembers and that which is remembered.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "marcus-aurelius-look-within-within-is-the",
+    "text": "Look within. Within is the fountain of good.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "marcus-aurelius-no-longer-talk-at-all",
+    "text": "No longer talk at all about the kind of man that a good man ought to be, but be such.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "marcus-aurelius-that-which-is-not-good",
+    "text": "That which is not good for the swarm, neither is it good for the bee.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "marcus-aurelius-the-art-of-life-is",
+    "text": "The art of life is more like the wrestler’s art than the dancer’s.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "marcus-aurelius-the-best-way-of-avenging",
+    "text": "The best way of avenging thyself is not to become like the wrong-doer.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "marcus-aurelius-the-universe-is-transformation-life",
+    "text": "The universe is transformation: life is opinion.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations"
+  },
+  {
+    "id": "oscar-wilde-all-art-is-quite-useless",
+    "text": "All art is quite useless.",
+    "author": "Oscar Wilde",
+    "work": "The Picture of Dorian Gray"
+  },
+  {
+    "id": "oscar-wilde-nowadays-people-know-the-price",
+    "text": "Nowadays people know the price of everything and the value of nothing.",
+    "author": "Oscar Wilde",
+    "work": "The Picture of Dorian Gray"
+  },
+  {
+    "id": "oscar-wilde-there-is-only-one-thing",
+    "text": "There is only one thing in the world worse than being talked about, and that is not being talked about.",
+    "author": "Oscar Wilde",
+    "work": "The Picture of Dorian Gray"
+  },
+  {
+    "id": "oscar-wilde-to-define-is-to-limit",
+    "text": "To define is to limit.",
+    "author": "Oscar Wilde",
+    "work": "The Picture of Dorian Gray"
+  },
+  {
+    "id": "philip-james-bailey-we-live-in-deeds-not",
+    "text": "We live in deeds, not years; in thoughts, not breaths; in feelings, not in figures on a dial.",
+    "author": "Philip James Bailey",
+    "work": "Festus"
+  },
+  {
+    "id": "robert-burns-but-pleasures-are-like-poppies",
+    "text": "But pleasures are like poppies spread, you seize the flower, its bloom is shed.",
+    "author": "Robert Burns",
+    "work": "Tam o’ Shanter"
+  },
+  {
+    "id": "robert-burns-the-best-laid-schemes-o",
+    "text": "The best laid schemes o’ mice an’ men gang aft a-gley.",
+    "author": "Robert Burns",
+    "work": "To a Mouse"
+  },
+  {
+    "id": "robert-burns-the-rank-is-but-the",
+    "text": "The rank is but the guinea’s stamp, the man’s the gowd for a’ that.",
+    "author": "Robert Burns",
+    "work": "A Man’s a Man for A’ That"
+  },
+  {
+    "id": "samuel-johnson-slow-rises-worth-by-poverty",
+    "text": "Slow rises worth, by poverty depressed.",
+    "author": "Samuel Johnson",
+    "work": "The Vanity of Human Wishes"
+  },
+  {
+    "id": "thomas-gray-full-many-a-flower-is",
+    "text": "Full many a flower is born to blush unseen, and waste its sweetness on the desert air.",
+    "author": "Thomas Gray",
+    "work": "Elegy Written in a Country Churchyard"
+  },
+  {
+    "id": "thomas-gray-where-ignorance-is-bliss-tis",
+    "text": "Where ignorance is bliss, ’Tis folly to be wise.",
+    "author": "Thomas Gray",
+    "work": "Ode on a Distant Prospect of Eton College"
+  },
+  {
+    "id": "william-cowper-a-fool-must-now-and",
+    "text": "A fool must now and then be right, by chance.",
+    "author": "William Cowper",
+    "work": "The Progress of Error"
+  },
+  {
+    "id": "william-cowper-varietys-the-very-spice-of",
+    "text": "Variety’s the very spice of life, that gives it all its flavor.",
+    "author": "William Cowper",
+    "work": "The Task"
+  },
+  {
+    "id": "william-shakespeare-all-that-glisters-is-not",
+    "text": "All that glisters is not gold.",
+    "author": "William Shakespeare",
+    "work": "The Merchant of Venice"
+  },
+  {
+    "id": "william-shakespeare-all-the-worlds-a-stage",
+    "text": "All the world’s a stage, and all the men and women merely players.",
+    "author": "William Shakespeare",
+    "work": "As You Like It"
+  },
+  {
+    "id": "william-shakespeare-brevity-is-the-soul-of",
+    "text": "Brevity is the soul of wit.",
+    "author": "William Shakespeare",
+    "work": "Hamlet"
+  },
+  {
+    "id": "william-shakespeare-give-every-man-thy-ear",
+    "text": "Give every man thy ear, but few thy voice.",
+    "author": "William Shakespeare",
+    "work": "Hamlet"
+  },
+  {
+    "id": "william-shakespeare-he-jests-at-scars-that",
+    "text": "He jests at scars, that never felt a wound.",
+    "author": "William Shakespeare",
+    "work": "Romeo and Juliet"
+  },
+  {
+    "id": "william-shakespeare-how-far-that-little-candle",
+    "text": "How far that little candle throws his beams! So shines a good deed in a naughty world.",
+    "author": "William Shakespeare",
+    "work": "The Merchant of Venice"
+  },
+  {
+    "id": "william-shakespeare-love-looks-not-with-the",
+    "text": "Love looks not with the eyes, but with the mind.",
+    "author": "William Shakespeare",
+    "work": "A Midsummer Night’s Dream"
+  },
+  {
+    "id": "william-shakespeare-one-touch-of-nature-makes",
+    "text": "One touch of nature makes the whole world kin.",
+    "author": "William Shakespeare",
+    "work": "Troilus and Cressida"
+  },
+  {
+    "id": "william-shakespeare-our-doubts-are-traitors-and",
+    "text": "Our doubts are traitors, and make us lose the good we oft might win, by fearing to attempt.",
+    "author": "William Shakespeare",
+    "work": "Measure for Measure"
+  },
+  {
+    "id": "william-shakespeare-some-are-born-great-some",
+    "text": "Some are born great, some achieve greatness, and some have greatness thrust upon them.",
+    "author": "William Shakespeare",
+    "work": "Twelfth Night"
+  },
+  {
+    "id": "william-shakespeare-striving-to-better-oft-we",
+    "text": "Striving to better, oft we mar what’s well.",
+    "author": "William Shakespeare",
+    "work": "King Lear"
+  },
+  {
+    "id": "william-shakespeare-sweet-are-the-uses-of",
+    "text": "Sweet are the uses of adversity.",
+    "author": "William Shakespeare",
+    "work": "As You Like It"
+  },
+  {
+    "id": "william-shakespeare-the-better-part-of-valor",
+    "text": "The better part of valor is discretion.",
+    "author": "William Shakespeare",
+    "work": "Henry IV, Part 1"
+  },
+  {
+    "id": "william-shakespeare-the-course-of-true-love",
+    "text": "The course of true love never did run smooth.",
+    "author": "William Shakespeare",
+    "work": "A Midsummer Night’s Dream"
+  },
+  {
+    "id": "william-shakespeare-the-quality-of-mercy-is",
+    "text": "The quality of mercy is not strained.",
+    "author": "William Shakespeare",
+    "work": "The Merchant of Venice"
+  },
+  {
+    "id": "william-shakespeare-there-are-more-things-in",
+    "text": "There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy.",
+    "author": "William Shakespeare",
+    "work": "Hamlet"
+  },
+  {
+    "id": "william-shakespeare-there-is-a-tide-in",
+    "text": "There is a tide in the affairs of men, which, taken at the flood, leads on to fortune.",
+    "author": "William Shakespeare",
+    "work": "Julius Caesar"
+  },
+  {
+    "id": "william-shakespeare-whats-in-a-name-that",
+    "text": "What’s in a name? That which we call a rose by any other name would smell as sweet.",
+    "author": "William Shakespeare",
+    "work": "Romeo and Juliet"
+  },
+  {
+    "id": "william-wordsworth-that-best-portion-of-a",
+    "text": "That best portion of a good man’s life, his little, nameless, unremembered acts of kindness and of love.",
+    "author": "William Wordsworth",
+    "work": "Lines Composed a Few Miles above Tintern Abbey"
+  },
+  {
+    "id": "william-wordsworth-the-child-is-father-of",
+    "text": "The Child is father of the Man.",
+    "author": "William Wordsworth",
+    "work": "My Heart Leaps Up"
+  },
+  {
+    "id": "william-wordsworth-the-world-is-too-much",
+    "text": "The world is too much with us; late and soon, getting and spending, we lay waste our powers.",
+    "author": "William Wordsworth",
+    "work": "The World Is Too Much with Us"
+  }
+]

@@ -13,8 +13,11 @@ struct CircularBoardView: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
+            BoardAphorism(aphorism: model.aphorism, size: size, revealedFraction: model.revealedFraction,
+                          reducedMotion: reducedMotion)
+                .offset(y: headroom)
             ZStack {
-                ForEach(model.engine.remainingBoxes(state: model.presentationState)) { box in
+                ForEach(model.presentedBoxes) { box in
                     block(box)
                 }
             }

@@ -16,13 +16,21 @@ struct Options {
         while index < arguments.count {
             let flag = arguments[index]
             if flag == "--prototype" {
+                guard order == .progressive else { throw GenerationError.invalidConfiguration }
                 prototype = true
                 order = .authored
                 index += 1
                 continue
             }
             if flag == "--shuffle" {
+                guard order == .progressive else { throw GenerationError.invalidConfiguration }
                 order = .shuffled
+                index += 1
+                continue
+            }
+            if flag == "--mixed-campaign" {
+                guard order == .progressive else { throw GenerationError.invalidConfiguration }
+                order = .shuffledPairs
                 index += 1
                 continue
             }
@@ -47,12 +55,14 @@ struct Options {
         }
         guard reviseFrom == nil || (!prototype && appendFrom == nil && count == nil && difficulty == nil && order == .progressive),
               !prototype || (difficulty == nil && count == nil && appendFrom == nil && order == .authored),
+              order != .shuffledPairs || (difficulty == nil && count == nil && appendFrom == nil),
               difficulty != nil || count == nil || appendFrom != nil,
               appendFrom == nil || (count != nil && difficulty == nil && order == .shuffled) else { throw GenerationError.invalidConfiguration }
     }
 
     func generationProfiles() throws -> [GenerationProfile] {
         if prototype { return GenerationProfile.prototype }
+        if order == .shuffledPairs { return GenerationProfile.mixedCampaign(seed: seed) }
         if appendFrom != nil, let count { return try GenerationProfile.balanced(count: count) }
         guard let difficulty else { return GenerationProfile.campaign }
         let group = GenerationProfile.campaign.filter { $0.difficulty == difficulty }
@@ -103,7 +113,7 @@ struct ExistingCampaign {
 
 func run() throws {
     if CommandLine.arguments.contains("--help") {
-        print("Usage: swift run LevelGenerate [--prototype | --revise-prototype-from DIRECTORY] [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
+        print("Usage: swift run LevelGenerate [--mixed-campaign | --prototype | --revise-prototype-from DIRECTORY] [--seed UINT64] [--difficulty easy|medium|hard --count 3] [--append-from DIRECTORY --count N --shuffle] [--output DIRECTORY]")
         print("Default: a nine-level campaign. Output must be a new directory; copy verified files into Resources explicitly.")
         return
     }
@@ -137,11 +147,11 @@ func run() throws {
         campaign = try LevelGenerator.generate(seed: options.seed, profiles: profiles,
                                                order: options.order, existingLevels: existing.levels)
     }
-    if options.prototype {
+    if options.prototype || options.order == .shuffledPairs {
         let features = try zip(campaign.levels, campaign.solutions).filter { $0.0.boardKind == .circular }
             .map { try PathFeatures(level: $0.0, moves: $0.1) }
         guard features.allSatisfy(\.hasFall), features.contains(where: \.hasPartiallyFilledFall),
-              features.contains(where: \.hasGapPour) else { throw GenerationError.invalidConfiguration }
+              features.contains(where: \.hasGapPour) else { throw GenerationError.missingCircularWitnesses }
     }
     if options.reviseFrom == nil {
         existing.report.batches.append(GenerationBatch(seed: options.seed, firstLevelID: existing.levels.count + 1,

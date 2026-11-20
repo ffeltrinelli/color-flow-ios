@@ -67,6 +67,15 @@ public struct GenerationProfile: Codable, Equatable, Sendable {
         }
     }()
 
+    public static func mixedCampaign(seed: UInt64) -> [GenerationProfile] {
+        let prototypePairs = stride(from: 0, to: prototype.count, by: 2).map {
+            Array(prototype[$0..<($0 + 2)])
+        }
+        let pairs = Array(repeating: prototypePairs, count: 5).flatMap { $0 }
+        var random = LevelRandom(seed: seed)
+        return random.shuffle(pairs).flatMap { $0 }
+    }
+
     public static let campaign: [GenerationProfile] = [
         .init(difficulty: .easy, largeBoxArea: 20),
         .init(difficulty: .easy, largeBoxArea: 24),
@@ -157,7 +166,9 @@ public enum LevelGenerator {
         try validateUnique(existingLevels)
         var fingerprints = try Set(existingLevels.map(fingerprint))
         let orderedProfiles = order == .shuffled ? random.shuffle(profiles) : profiles
-        for profile in orderedProfiles {
+        let lastCircularIndex = orderedProfiles.lastIndex { $0.boardKind == .circular }
+        let requiresCampaignWitnesses = profiles == GenerationProfile.prototype || order == .shuffledPairs
+        for (index, profile) in orderedProfiles.enumerated() {
             let id = existingLevels.count + levels.count + 1
             var accepted = false
             for attempt in 1...attemptLimit {
@@ -172,7 +183,7 @@ public enum LevelGenerator {
                 let features = profile.boardKind == .circular ? try PathFeatures(level: level, moves: moves) : nil
                 if let features {
                     guard features.contains(requiredFeatures) else { continue }
-                    if profiles == GenerationProfile.prototype, profile == profiles.last(where: { $0.boardKind == .circular }) {
+                    if requiresCampaignWitnesses, index == lastCircularIndex {
                         guard circularPartialFall || features.hasPartiallyFilledFall,
                               circularGapPour || features.hasGapPour else { continue }
                     }

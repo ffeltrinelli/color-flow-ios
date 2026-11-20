@@ -3,6 +3,24 @@ import Testing
 @testable import ColorFlowCore
 
 struct GenerationReportTests {
+    @Test func mixedCampaignShufflesMatchingPairsReproducibly() {
+        let profiles = GenerationProfile.mixedCampaign(seed: 17)
+        #expect(profiles == GenerationProfile.mixedCampaign(seed: 17))
+        #expect(profiles != GenerationProfile.mixedCampaign(seed: 18))
+        #expect(profiles.count == 50)
+        #expect(profiles.filter { $0.difficulty == .easy }.count == 20)
+        #expect(profiles.filter { $0.difficulty == .medium }.count == 20)
+        #expect(profiles.filter { $0.difficulty == .hard }.count == 10)
+        for index in stride(from: 0, to: profiles.count, by: 2) {
+            let circular = profiles[index]
+            let square = profiles[index + 1]
+            #expect(circular.boardKind == .circular)
+            #expect(square.boardKind == .square)
+            #expect(circular.difficulty == square.difficulty)
+            #expect(circular.samplingArea == square.samplingArea)
+        }
+    }
+
     @Test func reportAcceptsShuffledDifficultyAndValidatesBatchCoverage() throws {
         let profile = GenerationProfile(difficulty: .easy, largeBoxArea: 20)
         let campaign = try LevelGenerator.generate(seed: 8, profiles: [profile, profile], searchLimit: 500,

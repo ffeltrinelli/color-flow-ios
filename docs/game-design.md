@@ -1,12 +1,12 @@
 # Native gameplay
 
-Color Flow is an offline queue-management puzzle. The prototype replaces the previous campaign with ten fixed levels: circular ten-lane, five-band boards on odd IDs and square 10 × 10 boards on even IDs. Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Easy and medium have three active bucket slots; hard has two. Difficulty labels remain provisional until human playtesting confirms them.
+Color Flow is an offline queue-management puzzle. Its 50 levels alternate circular ten-lane, five-band boards and square 10 × 10 boards, starting with a circle. Pairs share a difficulty and are shuffled across the campaign. There are 20 easy, 20 medium, and 10 hard levels. Easy and medium have three active bucket slots. Hard levels have two. Difficulty labels remain provisional until human playtesting confirms them.
 
 ## Boxes and liquid
 
 Every container has one color and logical dimensions between 1 × 1 and 3 × 3. Capacity equals width times height. On square boards, paint fills from the bottom across the whole interior width: one unit fills a 2 × 2 box to one quarter of its height and a 3 × 3 box to one ninth. Partial fills persist between buckets and game sessions. Full boxes disappear as a whole; boxes never merge or mix colors.
 
-Larger containers occupy square/circular logical cell counts of 20/10, 24/12, 35/18, 40/20, and 50/25 across the five pairs. Square levels include each difficulty's complete shape family; circles sample a subset, including wide arcs. Square boards require 100 paint units and circles 50; supply exactly matches each color's capacity.
+Larger containers occupy square and circular logical cell counts of 20/10, 24/12, 35/18, 40/20, or 50/25, depending on the generation profile. Square levels include each difficulty's complete shape family. Circles sample a subset, including wide arcs. Square boards require 100 paint units and circles 50. Supply exactly matches each color's capacity.
 
 Circular containers are annular sectors: logical width spans lanes and height spans bands. The center hub has one quarter of the board radius. Paint is a concentric band expanding outward from the inner curved edge, with occupied area proportional to the fill ratio, everywhere on the circle. It does not slosh or follow screen gravity. Shrinking containers retain their logical capacity and paint units.
 
@@ -28,7 +28,9 @@ Only the front tin of each of four queues is retrievable; two further tins remai
 
 An empty board wins immediately. Full slots with no available pour lose, even if a blocked color could be recharged. Other non-winning states with no legal retrieval or pour also lose. Paint supply exactly matches each color's total box capacity, so a valid cleared board exhausts all paint.
 
-Progression is linear: victory offers Next Level, defeat offers Retry, and completing level 10 offers Start Again. Retrying an unfinished level from the top-right settings menu requires confirmation. A tilted golden badge shows the current level beside “Level of 10,” with difficulty underneath. Its combined accessibility label reads “Level 6 of 10.” The 44 × 44-point settings button uses a 24-point gear and opens Hint, Stats, and Retry level. Hint uses a yellow bulb; Stats uses a histogram icon. Results use centered cartoon overlays with prominent action buttons. There is no level picker or Exit game control. Blocked buckets display a lock above their artwork, leaving paint quantities visible.
+Victory offers Next Level, defeat offers Retry, and completing level 50 offers Start Again. Retrying an unfinished level from the top-right settings menu requires confirmation. The golden badge identifies the current level and difficulty. Its accessibility label includes the campaign count, for example “Level 6 of 50.” The 44 × 44-point settings button opens Hint, Stats, and Retry level. Blocked buckets display a lock above their artwork, leaving paint quantities visible.
+
+Each attempt draws one aphorism from the bundled catalog, excluding the immediately previous quote. It starts fully hidden. Clearing trays raises the opacity of exposed text in proportion to the logical area cleared. The circular hole follows the same opacity as the rest of the quote. Trays cover letters beneath them at every fill level and while settling. The quote stays upright during rotation. Victory presents the complete quote, author, and work in a cream inset.
 
 ## Authored data and saved state
 
@@ -36,7 +38,7 @@ Progression is linear: victory offers Next Level, defeat offers Retry, and compl
 
 Levels are generated offline with a randomized algorithm and bundled as fixed JSON. Generation and on-demand hints share the solver and the app's engine transitions; neither requires an LLM or network. Stored winning paths cover all levels; stored losing alternatives cover every medium and hard level. See [level generation](level-generation.md). Search size and solution length do not establish human difficulty, and inconclusive searches prove neither solvability nor impossibility.
 
-Save version 6 restores exact settled state, including the aligned lane used by targeting and solver state identity. Version-4 and version-5 saves retain decoded lifetime statistics but restart at level one with a fresh attempt, without recording the discarded attempt as a failure. Unknown/unreadable saves start fresh; invalid version-6 snapshots restart their recorded level while preserving decoded statistics. Retry and level advancement reset orientation to the first lane. Moves and final aligned lane are saved before animation; interruption displays the completed move without replay.
+Save version 7 restores the exact settled state, including the aligned lane and the selected aphorism. Versions 4–6 retain lifetime statistics and start a fresh attempt at level one. The discarded attempt contributes no result. Invalid version-7 board snapshots restart their recorded level and preserve statistics. Retry and level advancement reset orientation to the first lane. The app saves moves and final alignment before animation, so interruption restores the settled result.
 
 Save failures remain visible and offer retry. Completed and lost states survive relaunch.
 

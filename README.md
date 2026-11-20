@@ -1,17 +1,19 @@
 # Color Flow
 
-An offline iPhone puzzle game for iOS 17+. The ten-level prototype alternates square 10 × 10 boards with circular boards of ten lanes and five bands, starting with a circle. Fill matching containers while managing active buckets and four reserve queues. Full containers disappear; unsupported containers settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed centered pour. Paint inside arcs always forms a concentric band expanding outward from the inner edge, independent of screen gravity.
+An offline iPhone puzzle game for iOS 17+. The 50-level campaign alternates circular boards of ten lanes and five bands with square 10 × 10 boards. Fill matching trays while managing active buckets and four reserve queues. Full trays disappear and uncover an aphorism. Unsupported trays settle downward on squares and inward on circles. Circular boards rotate counterclockwise beneath a fixed pour pointer.
 
-Levels 1–4 are easy, 5–8 medium, and 9–10 hard. Difficulty is provisional pending playtesting. Circular searches begin at the lane beneath the fixed pour pointer and continue clockwise, restarting from each newly aligned lane. Version-6 saves preserve settled boards and alignment. Updating from versions 4 or 5 restarts at level one while retaining lifetime statistics.
+The campaign mixes 20 easy, 20 medium, and 10 hard levels. Difficulty is provisional pending playtesting. Version-7 saves preserve the settled board, circular alignment, and current aphorism. Updating from versions 4–6 restarts at level one and retains lifetime statistics.
+
+[Aphorism sources](docs/aphorism-sources.md)
 
 ## Gameplay
 
-Cozy Enamel gameplay captured on the iPhone SE third-generation simulator, iOS 27.2 (375 × 667 points). Both videos contain 30 seconds of normal-speed gameplay. Click play in the table to watch inline on GitHub.
+The aphorism reveal on an iPhone SE (third generation) simulator, iOS 27.2 (375 × 667 points). Each video shows 30 seconds of normal-speed play.
 
 | Board | Gameplay screenshot | Gameplay video |
 | --- | --- | --- |
-| Square | <img src="docs/evidence/prototype-square.png" width="240" alt="Square gameplay"> | <video src="https://github.com/user-attachments/assets/8ff2c919-a3bd-4a24-93f5-2391d37793bd" width="240" controls></video> |
-| Circular | <img src="docs/evidence/prototype-circular.png" width="240" alt="Circular gameplay"> | <video src="https://github.com/user-attachments/assets/b512a62c-d05f-48e4-b67c-3355429b2cc6" width="240" controls></video> |
+| Square | <img src="docs/evidence/aphorism-square.png" width="240" alt="Square board revealing an aphorism"> | <video src="https://github.com/user-attachments/assets/ac551c85-8b0b-455d-9e91-2978329f8dd6" width="240" controls></video> |
+| Circular | <img src="docs/evidence/aphorism-circular.png" width="240" alt="Circular board revealing an aphorism"> | <video src="https://github.com/user-attachments/assets/0d983e05-450a-499d-b64e-def20e6f5606" width="240" controls></video> |
 
 The primary compact-device target is iPhone SE (second generation), including iOS 17.1.1. See the [visual style guide](DESIGN.md), [game design](docs/game-design.md), and [validation status](docs/validation.md).
 
@@ -61,7 +63,7 @@ python3 scripts/run-tests.py --simulator SIMULATOR_UDID --device DEVICE_UDID
 
 The shared scheme uses automatic screenshots: Xcode 27.2 automatic video recording crashes the automation service on iOS 17.1.1. Preserve this setting when changing schemes; capture animation recordings separately.
 
-Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The routine suite covers representative easy/medium/hard layouts, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. Campaign boundary tests check a fresh level one, completing it and advancing to level two, restoring that progress, completing the final level, and starting again with a fresh level one that persists across relaunch. They play only the first and last levels. Stats in Settings shows win percentage and average winning time for each difficulty. Core tests use fixed engine/search fixtures. `LevelCheck` separately audits every published winning path, losing alternative, and generation report.
+Unit tests use Swift Testing; user interface (UI) tests use XCTest and operate the actual app through accessibility controls. The routine suite covers representative easy/medium/hard layouts, rectangular boxes, persistent partial fills, gravity, recharge, read-only board layout, restoration, restart, defeat/retry, animation interaction locking, reduced motion, and the splash on launch and background return. Campaign boundary tests cover levels 1 → 2, 2 → 3, and 50 → 1, including the victory quote and restoration after relaunch. Stats in Settings shows win percentage and average winning time for each difficulty. Core tests use fixed engine/search fixtures. `LevelCheck` separately audits every published winning path, losing alternative, and generation report.
 
 Publish level replacements as a complete generated output set, then run `swift run -c release LevelCheck`. Its default audit replays stored proofs; `--solve` additionally searches for fresh paths, and `--write-solutions` recomputes the winning-path file. Generation metadata must remain consistent. Levels are generated offline; the app uses the same algorithmic solver for on-demand hints. See [level generation](docs/level-generation.md) for randomized generation, reproducible seeds, difficulty profiles, and safe campaign replacement. `python3 scripts/create-project.py` reproducibly updates Xcode target membership if app/test Swift files are added or removed.
 
@@ -89,8 +91,8 @@ xcrun simctl io booted recordVideo /tmp/color-flow.mov
 
 Stop recording with Control-C. UI tests also preserve selected screenshots as test-report attachments.
 
-For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint near a fall, relaunches at normal animation speed, and prints `GAMEPLAY_CAPTURE_READY` after the splash. Start recording at that marker, capture at least 30 seconds, and trim to exactly 30 seconds without changing playback speed. Inspect the screenshot and video, and verify duration with `ffprobe` before replacing the corresponding `docs/evidence/prototype-square.*` or `prototype-circular.*` files.
+For the README table, run `testSquareGameplayMedia` or `testCircularGameplayMedia` from `ColorFlowUITests`. Each prepares an isolated checkpoint with a partially revealed aphorism near a fall and relaunches at normal animation speed. Start recording at `GAMEPLAY_CAPTURE_READY`, then trim to exactly 30 seconds at normal speed. Inspect the screenshot and recording and verify duration with `ffprobe` before updating `docs/evidence/`.
 
 Upload selected evidence to the PR or an accessible artifact location; local filesystem links are not shareable PR evidence. Report capture/upload blockers honestly.
 
-To refresh an inline player, upload the inspected MP4 as a GitHub attachment (for example, `gh pr edit PR_NUMBER --attach docs/evidence/prototype-circular.mp4`), then use its durable `https://github.com/user-attachments/assets/...` URL in the table's video element. Keep the repository MP4 source in sync and verify the rendered README contains a player with controls. Do not save GitHub's temporary signed playback URL. See [GitHub attachment guidance](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli).
+To refresh an inline player, upload the inspected MP4 as a GitHub attachment (for example, `gh pr edit PR_NUMBER --attach docs/evidence/aphorism-circular.mp4`), then use its durable `https://github.com/user-attachments/assets/...` URL in the table's video element. Keep the repository MP4 source in sync and verify the rendered README contains a player with controls. Do not save GitHub's temporary signed playback URL. See [GitHub attachment guidance](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli).
